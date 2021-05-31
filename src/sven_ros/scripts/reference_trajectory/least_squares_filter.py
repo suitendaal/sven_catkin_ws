@@ -7,13 +7,16 @@ from datapoint import *
 class LeastSquaresFilter(Filter):
     """docstring for Filter."""
 
-    def filter(self, data):
+    def filter(self, data, window_length=None):
+        if window_length is None:
+            window_length = self.config.window_length
+
         result = []
         for i in range(len(data)):
-            start = max(0, i + 1 - self.config.window_length)
+            start = max(0, i - window_length)
             end = i + 1
             order = min(end - start - 1, self.config.order)
-            if order < 2:
+            if order == 0:
                 result.append(data[i])
                 continue
             subset = data[start:end]
@@ -36,7 +39,7 @@ class LeastSquaresFilterConfiguration(FilterConfiguration):
     """docstring for FilterConfiguration."""
 
     def __init__(self, window_length=10, order=3):
-        self.window_length = window_length
+        super().__init__(window_length)
         self.order = order
 
 def main():

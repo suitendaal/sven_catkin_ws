@@ -6,12 +6,12 @@ class Filter(object):
     def __init__(self, config):
         self.config = config
 
-    def filter(self, data):
-        pass
+    def filter(self, data, window_length=None):
+        return data
 
 
 class FilterConfiguration(object):
     """docstring for FilterConfiguration."""
 
-    def __init__(self):
-        pass
+    def __init__(self, window_length):
+        self.window_length = window_length
