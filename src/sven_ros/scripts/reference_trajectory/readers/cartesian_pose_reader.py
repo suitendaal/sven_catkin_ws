@@ -1,8 +1,8 @@
 #!/usr/bin/python3
 
-from rosbag_reader import RosbagReader
-from dataset import DataSet
-from datapoint import DataPoint
+from readers.rosbag_reader import RosbagReader
+from datalib.dataset import DataSet
+from datalib.datapoint import DataPoint
 
 class CartesianPoseReader(RosbagReader):
 	"""docstring for CartesianPoseReader."""
@@ -25,7 +25,7 @@ class CartesianPoseReader(RosbagReader):
 		return data
 
 def main():
-	reader = CartesianPoseReader("demo2.bag")
+	reader = CartesianPoseReader("traj6.1_5.bag")
 	data = reader.read()
 	print(data[0][0])
 

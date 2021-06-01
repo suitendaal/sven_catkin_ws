@@ -1,10 +1,11 @@
 #!/usr/bin/python3
 
 import sys
-from datapoint import DataPoint
+from datalib.datapoint import DataPoint
 
 def main():
-    pass
+	d = DataPoint(1,2)
+	print(d)
 
 if __name__ == "__main__":
-    main()
+	main()
