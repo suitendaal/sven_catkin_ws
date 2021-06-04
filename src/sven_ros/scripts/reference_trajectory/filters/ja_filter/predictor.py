@@ -5,12 +5,11 @@ import numpy as np
 class Predictor(object):
     """docstring for Predictor."""
 
-    def __init__(self, config):
-        super(Predictor, self).__init__()
-        self.config = config
+    def __init__(self, **kwargs):
+        self.order = kwargs.get('order',3)
 
     def predict(self, data, window_length, time_step):
-        order = min(len(data) - 1, self.config.order)
+        order = min(len(data) - 1, self.order)
         if order == 0:
             return data[-1].value
 
@@ -27,9 +26,3 @@ class Predictor(object):
             value = value + coef * (time ** (len(coefs) - j - 1))
         return value
 
-class PredictorConfiguration(object):
-    """docstring for PredictorConfiguration."""
-
-    def __init__(self, order=3):
-        super(PredictorConfiguration, self).__init__()
-        self.order = 3

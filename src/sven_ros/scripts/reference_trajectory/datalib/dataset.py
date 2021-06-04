@@ -6,7 +6,7 @@ class DataSet(list):
 	"""docstring for DataSet."""
 
 	def __init__(self, *args, timefactor=1):
-		list.__init__(self, *args)
+		super(DataSet, self).__init__(*args)
 		self.timefactor = timefactor
 		self.starting_time = 0
 		self.aligned = False

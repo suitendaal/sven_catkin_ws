@@ -23,11 +23,3 @@ class CartesianPoseReader(RosbagReader):
 			data.append(DataPoint(timestamp, [x, y, z, a, b, c, d]))
 		return data
 
-def main():
-	reader = CartesianPoseReader("traj6.1_5.bag")
-	data = reader.read()
-	print(data[0][0])
-
-if __name__ == '__main__':
-	main()
-

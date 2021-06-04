@@ -32,20 +32,11 @@ if __name__ == '__main__':
 	joint = int(sys.argv[2])
 	pos_data, vel_data, eff_data = get_data(bagfile,joint)
 	
-	filter_config = LeastSquaresFilterConfiguration(window_length=10, order=3)
-	filter = LeastSquaresFilter(filter_config)
-	
-	vel_config = LeastSquaresVelocityEstimatorConfiguration(window_length=10, order=3)
-	vel_estimator = LeastSquaresVelocityEstimator(vel_config)
-
-	predictor_config = PredictorConfiguration(order=3)
-	predictor = Predictor(predictor_config)
-
-	bounder_config = BounderConfiguration(bound=0.005)
-	bounder = Bounder(bounder_config)
-
-	config = JumpAwareFilterConfiguration(max_window_length=20, time_step=0.01)
-	jafilter = JumpAwareFilter(filter, vel_estimator, predictor, bounder, config)
+	filter = LeastSquaresFilter(window_length=10, order=3)
+	vel_estimator = LeastSquaresVelocityEstimator(window_length=10, order=3)
+	predictor = Predictor(order=3)
+	bounder = Bounder(bound=0.005)
+	jafilter = JumpAwareFilter(filter, vel_estimator, predictor, bounder, max_window_length=20, time_step=0.01)
 
 	filtered_data, vel_estimation, jumping_indexes, info = jafilter.filter(pos_data)
 	predictions = info[0]

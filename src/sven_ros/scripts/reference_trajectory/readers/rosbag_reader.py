@@ -14,7 +14,7 @@ class RosbagReader(object):
 	def read(self, topic=None):
 		if topic is None:
 			topic = self.topic
-		msgs = []
+		msgs = DataSet()
 		bag = rosbag.Bag(self.bagfile)
 		for top, msg, t in bag.read_messages(topics=[topic]):
 			msgs.append(DataPoint(t.secs * 1000000 + int(t.nsecs / 1000), msg))

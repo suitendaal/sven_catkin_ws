@@ -6,16 +6,20 @@ from datalib import *
 
 class LeastSquaresVelocityEstimator(VelocityEstimator):
 	"""docstring for Filter."""
+	
+	def __init__(self, **kwargs):
+		super(LeastSquaresVelocityEstimator, self).__init__(**kwargs)
+		self.order = kwargs.get('order',3)
 
 	def estimate(self, data, window_length=None):
 		if window_length is None:
-			window_length = self.config.window_length
+			window_length = self.window_length
 
 		result = DataSet()
 		for i in range(len(data)):
 			start = max(0, i - window_length)
 			end = i + 1
-			order = min(end - start - 1, self.config.order)
+			order = min(end - start - 1, self.order)
 			if order == 0:
 				result.append(DataPoint(data[i].timestamp, None))
 				continue
@@ -35,19 +39,3 @@ class LeastSquaresVelocityEstimator(VelocityEstimator):
 			result.append(DataPoint(data[i].timestamp, value))
 		return result
 
-
-class LeastSquaresVelocityEstimatorConfiguration(VelocityEstimatorConfiguration):
-	"""docstring for FilterConfiguration."""
-
-	def __init__(self, window_length=10, order=3):
-		super().__init__(window_length)
-		self.order = order
-
-def main():
-	data = [DataPoint(0,1), DataPoint(1,2), DataPoint(2,3), DataPoint(3,4), DataPoint(4,5), DataPoint(5,1), DataPoint(6,2), DataPoint(7,3), DataPoint(8,4), DataPoint(9,5)]
-	config = LeastSquaresVelocityEstimatorConfiguration(window_length=5, order=3)
-	estimator = LeastSquaresVelocityEstimator(config)
-	print(estimator.estimate(data))
-
-if __name__ == '__main__':
-	main()

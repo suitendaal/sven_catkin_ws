@@ -20,11 +20,3 @@ class JointReader(RosbagReader):
 			data.append(DataPoint(timestamp, [pos, vel, eff]))
 		return data
 
-def main():
-	reader = JointReader("demo2.bag",1)
-	data = reader.read()
-	print(data)
-	print(data[0][0])
-
-if __name__ == '__main__':
-	main()
