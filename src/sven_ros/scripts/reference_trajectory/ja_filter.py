@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from readers.joint_reader import JointReader
 from datalib.dataset import DataSet
 from filters.filters.least_squares_filter import *
+from filters.velocity_estimator.least_squares_velocity_estimator import *
 from filters.ja_filter.predictor import *
 from filters.ja_filter.bounder import *
 from filters.ja_filter.jump_aware_filter import *
@@ -35,25 +36,33 @@ if __name__ == '__main__':
 	joint = int(sys.argv[2])
 	pos_data, vel_data, eff_data = get_data(bagfile,joint)
 	
-	filter_config = LeastSquaresFilterConfiguration(window_length=10, order=3)
+	filter_config = LeastSquaresFilterConfiguration(window_length=25, order=3)
 	filter = LeastSquaresFilter(filter_config)
+	
+	vel_config = LeastSquaresVelocityEstimatorConfiguration(window_length=25, order=3)
+	vel_estimator = LeastSquaresVelocityEstimator(vel_config)
 
 	predictor_config = PredictorConfiguration(order=3)
 	predictor = Predictor(predictor_config)
 
-	bounder_config = BounderConfiguration(bound=0.001)
+	bounder_config = BounderConfiguration(bound=0.005)
 	bounder = Bounder(bounder_config)
 
 	config = JumpAwareFilterConfiguration(max_window_length=20, time_step=0.01)
-	jafilter = JumpAwareFilter(filter, predictor, bounder, config)
+	jafilter = JumpAwareFilter(filter, vel_estimator, predictor, bounder, config)
 
-	filtered_data, jumping_indexes, predictions, bounds = jafilter.filter(pos_data)
+	filtered_data, vel_estimation, jumping_indexes, info = jafilter.filter(pos_data)
+	predictions = info[0]
+	bounds = info[1]
 	
 	starting_time = 0
 	if len(jumping_indexes) > 0:
 		starting_time = -filtered_data[jumping_indexes[0]].time
 	
 	plt.figure(1)
+	
+	x0,y0 = (pos_data - filtered_data[0]).get_xy()
+	plt.plot(x0,y0)
 	
 	x1,y1 = (filtered_data - filtered_data[0]).get_xy()
 	plt.plot(x1,y1)
@@ -70,6 +79,9 @@ if __name__ == '__main__':
 	
 	x3,y3 = vel_data.get_xy()
 	plt.plot(x3,y3)
+	
+	x3_1,y3_1 = vel_estimation.get_xy()
+	plt.plot(x3_1,y3_1)
 	
 	vel_jump = DataSet([vel_data[index] for index in jumping_indexes],timefactor=1000000)
 	vel_jump.align_time(starting_time)

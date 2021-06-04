@@ -9,9 +9,10 @@ from filters.ja_filter.bounder import *
 class JumpAwareFilter(object):
 	"""docstring for JumpAwareFilter."""
 
-	def __init__(self, filter, predictor, bounder, config):
+	def __init__(self, filter, velocity_estimator, predictor, bounder, config):
 		super(JumpAwareFilter, self).__init__()
 		self._filter = filter
+		self.velocity_estimator = velocity_estimator
 		self.predictor = predictor
 		self.bounder = bounder
 		self.config = config
@@ -19,6 +20,7 @@ class JumpAwareFilter(object):
 	# Filter the data and predict jumping time indexes
 	def filter(self, data):
 		filtered_data = DataSet(timefactor=data.timefactor)
+		vel_data = DataSet(timefactor=data.timefactor)
 		jumping_indexes = []
 		
 		predictions = DataSet(timefactor=data.timefactor)
@@ -43,6 +45,8 @@ class JumpAwareFilter(object):
 			dataset = data[start:end]
 			filtered_datapoint = self._filter.filter(dataset, window_length)[-1]
 			filtered_data.append(filtered_datapoint)
+			vel_estimation = self.velocity_estimator.estimate(dataset, window_length)[-1]
+			vel_data.append(vel_estimation)
 
 			# Predict next datapoint
 			if window_length > 1:
@@ -56,10 +60,11 @@ class JumpAwareFilter(object):
 		
 		
 		filtered_data.align_time()
+		vel_data.align_time()
 		predictions.align_time()
 		bounds.align_time()
 
-		return filtered_data, jumping_indexes, predictions, bounds
+		return filtered_data, vel_data, jumping_indexes, [predictions, bounds]
 
 class JumpAwareFilterConfiguration(object):
 	"""docstring for JumpAwareFilterConfiguration."""
@@ -74,6 +79,9 @@ def main():
 
 	filter_config = LeastSquaresFilterConfiguration(window_length = 5, order = 3)
 	filter = LeastSquaresFilter(filter_config)
+	
+	vel_config = LeastSquaresVelocityEstimatorConfiguration(window_length = 5, order = 3)
+	vel_estimator = LeastSquaresVelocityEstimator(vel_config)
 
 	predictor_config = PredictorConfiguration(order = 3)
 	predictor = Predictor(predictor_config)
@@ -82,9 +90,9 @@ def main():
 	bounder = Bounder(bounder_config)
 
 	config = JumpAwareFilterConfiguration(max_window_length=10, time_step=1)
-	jafilter = JumpAwareFilter(filter, predictor, bounder, config)
+	jafilter = JumpAwareFilter(filter, vel_estimator, predictor, bounder, config)
 
-	filtered_data, jumping_times = jafilter.filter(data)
+	filtered_data, vel_estimation, jumping_times, info = jafilter.filter(data)
 
 	print(filtered_data)
 	print(jumping_times)
