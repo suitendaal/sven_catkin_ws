@@ -2,13 +2,9 @@
 
 import sys
 import matplotlib.pyplot as plt
-from readers.joint_reader import JointReader
-from datalib.dataset import DataSet
-from filters.filters.least_squares_filter import *
-from filters.velocity_estimator.least_squares_velocity_estimator import *
-from filters.ja_filter.predictor import *
-from filters.ja_filter.bounder import *
-from filters.ja_filter.jump_aware_filter import *
+from readers import *
+from datalib import *
+from filters import *
 
 def get_data(bagfile, joint):
 	reader = JointReader(bagfile,joint)
@@ -36,10 +32,10 @@ if __name__ == '__main__':
 	joint = int(sys.argv[2])
 	pos_data, vel_data, eff_data = get_data(bagfile,joint)
 	
-	filter_config = LeastSquaresFilterConfiguration(window_length=25, order=3)
+	filter_config = LeastSquaresFilterConfiguration(window_length=10, order=3)
 	filter = LeastSquaresFilter(filter_config)
 	
-	vel_config = LeastSquaresVelocityEstimatorConfiguration(window_length=25, order=3)
+	vel_config = LeastSquaresVelocityEstimatorConfiguration(window_length=10, order=3)
 	vel_estimator = LeastSquaresVelocityEstimator(vel_config)
 
 	predictor_config = PredictorConfiguration(order=3)

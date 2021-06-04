@@ -1,9 +1,8 @@
 #!/usr/bin/python3
 
 import numpy as np
-from filters.filters.filter import *
-from datalib.datapoint import DataPoint
-from datalib.dataset import DataSet
+from .filter import *
+from datalib import *
 
 class LeastSquaresFilter(Filter):
 	"""docstring for Filter."""

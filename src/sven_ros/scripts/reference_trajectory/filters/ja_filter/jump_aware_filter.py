@@ -1,10 +1,7 @@
 #!/usr/bin/python3
 
-from datalib.datapoint import DataPoint
-from datalib.dataset import DataSet
-from filters.filters.least_squares_filter import *
-from filters.ja_filter.predictor import *
-from filters.ja_filter.bounder import *
+from datalib import *
+from filters import *
 
 class JumpAwareFilter(object):
 	"""docstring for JumpAwareFilter."""

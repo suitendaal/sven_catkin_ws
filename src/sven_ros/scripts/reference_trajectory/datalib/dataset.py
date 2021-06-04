@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from datalib.datapoint import DataPoint
+from .datapoint import DataPoint
 
 class DataSet(list):
 	"""docstring for DataSet."""

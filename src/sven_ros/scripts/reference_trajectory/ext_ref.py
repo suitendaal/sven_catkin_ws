@@ -2,27 +2,24 @@
 
 import sys
 import matplotlib.pyplot as plt
-from datalib.dataset import DataSet
-from datalib.datapoint import DataPoint
-from filters.filters.least_squares_filter import *
-from filters.velocity_estimator.least_squares_velocity_estimator import *
+from datalib import *
+from filters import *
+from trajectory import *
 
 if __name__ == '__main__':
-	data = DataSet([DataPoint(0,1), DataPoint(1,2), DataPoint(2,3), DataPoint(3,4), DataPoint(4,5), DataPoint(5,1), DataPoint(6,2), DataPoint(7,3), DataPoint(8,4), DataPoint(9,5)])
-	
-	filter_config = LeastSquaresFilterConfiguration(window_length = 5, order = 3)
-	filter = LeastSquaresFilter(filter_config)
-	filtered_data = filter.filter(data)
-	plt.figure(1)
-	x0,y0 = data.get_xy()
-	plt.plot(x0,y0)
-	x1,y1 = filtered_data.get_xy()
-	plt.plot(x1,y1)
+	data = DataSet([DataPoint(0,1), DataPoint(1,2), DataPoint(2,3), DataPoint(3,4), DataPoint(4,5), DataPoint(5,6), DataPoint(6,7), DataPoint(7,8), DataPoint(8,9), DataPoint(9,10)])
 	
 	vel_config = LeastSquaresVelocityEstimatorConfiguration(window_length=5, order=3)
 	estimator = LeastSquaresVelocityEstimator(vel_config)
-	vel_data = estimator.estimate(data)
-	plt.figure(2)
-	x2,y2 = vel_data.get_xy()
-	plt.plot(x2,y2)
+	
+	extender_config = ConstantVelocityExtenderConfiguration(estimator, timesteps=3, delta_time=1)
+	extender = ConstantVelocityExtender(extender_config)
+	
+	extended_data = extender.extend(data) + 0.1
+	
+	x0,y0 = data.get_xy()
+	x1,y1 = extended_data.get_xy()
+	plt.plot(x0,y0)
+	plt.plot(x1,y1)
 	plt.show()
+	

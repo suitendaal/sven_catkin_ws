@@ -1,9 +1,8 @@
 #!/usr/bin/python3
 
 import numpy as np
-from filters.velocity_estimator.velocity_estimator import *
-from datalib.datapoint import DataPoint
-from datalib.dataset import DataSet
+from .velocity_estimator import *
+from datalib import *
 
 class LeastSquaresVelocityEstimator(VelocityEstimator):
 	"""docstring for Filter."""

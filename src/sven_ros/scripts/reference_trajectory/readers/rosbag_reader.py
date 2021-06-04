@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 import rosbag
-from datalib.datapoint import DataPoint
+from datalib import *
 
 class RosbagReader(object):
 	"""docstring for RosbagReader."""

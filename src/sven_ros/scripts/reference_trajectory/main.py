@@ -1,11 +1,10 @@
 #!/usr/bin/python3
 
 import sys
-from datalib.datapoint import DataPoint
+from filters import *
 
 def main():
-	d = DataPoint(1,2)
-	print(d)
+	j = JumpAwareFilter([], [], [], [], [])
 
 if __name__ == "__main__":
 	main()

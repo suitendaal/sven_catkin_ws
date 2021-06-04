@@ -2,9 +2,8 @@
 
 import sys
 import matplotlib.pyplot as plt
-from datalib.datapoint import DataPoint
-from datalib.dataset import DataSet
-from readers.joint_reader import JointReader
+from datalib import *
+from readers import *
 
 def main(bagfile):
 	pos_data = []

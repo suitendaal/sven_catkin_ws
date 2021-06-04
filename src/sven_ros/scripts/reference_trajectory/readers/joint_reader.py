@@ -1,8 +1,7 @@
 #!/usr/bin/python3
 
-from readers.rosbag_reader import RosbagReader
-from datalib.dataset import DataSet
-from datalib.datapoint import DataPoint
+from .rosbag_reader import RosbagReader
+from datalib import *
 
 class JointReader(RosbagReader):
 	"""docstring for JointReader."""

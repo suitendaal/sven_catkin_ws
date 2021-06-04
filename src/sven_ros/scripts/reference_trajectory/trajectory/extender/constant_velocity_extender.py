@@ -1,19 +1,27 @@
 #!/usr/bin/python3
 
-from datalib.dataset import DataSet
-from datalib.datapoint import DataPoint
+from datalib import *
+from .extender import *
 
-class TrajectoryExtender(object):
+class ConstantVelocityExtender(TrajectoryExtender):
 	"""docstring for TrajectoryExtender."""
 
-	def __init__(self, config):
-		self.config = config
-
-	def extend_const_vel(self, trajectory):
+	def extend(self, trajectory):
 		result = DataSet(timefactor=trajectory.timefactor)
-		vel_data = self.config.velocity_estimator(trajectory)
-		vel_start = vel_data[0]
-		vel_end = vel_data[-1]
+		vel_data = self.config.velocity_estimator.estimate(trajectory)
+		
+		vel_start = 0
+		vel_end = 0
+		i = 0
+		for i in range(len(vel_data)):
+			if vel_data[i].value is not None:
+				vel_start = vel_data[i].value
+				break
+		
+		for i in range(len(vel_data)):
+			if vel_data[-i-1].value is not None:
+				vel_end = vel_data[i].value
+				break
 		
 		for i in range(self.config.timesteps):
 			timestamp = trajectory[0].timestamp - (self.config.timesteps - i) * self.config.delta_time * trajectory.timefactor
@@ -28,10 +36,14 @@ class TrajectoryExtender(object):
 			value = trajectory[-1].value + (i+1) * self.config.delta_time * vel_start
 			result.append(DataPoint(timestamp, value))
 			
-		result.align_time(trajectory[0].time)
+		result.align_time(trajectory[0].time - result[0].time)
 
 		return result
-
-def main():
+		
+class ConstantVelocityExtenderConfiguration(TrajectoryExtenderConfiguration):
 	
+	def __init__(self, velocity_estimator, timesteps=10, delta_time=0.1):
+		super().__init__(timesteps, delta_time)
+		self.velocity_estimator = velocity_estimator
+		
 	
