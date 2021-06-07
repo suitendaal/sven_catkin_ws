@@ -10,16 +10,24 @@ class DataPoint(object):
 		self.value = value
 
 	def __neg__(self):
-		result = DataPoint(self.timestamp, -self.value)
+		if self.value is None:
+			result = DataPoint(self.timestamp, None)
+		else:
+			result = DataPoint(self.timestamp, -self.value)
 		result.time = self.time
 		return result
 
 	def __add__(self, x):
+		if x is None:
+			return None
 		result = DataPoint(self.timestamp, self.value)
 		result.time = self.time
 		if self.value is not None:
 			if isinstance (x, DataPoint):
-				result.value = self.value + x.value
+				if x.value is None:
+					result.value = None
+				else:
+					result.value = self.value + x.value
 			else:
 				result.value = self.value + x
 		return result
@@ -66,6 +74,19 @@ class DataPoint(object):
 
 	def __repr__(self):
 		return str(self)
+		
+	def __abs__(self):
+		if self.value is None:
+			result = DataPoint(self.timestamp, None)
+		else:
+			result = DataPoint(self.timestamp, abs(self.value))
+		result.time = self.time
+		return result
+		
+	def mean(self):
+		result = DataPoint(self.timestamp, mean(self.value))
+		result.time = self.time
+		return result
 
 def main():
 	a = DataPoint(0,4)

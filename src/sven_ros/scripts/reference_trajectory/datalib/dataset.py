@@ -11,19 +11,44 @@ class DataSet(list):
 		self.starting_time = 0
 		self.aligned = False
 		for item in self:
-			item.time = (item.timestamp - (super().__getitem__(0).timestamp if self.aligned else 0)) / self.timefactor - self.starting_time		
-
-	def __add__(self, x):
+			item.time = (item.timestamp - (super().__getitem__(0).timestamp if self.aligned else 0)) / self.timefactor - self.starting_time	
+			
+	def __neg__(self):
 		result = DataSet()
 		for datapoint in self:
 			if datapoint is None:
 				result.append(None)
 			else:
-				result.append(datapoint + x)
+				result.append(-datapoint)
+		return result	
+
+	def __add__(self, x):
+		result = DataSet()
+		if isinstance (x, DataSet):
+			if len(x) == len(self):
+				for i in range(len(self)):
+					if self[i] is None:
+						result.append(None)
+					else:
+						result.append(self[i] + x[i])
+			else:
+				return None
+		else:
+			for datapoint in self:
+				if datapoint is None:
+					result.append(None)
+				else:
+					result.append(datapoint + x)
 		return result
 
 	def __sub__(self, x):
 		return self.__add__(-x)
+		
+	def __abs__(self):
+		result = DataSet()
+		for datapoint in self:
+			result.append(abs(datapoint))
+		return result
 
 	def __setitem__(self, index, item):
 		item.time = (item.timestamp - (super().__getitem__(0).timestamp if self.aligned else 0)) / self.timefactor - self.starting_time
@@ -34,14 +59,22 @@ class DataSet(list):
 		self.aligned = True
 		for item in self:
 			item.time = (item.timestamp - (super().__getitem__(0).timestamp if self.aligned else 0)) / self.timefactor - self.starting_time
+		return self
 
 	def get_xy(self):
+		return self.time(), self.values()
+		
+	def time(self):
 		x = []
-		y = []
 		for datapoint in self:
 			x.append(datapoint.time)
+		return x
+	
+	def values(self):
+		y = []
+		for datapoint in self:
 			y.append(datapoint.value)
-		return x, y
+		return y
 
 
 def main():

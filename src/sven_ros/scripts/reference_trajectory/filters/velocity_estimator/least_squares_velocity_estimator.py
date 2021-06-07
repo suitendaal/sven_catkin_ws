@@ -11,7 +11,7 @@ class LeastSquaresVelocityEstimator(VelocityEstimator):
 		super(LeastSquaresVelocityEstimator, self).__init__(**kwargs)
 		self.order = kwargs.get('order',3)
 
-	def estimate(self, data, window_length=None):
+	def estimate(self, data, window_length=None, **kwargs):
 		if window_length is None:
 			window_length = self.window_length
 

@@ -6,3 +6,6 @@ class BasisFunction(object):
 	def __init__(self, **kwargs):
 		pass
 
+	def evaluate(self, time, **kwargs):
+		return None
+

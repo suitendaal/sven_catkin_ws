@@ -8,7 +8,7 @@ class Predictor(object):
     def __init__(self, **kwargs):
         self.order = kwargs.get('order',3)
 
-    def predict(self, data, window_length, time_step):
+    def predict(self, data, window_length, time_step, **kwargs):
         order = min(len(data) - 1, self.order)
         if order == 0:
             return data[-1].value
