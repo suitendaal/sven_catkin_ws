@@ -36,7 +36,7 @@ if __name__ == '__main__':
 	filter = LeastSquaresFilter(window_length=20, order=3)
 	vel_estimator = LeastSquaresVelocityEstimator(window_length=20, order=3)
 	predictor = Predictor(order=3)
-	bounder = Bounder(bound=0.005)
+	bounder = Bounder(bound=0.01)
 	jafilter = JumpAwareFilter(filter, vel_estimator, predictor, bounder, max_window_length=20, time_step=0.01)
 
 	filtered_data, vel_estimation, jumping_indexes, info = jafilter.filter(pos_data)
@@ -48,9 +48,13 @@ if __name__ == '__main__':
 		starting_time = -filtered_data[jumping_indexes[0]].time
 		
 	xlim = [4.9, 5.7]
+	fontsize1 = 20
+	fontsize2 = 16
 	
 	## Plot position data, filtered data and predictions
-	fig1 = plt.figure(1)
+	fig1 = plt.figure(1,figsize=(16, 12), dpi=80)
+	plt.rcParams['xtick.labelsize']=fontsize2
+	plt.rcParams['ytick.labelsize']=fontsize2
 	
 	# Position data
 	x0,y0 = (pos_data - filtered_data[0]).get_xy()
@@ -70,14 +74,16 @@ if __name__ == '__main__':
 	plt.plot(x2,y2,'C3*',markersize=10)
 	
 	# Adding title and labels
-	plt.title('Joint ' + str(joint) + ': Position')
-	plt.xlabel('Time [s]')
-	plt.ylabel('Position [rad]')
-	plt.legend(['Encoder','Filtered','Predicted','Jumps'])
+	plt.title('Joint ' + str(joint) + ': Position',fontsize=fontsize1)
+	plt.xlabel('Time [s]',fontsize=fontsize2)
+	plt.ylabel('Position [rad]',fontsize=fontsize2)
+	plt.legend(['Encoder','Filtered','Predicted','Jumps'],fontsize=fontsize2)
 	plt.xlim(xlim)
 	
 	## Plot difference between prediction and encoder data
-	plt.figure(2)
+	plt.figure(2,figsize=(16, 12), dpi=80)
+	plt.rcParams['xtick.labelsize']=fontsize2
+	plt.rcParams['ytick.labelsize']=fontsize2
 	
 	# Difference between prediction and encoder data
 	x3,y3 = (abs(pos_data - predictions)).get_xy()
@@ -92,14 +98,16 @@ if __name__ == '__main__':
 	plt.plot(x5,y5,'C3*',markersize=10)
 	
 	# Adding title and labels
-	plt.title('Joint ' + str(joint) + ': Absolute difference between measurement and prediction')
-	plt.xlabel('Time [s]')
-	plt.ylabel('Difference [rad]')
-	plt.legend(['Difference','Bound','Jumps'])
+	plt.title('Joint ' + str(joint) + ': Absolute difference between measurement and prediction',fontsize=fontsize1)
+	plt.xlabel('Time [s]',fontsize=fontsize2)
+	plt.ylabel('Difference [rad]',fontsize=fontsize2)
+	plt.legend(['Difference','Bound','Jumps'],fontsize=fontsize2)
 	plt.xlim(xlim)
 	
 	## Plot velocity data
-	plt.figure(3)
+	plt.figure(3,figsize=(16, 12), dpi=80)
+	plt.rcParams['xtick.labelsize']=fontsize2
+	plt.rcParams['ytick.labelsize']=fontsize2
 	
 	# Velocity data
 	x6,y6 = vel_data.get_xy()
@@ -114,10 +122,10 @@ if __name__ == '__main__':
 	plt.plot(x8,y8,'C3*',markersize=10)
 	
 	# Adding title and labels
-	plt.title('Joint ' + str(joint) + ': Velocity')
-	plt.xlabel('Time [s]')
-	plt.ylabel('Velocity [rad/s]')
-	plt.legend(['Encoder','Estimation','Jumps'])
+	plt.title('Joint ' + str(joint) + ': Velocity',fontsize=fontsize1)
+	plt.xlabel('Time [s]',fontsize=fontsize2)
+	plt.ylabel('Velocity [rad/s]',fontsize=fontsize2)
+	plt.legend(['Encoder','Estimation','Jumps'],fontsize=fontsize2)
 	plt.xlim(xlim)
 	
 #	plt.figure(3)

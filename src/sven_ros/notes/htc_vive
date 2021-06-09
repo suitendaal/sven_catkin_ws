@@ -1,0 +1,249 @@
+Message voorbeeld:
+
+header: 
+  seq: 8842
+  stamp: 
+    secs: 1622624908
+    nsecs: 710738408
+  frame_id: "world_vive"
+twist: 
+  linear: 
+    x: -0.00632671127096
+    y: -0.00037431428791
+    z: 0.00873567443341
+  angular: 
+    x: 0.0045322412625
+    y: 0.00164829660207
+    z: 0.000339347519912
+---
+
+Het kan verschillen welk topic het is. Het kan zijn /vive/twist1, /vive/twist2, /vive/twist3 of /vive/twist4
+
+Het lijkt erop dat hij met 30Hz uitzendt. Ook wordt de verbinding soms even verbroken, maar ik denk dat dit op te lossen is door de base stations hoog te hangen.
+Een aantal berichten achter elkaar:
+
+header: 
+  seq: 8829
+  stamp: 
+    secs: 1622624908
+    nsecs: 277398414
+  frame_id: "world_vive"
+twist: 
+  linear: 
+    x: -0.0119309257716
+    y: -0.00812476314604
+    z: 0.0202128384262
+  angular: 
+    x: 0.00141519145109
+    y: -5.41562039871e-05
+    z: -0.00194745732006
+---
+header: 
+  seq: 8830
+  stamp: 
+    secs: 1622624908
+    nsecs: 310793803
+  frame_id: "world_vive"
+twist: 
+  linear: 
+    x: -0.0120392777026
+    y: -0.00947822537273
+    z: 0.0214772541076
+  angular: 
+    x: -0.0158723965287
+    y: -0.00156981195323
+    z: -0.00892711244524
+---
+header: 
+  seq: 8831
+  stamp: 
+    secs: 1622624908
+    nsecs: 343961679
+  frame_id: "world_vive"
+twist: 
+  linear: 
+    x: -0.011322340928
+    y: -0.00125371781178
+    z: 0.0105791380629
+  angular: 
+    x: 0.0149454167113
+    y: -0.000814345548861
+    z: 0.00971516780555
+---
+header: 
+  seq: 8832
+  stamp: 
+    secs: 1622624908
+    nsecs: 377348351
+  frame_id: "world_vive"
+twist: 
+  linear: 
+    x: -0.00644970545545
+    y: -0.00153596315067
+    z: 0.01070981659
+  angular: 
+    x: -0.0132604502141
+    y: -0.00129776692484
+    z: -0.0111270444468
+---
+header: 
+  seq: 8833
+  stamp: 
+    secs: 1622624908
+    nsecs: 410823977
+  frame_id: "world_vive"
+twist: 
+  linear: 
+    x: -0.00627871928737
+    y: -0.00323814433068
+    z: 0.0122240427881
+  angular: 
+    x: -0.00239763897844
+    y: 0.000445587415015
+    z: -0.0019696848467
+---
+header: 
+  seq: 8834
+  stamp: 
+    secs: 1622624908
+    nsecs: 444098846
+  frame_id: "world_vive"
+twist: 
+  linear: 
+    x: -0.00857162568718
+    y: -0.00260386615992
+    z: 0.00919972825795
+  angular: 
+    x: 0.00937129557133
+    y: -0.000941330101341
+    z: 0.00584049057215
+---
+header: 
+  seq: 8835
+  stamp: 
+    secs: 1622624908
+    nsecs: 477381419
+  frame_id: "world_vive"
+twist: 
+  linear: 
+    x: -0.00565450172871
+    y: -0.00174909585621
+    z: 0.0090802134946
+  angular: 
+    x: -0.00490083638579
+    y: -0.000118186959298
+    z: -0.00253761396743
+---
+header: 
+  seq: 8836
+  stamp: 
+    secs: 1622624908
+    nsecs: 510753683
+  frame_id: "world_vive"
+twist: 
+  linear: 
+    x: -0.00571418646723
+    y: -0.00201572640799
+    z: 0.0110910860822
+  angular: 
+    x: -0.0128770573065
+    y: 0.000594286888372
+    z: -0.0105416337028
+---
+header: 
+  seq: 8837
+  stamp: 
+    secs: 1622624908
+    nsecs: 543880286
+  frame_id: "world_vive"
+twist: 
+  linear: 
+    x: -0.00774435326457
+    y: -0.00263152038679
+    z: 0.00838998798281
+  angular: 
+    x: 0.00951279141009
+    y: -0.00127911043819
+    z: 0.00319302314892
+---
+header: 
+  seq: 8838
+  stamp: 
+    secs: 1622624908
+    nsecs: 577377055
+  frame_id: "world_vive"
+twist: 
+  linear: 
+    x: -0.00581223843619
+    y: -0.0031768323388
+    z: 0.00807119440287
+  angular: 
+    x: 0.0121998153627
+    y: 0.000231267928029
+    z: 0.00405541434884
+---
+header: 
+  seq: 8839
+  stamp: 
+    secs: 1622624908
+    nsecs: 610823409
+  frame_id: "world_vive"
+twist: 
+  linear: 
+    x: -0.00455013429746
+    y: -0.00100587215275
+    z: 0.00789115298539
+  angular: 
+    x: -0.0101172784343
+    y: 0.000554588797968
+    z: -0.00868366565555
+---
+header: 
+  seq: 8840
+  stamp: 
+    secs: 1622624908
+    nsecs: 644067458
+  frame_id: "world_vive"
+twist: 
+  linear: 
+    x: -0.0042015183717
+    y: -0.00154728314374
+    z: 0.00974544789642
+  angular: 
+    x: -0.000157550020958
+    y: 0.00136638863478
+    z: -0.0029534723144
+---
+header: 
+  seq: 8841
+  stamp: 
+    secs: 1622624908
+    nsecs: 677537475
+  frame_id: "world_vive"
+twist: 
+  linear: 
+    x: -0.0051598045975
+    y: -0.000608109810855
+    z: 0.0104940794408
+  angular: 
+    x: 0.0106929074973
+    y: -0.000951729540247
+    z: 0.0079633994028
+---
+header: 
+  seq: 8842
+  stamp: 
+    secs: 1622624908
+    nsecs: 710738408
+  frame_id: "world_vive"
+twist: 
+  linear: 
+    x: -0.00632671127096
+    y: -0.00037431428791
+    z: 0.00873567443341
+  angular: 
+    x: 0.0045322412625
+    y: 0.00164829660207
+    z: 0.000339347519912
+---
+

@@ -83,6 +83,11 @@ class DataPoint(object):
 		result.time = self.time
 		return result
 		
+	def copy(self):
+		result = DataPoint(self.timestamp, self.value)
+		result.time = self.time
+		return result
+		
 	def mean(self):
 		result = DataPoint(self.timestamp, mean(self.value))
 		result.time = self.time
