@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+import functools
 from datalib import *
 from filters import *
 
@@ -23,6 +24,9 @@ class JumpAwareFilter(object):
 		
 		predictions = DataSet(timefactor=data.timefactor)
 		bounds = DataSet(timefactor=data.timefactor)
+		
+		prediction_functions = DataSet(timefactor=data.timefactor)
+		bound_functions = DataSet(timefactor=data.timefactor)
 
 		window_length = 0
 		prediction = None
@@ -32,15 +36,24 @@ class JumpAwareFilter(object):
 
 		for i in range(len(data)):
 			if i > 0:
-				time_step = data[i].time - data[i-1].time
+				time = data[i].time
 				if prediction_fun is not None:
-					prediction = prediction_fun(time_step)
+					prediction, pred_info = prediction_fun(time)
 				else:
 					prediction = None
 				if bound_fun is not None:
-					bound = bound_fun(time_step)
+					bound, bound_info = bound_fun(time)
 				else:
 					bound = None
+			
+			if prediction_fun is not None:
+				prediction_functions.append(FunctionPoint(data[i].timestamp, prediction_fun))
+			else:
+				prediction_functions.append(FunctionPoint(data[i].timestamp, None))
+			if bound_fun is not None:
+				bound_functions.append(FunctionPoint(data[i].timestamp, bound_fun))
+			else:
+				bound_functions.append(FunctionPoint(data[i].timestamp, None))
 		
 			predictions.append(DataPoint(data[i].timestamp, prediction))
 			bounds.append(DataPoint(data[i].timestamp, bound))
@@ -53,16 +66,16 @@ class JumpAwareFilter(object):
 			# Filter the data
 			start = max(0, i - window_length)
 			end = i + 1
-			dataset = data[start:end]
-			filtered_datapoint = self._filter.filter(dataset, window_length)[-1]
+			dataset = data[start:end].copy()
+			filtered_datapoint = self._filter.filter(dataset, window_length)[0][-1]
 			filtered_data.append(filtered_datapoint)
-			vel_estimation = self.velocity_estimator.estimate(dataset, window_length)[-1]
+			vel_estimation = self.velocity_estimator.estimate(dataset, window_length)[0][-1]
 			vel_data.append(vel_estimation)
 
 			# Predict next datapoint
 			if window_length > 1:
-				prediction_fun = lambda time_step : self.predictor.predict(dataset, window_length, time_step)
-				bound_fun = lambda time_step : self.bounder.calc_bound(dataset, window_length, time_step)
+				prediction_fun = functools.partial(self.predictor.predict, dataset.copy(), window_length)
+				bound_fun = functools.partial(self.bounder.calc_bound, dataset.copy(), window_length)
 			else:
 				prediction_fun = None
 				bound_fun = None
@@ -74,6 +87,8 @@ class JumpAwareFilter(object):
 		vel_data.align_time()
 		predictions.align_time()
 		bounds.align_time()
+		prediction_functions.align_time()
+		bound_functions.align_time()
 
-		return filtered_data, vel_data, jumping_indexes, [predictions, bounds]
+		return filtered_data, vel_data, jumping_indexes, [predictions, bounds, prediction_functions, bound_functions]
 

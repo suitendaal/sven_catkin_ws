@@ -53,6 +53,11 @@ class DataSet(list):
 	def __setitem__(self, index, item):
 		item.time = (item.timestamp - (super().__getitem__(0).timestamp if self.aligned else 0)) / self.timefactor - self.starting_time
 		return super().__setitem__(index, item)
+		
+	def copy(self):
+		result = DataSet()
+		for i in self:
+			result.append(i.copy())
 
 	def align_time(self, starting_time=0):
 		self.starting_time = starting_time

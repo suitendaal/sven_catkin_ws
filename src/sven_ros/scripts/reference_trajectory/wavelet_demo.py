@@ -35,11 +35,18 @@ if __name__ == '__main__':
 	pos_data, vel_data, eff_data = get_data(bagfile,joint)
 	
 	t = pos_data.time()
-	sig = pos_data.values()
-	widths = np.arange(1, 31)
+	sig = vel_data.values()
+	widths = np.arange(1, 51)
 	cwtmatr = signal.cwt(sig, signal.ricker, widths)
 	
-	print(cwtmatr.shape)
-
-	plt.imshow(cwtmatr, extent=[t[0], t[-1], 1, 31], cmap='PRGn', aspect='auto',vmax=abs(cwtmatr).max(), vmin=-abs(cwtmatr).max())
+#	plt.figure(2,figsize=(16, 12), dpi=80)
+#	plt.imshow(cwtmatr, extent=[t[0], t[-1], 1, 51], cmap='PRGn', aspect='auto',vmax=abs(cwtmatr).max(), vmin=-abs(cwtmatr).max())
+#	plt.show()
+	
+	points = 100
+	a = 4.0
+	vec2 = wavelet(points, a)
+	print(vec2.shape)
+	plt.plot(vec2)
 	plt.show()
+

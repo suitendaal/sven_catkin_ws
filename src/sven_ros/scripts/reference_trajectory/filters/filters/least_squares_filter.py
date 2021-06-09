@@ -16,6 +16,7 @@ class LeastSquaresFilter(Filter):
 			window_length = self.window_length
 
 		result = DataSet()
+		coefs_list = []
 		for i in range(len(data)):
 			start = max(0, i - window_length)
 			end = i + 1
@@ -36,5 +37,6 @@ class LeastSquaresFilter(Filter):
 				coef = coefs[j]
 				value = value + coef * (time ** (len(coefs) - j - 1))
 			result.append(DataPoint(data[i].timestamp, value))
-		return result
+			coefs_list.append(coefs)
+		return result, [coefs_list]
 

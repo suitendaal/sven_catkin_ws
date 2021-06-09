@@ -11,5 +11,5 @@ class VelocityEstimator():
 		self.window_length = kwargs.get('window_length',10)		
 
 	def estimate(self, data, **kwargs):
-		return None
+		return None, []
 

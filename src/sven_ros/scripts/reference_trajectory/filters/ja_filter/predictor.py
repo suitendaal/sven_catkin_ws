@@ -8,7 +8,7 @@ class Predictor(object):
     def __init__(self, **kwargs):
         self.order = kwargs.get('order',3)
 
-    def predict(self, data, window_length, time_step, **kwargs):
+    def predict(self, data, window_length, time, **kwargs):
         order = min(len(data) - 1, self.order)
         if order == 0:
             return data[-1].value
@@ -20,9 +20,9 @@ class Predictor(object):
             y.append(j.value)
         coefs = np.polyfit(x, y, order)
         value = 0
-        time = data[-1].time + time_step
         for j in range(len(coefs)):
             coef = coefs[j]
             value = value + coef * (time ** (len(coefs) - j - 1))
-        return value
+        #print("Coefs: ",coefs)
+        return value, [coefs]
 

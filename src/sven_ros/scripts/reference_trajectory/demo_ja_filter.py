@@ -47,7 +47,8 @@ if __name__ == '__main__':
 	if len(jumping_indexes) > 0:
 		starting_time = -filtered_data[jumping_indexes[0]].time
 		
-	xlim = [4.9, 5.7]
+	#xlim = [4.9, 5.7]
+	xlim = [pos_data[0].time, pos_data[-1].time]
 	fontsize1 = 20
 	fontsize2 = 16
 	

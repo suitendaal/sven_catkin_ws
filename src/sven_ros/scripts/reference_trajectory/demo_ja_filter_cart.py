@@ -35,12 +35,22 @@ if __name__ == '__main__':
 	filter = LeastSquaresFilter(window_length=20, order=3)
 	vel_estimator = LeastSquaresVelocityEstimator(window_length=20, order=3)
 	predictor = Predictor(order=3)
-	bounder = Bounder(bound=0.001)
+	bounder = Bounder(bound=0.0015)
 	jafilter = JumpAwareFilter(filter, vel_estimator, predictor, bounder, max_window_length=20, time_step=0.01)
 
 	filtered_data, vel_estimation, jumping_indexes, info = jafilter.filter(pos_data)
 	predictions = info[0]
 	bounds = info[1]
+	prediction_functions = info[2]
+	bound_functions = info[3]
+	
+	predictions2 = DataSet()
+	for i in prediction_functions:
+		predictions2.append(i.evaluate()[0])
+		
+	bounds2 = DataSet()
+	for i in bound_functions:
+		bounds2.append(i.evaluate()[0])
 	
 	starting_time = 0
 	starting_time1 = 0
@@ -48,7 +58,7 @@ if __name__ == '__main__':
 		starting_time = -filtered_data[jumping_indexes[0]].time
 		starting_time1 = -filtered_data[jumping_indexes[0]-1].time
 		
-	xlim = [5.3, 5.4]
+	xlim = [pos_data[0].time, pos_data[-1].time]
 	ylim = [-0.145, -0.125]
 	fontsize1 = 20
 	fontsize2 = 16
@@ -68,7 +78,7 @@ if __name__ == '__main__':
 	
 	# Predicted data
 	x11,y11 = (predictions - filtered_data[0]).get_xy()
-	plt.plot(x11,y11,'C2-',linewidth=2)
+	plt.plot(x11,y11,'C2-*',linewidth=2)
 	
 	# Jump times
 	pos_jump = DataSet([filtered_data[index].copy() for index in jumping_indexes],timefactor=1000000).align_time(starting_time)
@@ -81,7 +91,7 @@ if __name__ == '__main__':
 	plt.ylabel('Position [m]',fontsize=fontsize2)
 	plt.legend(['Encoder','Filtered','Predicted','Jumps'],fontsize=fontsize2)
 	plt.xlim(xlim)
-	plt.ylim(ylim)
+	#plt.ylim(ylim)
 	
 	## Plot difference between prediction and encoder data
 	plt.figure(2,figsize=(16, 12), dpi=80)
@@ -131,10 +141,13 @@ if __name__ == '__main__':
 	plt.legend(['Estimation','Jumps'],fontsize=fontsize2)
 	plt.xlim(xlim)
 	
-#	plt.figure(3)
-#	
-#	x5,y5 = eff_data.get_xy()
-#	plt.plot(x5,y5)
+	plt.figure(4)
+
+	x9,y9 = (predictions2 - filtered_data[0]).get_xy()
+	x10,y10 = bounds2.get_xy()
+#	plt.plot(x10,y10)
+	plt.plot(x9,y9)
+	plt.plot(x11,y11)
 #	
 #	eff_jump = DataSet([eff_data[index] for index in jumping_indexes],timefactor=1000000)
 #	eff_jump.align_time(starting_time)
