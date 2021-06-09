@@ -26,9 +26,22 @@ class JumpAwareFilter(object):
 
 		window_length = 0
 		prediction = None
+		prediction_fun = None
 		bound = None
+		bound_fun = None
 
 		for i in range(len(data)):
+			if i > 0:
+				time_step = data[i].time - data[i-1].time
+				if prediction_fun is not None:
+					prediction = prediction_fun(time_step)
+				else:
+					prediction = None
+				if bound_fun is not None:
+					bound = bound_fun(time_step)
+				else:
+					bound = None
+		
 			predictions.append(DataPoint(data[i].timestamp, prediction))
 			bounds.append(DataPoint(data[i].timestamp, bound))
 		
@@ -48,11 +61,11 @@ class JumpAwareFilter(object):
 
 			# Predict next datapoint
 			if window_length > 1:
-				prediction = self.predictor.predict(dataset, window_length, self.time_step)
-				bound = self.bounder.calc_bound(dataset, window_length, self.time_step)
+				prediction_fun = lambda time_step : self.predictor.predict(dataset, window_length, time_step)
+				bound_fun = lambda time_step : self.bounder.calc_bound(dataset, window_length, time_step)
 			else:
-				prediction = None
-				bound = None
+				prediction_fun = None
+				bound_fun = None
 
 			window_length = min(window_length + 1, self.max_window_length)
 		

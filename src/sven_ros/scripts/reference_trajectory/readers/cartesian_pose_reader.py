@@ -6,8 +6,8 @@ from datalib import *
 class CartesianPoseReader(RosbagReader):
 	"""docstring for CartesianPoseReader."""
 
-	def __init__(self, bagfile):
-		super(CartesianPoseReader, self).__init__(bagfile, "/cartesian_pose")
+	def __init__(self, bagfile, **kwargs):
+		super(CartesianPoseReader, self).__init__(bagfile, topic="/cartesian_pose", **kwargs)
 
 	def read(self):
 		data = DataSet()

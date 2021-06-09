@@ -6,8 +6,8 @@ from datalib import *
 class JointReader(RosbagReader):
 	"""docstring for JointReader."""
 
-	def __init__(self, bagfile, joint=1):
-		super(JointReader, self).__init__(bagfile, "/joint_states")
+	def __init__(self, bagfile, joint=1, **kwargs):
+		super(JointReader, self).__init__(bagfile, topic="/joint_states", **kwargs)
 		self.joint = joint
 
 	def read(self):

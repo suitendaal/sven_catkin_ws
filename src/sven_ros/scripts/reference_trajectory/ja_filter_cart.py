@@ -24,31 +24,30 @@ def get_data(bagfile, joint):
 	joint_eff_data.align_time()
 	return joint_pos_data, joint_vel_data, joint_eff_data
 	
-def get_cartesian_data(bagfile, joint):
+def get_cartesian_data(bagfile):
 	reader = CartesianPoseReader(bagfile)
-	joint_data = reader.read()
-	joint_pos_data = DataSet(timefactor=1000000)
-	joint_vel_data = DataSet(timefactor=1000000)
-	joint_eff_data = DataSet(timefactor=1000000)
+	data = reader.read()
+	x_data = DataSet(timefactor=1000000)
+	y_data = DataSet(timefactor=1000000)
+	z_data = DataSet(timefactor=1000000)
 
 	# Position data is index 0 of each datapoint
-	for datapoint in joint_data:
-		joint_pos_data.append(datapoint[0])
-		joint_vel_data.append(datapoint[1])
-		joint_eff_data.append(datapoint[2])
+	for datapoint in data:
+		x_data.append(datapoint[0])
+		y_data.append(datapoint[1])
+		z_data.append(datapoint[2])
 		
-	joint_pos_data.align_time()
-	joint_vel_data.align_time()
-	joint_eff_data.align_time()
-	return joint_pos_data, joint_vel_data, joint_eff_data
+	x_data.align_time()
+	y_data.align_time()
+	z_data.align_time()
+	return x_data, y_data, z_data
 	
 if __name__ == '__main__':
-	if len(sys.argv) != 3:
-		print("Usage: ja_filter.py <bagfile> <joint>")
+	if len(sys.argv) != 2:
+		print("Usage: ja_filter.py <bagfile>")
 		exit(1)
 	bagfile = sys.argv[1]
-	joint = int(sys.argv[2])
-	pos_data, vel_data, eff_data = get_data(bagfile,joint)
+	x_data, y_data, z_data = get_cartesian_data(bagfile)
 	
 	filter = LeastSquaresFilter(window_length=10, order=3)
 	vel_estimator = LeastSquaresVelocityEstimator(window_length=10, order=3)
@@ -56,7 +55,7 @@ if __name__ == '__main__':
 	bounder = Bounder(bound=0.005)
 	jafilter = JumpAwareFilter(filter, vel_estimator, predictor, bounder, max_window_length=20, time_step=0.01)
 
-	filtered_data, vel_estimation, jumping_indexes, info = jafilter.filter(pos_data)
+	filtered_data, vel_estimation, jumping_indexes, info = jafilter.filter(x_data)
 	predictions = info[0]
 	bounds = info[1]
 	
@@ -66,7 +65,7 @@ if __name__ == '__main__':
 	
 	plt.figure(1)
 	
-	x0,y0 = (pos_data - filtered_data[0]).get_xy()
+	x0,y0 = (x_data - filtered_data[0]).get_xy()
 	plt.plot(x0,y0)
 	
 	x1,y1 = (filtered_data - filtered_data[0]).get_xy()
@@ -82,8 +81,8 @@ if __name__ == '__main__':
 	
 	plt.figure(2)
 	
-	x3,y3 = vel_data.get_xy()
-	plt.plot(x3,y3)
+#	x3,y3 = vel_data.get_xy()
+#	plt.plot(x3,y3)
 	
 	x3_1,y3_1 = vel_estimation.get_xy()
 	plt.plot(x3_1,y3_1)
@@ -95,13 +94,13 @@ if __name__ == '__main__':
 	
 	plt.figure(3)
 	
-	x5,y5 = eff_data.get_xy()
-	plt.plot(x5,y5)
-	
-	eff_jump = DataSet([eff_data[index] for index in jumping_indexes],timefactor=1000000)
-	eff_jump.align_time(starting_time)
-	x6,y6 = eff_jump.get_xy()
-	plt.plot(x6,y6,'*')
+#	x5,y5 = eff_data.get_xy()
+#	plt.plot(x5,y5)
+#	
+#	eff_jump = DataSet([eff_data[index] for index in jumping_indexes],timefactor=1000000)
+#	eff_jump.align_time(starting_time)
+#	x6,y6 = eff_jump.get_xy()
+#	plt.plot(x6,y6,'*')
 	
 	plt.show()
 	
