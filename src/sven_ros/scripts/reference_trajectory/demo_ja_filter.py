@@ -18,7 +18,7 @@ if __name__ == '__main__':
 	filter = LeastSquaresFilter(window_length=20, order=3)
 	vel_estimator = LeastSquaresVelocityEstimator(window_length=20, order=3)
 	predictor = Predictor(order=3)
-	bounder = Bounder(bound=0.01)
+	bounder = Bounder(bound=0.008)
 	jafilter = JumpAwareFilter(filter, vel_estimator, predictor, bounder, max_window_length=20, time_step=0.01)
 
 	filtered_data, vel_estimation, jumping_indexes, info = jafilter.filter(pos_data)
@@ -93,7 +93,7 @@ if __name__ == '__main__':
 	plt.rcParams['ytick.labelsize']=fontsize2
 	
 	# Velocity data
-	x6,y6 = vel_data.get_xy()
+	x6,y6 = pos_data.diff().get_xy()
 	plt.plot(x6,y6,'C0-',linewidth=2)
 	
 	# Estimated velocity
@@ -101,14 +101,14 @@ if __name__ == '__main__':
 	plt.plot(x7,y7,'C1-',linewidth=2)
 	
 	# Jumping times
-	x8,y8 = DataSet([vel_data[index] for index in jumping_indexes],timefactor=1000000).align_time(starting_time).get_xy()
+	x8,y8 = DataSet([vel_estimation[index-1] for index in jumping_indexes],timefactor=1000000).align_time(starting_time).get_xy()
 	plt.plot(x8,y8,'C3*',markersize=10)
 	
 	# Adding title and labels
 	plt.title('Joint ' + str(joint) + ': Velocity',fontsize=fontsize1)
 	plt.xlabel('Time [s]',fontsize=fontsize2)
 	plt.ylabel('Velocity [rad/s]',fontsize=fontsize2)
-	plt.legend(['Encoder','Estimation','Jumps'],fontsize=fontsize2)
+	plt.legend(['Euler differentiation','Estimation','Jumps'],fontsize=fontsize2)
 	plt.xlim(xlim)
 	
 #	plt.figure(3)
