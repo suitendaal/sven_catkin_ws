@@ -80,6 +80,20 @@ class DataSet(list):
 		for datapoint in self:
 			y.append(datapoint.value)
 		return y
+		
+	# Euler differentiation. This assumes datapoints are in chronological order of time.
+	def diff(self):
+		result = DataSet(timefactor=self.timefactor)
+		for i in range(1,len(self)):
+			if self[i].value is not None and self[i-1].value is not None:
+				value = (self[i].value - self[i-1].value) / (self[i].time - self[i-1].time)
+			else:
+				value = None
+			timestamp = self[i-1].timestamp + (self[i].timestamp - self[i-1].timestamp) / 2
+			result.append(DataPoint(timestamp,value))
+		if len(result) > 1:
+			result.align_time(-(self[1].time - self[0].time) / 2)
+		return result
 
 
 def main():

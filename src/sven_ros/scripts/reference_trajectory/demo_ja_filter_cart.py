@@ -4,33 +4,14 @@ import sys
 import matplotlib.pyplot as plt
 from readers import *
 from datalib import *
-from filters import *
-
-def get_data(bagfile):
-	reader = CartesianPoseReader(bagfile)
-	data = reader.read()
-	x_data = DataSet(timefactor=1000000)
-	y_data = DataSet(timefactor=1000000)
-	z_data = DataSet(timefactor=1000000)
-
-	# Position data is index 0 of each datapoint
-	for datapoint in data:
-		x_data.append(datapoint[0])
-		y_data.append(datapoint[1])
-		z_data.append(datapoint[2])
-		
-	x_data.align_time()
-	y_data.align_time()
-	z_data.align_time()
-	return x_data, y_data, z_data
-	
+from filters import *	
 	
 if __name__ == '__main__':
 	if len(sys.argv) != 2:
 		print("Usage: ja_filter.py <bagfile>")
 		exit(1)
 	bagfile = sys.argv[1]
-	x_data, y_data, pos_data = get_data(bagfile)
+	x_data, y_data, pos_data, quat_data = get_cartesian_data(bagfile)
 	
 	filter = LeastSquaresFilter(window_length=20, order=3)
 	vel_estimator = LeastSquaresVelocityEstimator(window_length=20, order=3)
@@ -125,6 +106,9 @@ if __name__ == '__main__':
 #	# Velocity data
 #	x6,y6 = vel_data.get_xy()
 #	plt.plot(x6,y6,'C0-',linewidth=2)
+	x6,y6 = pos_data.diff().get_xy()
+	plt.plot(x6,y6)
+	print(x6[0])
 	
 	# Estimated velocity
 	x7,y7 = vel_estimation.get_xy()
@@ -138,7 +122,7 @@ if __name__ == '__main__':
 	plt.title('Z direction: Velocity',fontsize=fontsize1)
 	plt.xlabel('Time [s]',fontsize=fontsize2)
 	plt.ylabel('Velocity [m/s]',fontsize=fontsize2)
-	plt.legend(['Estimation','Jumps'],fontsize=fontsize2)
+	plt.legend(['Euler differentiation','Estimation','Jumps'],fontsize=fontsize2)
 	plt.xlim(xlim)
 	
 	plt.figure(4)

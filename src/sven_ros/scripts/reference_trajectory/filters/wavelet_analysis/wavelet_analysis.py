@@ -1,8 +1,9 @@
 #!/usr/bin/python3
 
 import numpy as np
+#import pywt
 from datalib import *
-from trajectory import RadialBasisFunction as RBF
+#from trajectory import RadialBasisFunction as RBF
 
 def wavelet(points, a):
 	order = 2
