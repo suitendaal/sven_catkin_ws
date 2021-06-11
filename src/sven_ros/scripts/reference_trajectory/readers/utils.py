@@ -5,47 +5,40 @@ from . import *
 def get_cartesian_data(bagfile):
 	reader = CartesianPoseReader(bagfile)
 	data = reader.read()
-	x_data = DataSet(timefactor=1000000)
-	y_data = DataSet(timefactor=1000000)
-	z_data = DataSet(timefactor=1000000)
-	a_data = DataSet(timefactor=1000000)
-	b_data = DataSet(timefactor=1000000)
-	c_data = DataSet(timefactor=1000000)
-	d_data = DataSet(timefactor=1000000)
-
-	# Position data is index 0 of each datapoint
-	for datapoint in data:
-		x_data.append(datapoint[0])
-		y_data.append(datapoint[1])
-		z_data.append(datapoint[2])
-		a_data.append(datapoint[3])
-		b_data.append(datapoint[4])
-		c_data.append(datapoint[5])
-		d_data.append(datapoint[6])
+	
+	# [x,y,z,q1,q2,q3,q4]
+	datasets = get_datasets(data,7)
 		
-	x_data.align_time()
-	y_data.align_time()
-	z_data.align_time()
-	a_data.align_time()
-	b_data.align_time()
-	c_data.align_time()
-	d_data.align_time()
-	return x_data, y_data, z_data, [a_data, b_data, c_data, d_data]
+	# [x,y,z,q]
+	return datasets[0], datasets[1], datasets[2], datasets[3:7]
 	
 def get_joint_data(bagfile, joint):
 	reader = JointReader(bagfile,joint)
-	joint_data = reader.read()
-	joint_pos_data = DataSet(timefactor=1000000)
-	joint_vel_data = DataSet(timefactor=1000000)
-	joint_eff_data = DataSet(timefactor=1000000)
+	data = reader.read()
+	
+	# [x,v,tau]
+	datasets = get_datasets(data,3)
+	
+	return datasets[0], datasets[1], datasets[2]
+	
+def get_datasets(data, num):
+	datasets = []
+	time_compensations = []
+	
+	for i in range(num):
+		datasets.append(DataSet(timefactor=1000000))
+		time_compensations.append(0)
 
-	# Position data is index 0 of each datapoint
-	for datapoint in joint_data:
-		joint_pos_data.append(datapoint[0])
-		joint_vel_data.append(datapoint[1])
-		joint_eff_data.append(datapoint[2])
+	for i in range(len(data)):
+		for j in range(len(datasets)):
+			if i == 0 or data[i][j].value != data[i-1][j].value:
+				datapoint = data[i][j].copy()
+				datapoint.timestamp = data[i].timestamp - time_compensations[j]
+				datasets[j].append(datapoint)
+			else:
+				time_compensations[j] = time_compensations[j] + data[i].timestamp - data[i-1].timestamp
 		
-	joint_pos_data.align_time()
-	joint_vel_data.align_time()
-	joint_eff_data.align_time()
-	return joint_pos_data, joint_vel_data, joint_eff_data
+	for i in range(len(datasets)):
+		datasets[i].align_time()
+	
+	return datasets

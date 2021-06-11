@@ -5,24 +5,6 @@ import matplotlib.pyplot as plt
 from readers import *
 from datalib import *
 from filters import *
-
-def get_data(bagfile, joint):
-	reader = JointReader(bagfile,joint)
-	joint_data = reader.read()
-	joint_pos_data = DataSet(timefactor=1000000)
-	joint_vel_data = DataSet(timefactor=1000000)
-	joint_eff_data = DataSet(timefactor=1000000)
-
-	# Position data is index 0 of each datapoint
-	for datapoint in joint_data:
-		joint_pos_data.append(datapoint[0])
-		joint_vel_data.append(datapoint[1])
-		joint_eff_data.append(datapoint[2])
-		
-	joint_pos_data.align_time()
-	joint_vel_data.align_time()
-	joint_eff_data.align_time()
-	return joint_pos_data, joint_vel_data, joint_eff_data
 	
 	
 if __name__ == '__main__':
@@ -31,7 +13,7 @@ if __name__ == '__main__':
 		exit(1)
 	bagfile = sys.argv[1]
 	joint = int(sys.argv[2])
-	pos_data, vel_data, eff_data = get_data(bagfile,joint)
+	pos_data, vel_data, eff_data = get_joint_data(bagfile,joint)
 	
 	filter = LeastSquaresFilter(window_length=20, order=3)
 	vel_estimator = LeastSquaresVelocityEstimator(window_length=20, order=3)
