@@ -17,17 +17,20 @@ if __name__ == '__main__':
 	
 	filter = LeastSquaresFilter(window_length=20, order=3)
 	vel_estimator = LeastSquaresVelocityEstimator(window_length=20, order=3)
-	predictor = Predictor(order=3)
-	bounder = Bounder(bound=0.008)
-	jafilter = JumpAwareFilter(filter, vel_estimator, predictor, bounder, max_window_length=20, time_step=0.01)
+	predictor = WeightedPredictor(order=3)
+	bounder = BaseBounder(bound=0.02)
+	jafilter = JumpAwareFilter(filter, vel_estimator, predictor, bounder, max_window_length=20)
 
 	filtered_data, vel_estimation, jumping_indexes, info = jafilter.filter(pos_data)
 	predictions = info[0]
 	bounds = info[1]
 	
 	starting_time = 0
+	starting_time2 = 0
 	if len(jumping_indexes) > 0:
 		starting_time = -filtered_data[jumping_indexes[0]].time
+		starting_time2 = -filtered_data[jumping_indexes[0]-1].time
+		print(starting_time)
 		
 	#xlim = [4.9, 5.7]
 	xlim = [pos_data[0].time, pos_data[-1].time]
@@ -101,7 +104,7 @@ if __name__ == '__main__':
 	plt.plot(x7,y7,'C1-',linewidth=2)
 	
 	# Jumping times
-	x8,y8 = DataSet([vel_estimation[index-1] for index in jumping_indexes],timefactor=1000000).align_time(starting_time).get_xy()
+	x8,y8 = DataSet([vel_estimation[index-1] for index in jumping_indexes],timefactor=1000000).align_time(starting_time2).get_xy()
 	plt.plot(x8,y8,'C3*',markersize=10)
 	
 	# Adding title and labels

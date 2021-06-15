@@ -2,29 +2,10 @@
 
 import sys
 import matplotlib.pyplot as plt
-from scipy import signal
+import pywt
 from readers import *
 from datalib import *
 from filters import *
-
-def get_data(bagfile, joint):
-	reader = JointReader(bagfile,joint)
-	joint_data = reader.read()
-	joint_pos_data = DataSet(timefactor=1000000)
-	joint_vel_data = DataSet(timefactor=1000000)
-	joint_eff_data = DataSet(timefactor=1000000)
-
-	# Position data is index 0 of each datapoint
-	for datapoint in joint_data:
-		joint_pos_data.append(datapoint[0])
-		joint_vel_data.append(datapoint[1])
-		joint_eff_data.append(datapoint[2])
-		
-	joint_pos_data.align_time()
-	joint_vel_data.align_time()
-	joint_eff_data.align_time()
-	return joint_pos_data, joint_vel_data, joint_eff_data
-	
 	
 if __name__ == '__main__':
 	if len(sys.argv) != 3:
@@ -32,21 +13,24 @@ if __name__ == '__main__':
 		exit(1)
 	bagfile = sys.argv[1]
 	joint = int(sys.argv[2])
-	pos_data, vel_data, eff_data = get_data(bagfile,joint)
+	pos_data, vel_data, eff_data = get_joint_data(bagfile,joint)
 	
 	t = pos_data.time()
-	sig = vel_data.values()
-	widths = np.arange(1, 51)
-	cwtmatr = signal.cwt(sig, signal.ricker, widths)
+	sig = pos_data.values()
+	widths = np.arange(1, 6)
+	cwtmatr, freqs = pywt.cwt(sig, widths, 'gaus1', sampling_period=0.01, method='conv')
+	cwtmatr *= 1 / (widths[:,None] ** 0.5)
 	
-#	plt.figure(2,figsize=(16, 12), dpi=80)
-#	plt.imshow(cwtmatr, extent=[t[0], t[-1], 1, 51], cmap='PRGn', aspect='auto',vmax=abs(cwtmatr).max(), vmin=-abs(cwtmatr).max())
-#	plt.show()
+	plt.figure(1,figsize=(16, 12), dpi=80)
+	plt.imshow(cwtmatr, extent=[t[0], t[-1], widths[-1], widths[0]], cmap='PRGn', aspect='auto', vmax=abs(cwtmatr[:60,100:700]).max(), vmin=-abs(cwtmatr[:60,100:700]).max())
 	
-	points = 100
-	a = 4.0
-	vec2 = wavelet(points, a)
-	print(vec2.shape)
-	plt.plot(vec2)
+	plt.figure(2,figsize=(16, 12), dpi=80)
+	plt.plot(t,cwtmatr[0,:] * -1000 / freqs[0])
+	plt.plot(vel_data.time(),vel_data.values())
+	plt.ylim([-5,5])
+	plt.legend(['Wavelet','Velocity'])
+	
+	print(freqs)
+	
 	plt.show()
 

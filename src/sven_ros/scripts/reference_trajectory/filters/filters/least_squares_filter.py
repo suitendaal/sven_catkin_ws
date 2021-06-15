@@ -10,6 +10,9 @@ class LeastSquaresFilter(Filter):
 	def __init__(self, **kwargs):
 		super(LeastSquaresFilter, self).__init__(**kwargs)
 		self.order = kwargs.get('order',3)
+		
+	def copy(self):
+		return LeastSquaresFilter(window_length=self.window_length, order=self.order)
 
 	def filter(self, data, window_length=None):
 		if window_length is None:

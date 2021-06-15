@@ -15,8 +15,8 @@ if __name__ == '__main__':
 	
 	filter = LeastSquaresFilter(window_length=20, order=3)
 	vel_estimator = LeastSquaresVelocityEstimator(window_length=20, order=3)
-	predictor = Predictor(order=3)
-	bounder = Bounder(bound=0.0015)
+	predictor = BasePredictor(order=3)
+	bounder = BaseBounder(bound=0.0015)
 	jafilter = JumpAwareFilter(filter, vel_estimator, predictor, bounder, max_window_length=20, time_step=0.01)
 
 	filtered_data, vel_estimation, jumping_indexes, info = jafilter.filter(pos_data)

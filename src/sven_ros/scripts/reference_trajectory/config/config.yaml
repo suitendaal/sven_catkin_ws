@@ -1,0 +1,69 @@
+---
+demos:
+  - data/traj2.1_5.bag
+  - data/traj3.1_5b.bag
+  - data/traj4.1_5b.bag
+  - data/traj6.1_5.bag
+movement_primitive:
+  type: ProMP
+  timespan: 10
+  basis_functions:
+    - type: RadialBasisFunction
+      count: 20
+      width: 0.2
+default_jump_detector:
+  type: JumpAwareFilter
+  max_window_length: 20
+  filter:
+    type: LeastSquaresFilter
+    window_length: 20
+    order: 3
+  velocity_estimator:
+    type: LeastSquaresVelocityEstimator
+    window_length: 20
+    order: 3
+  predictor:
+    type: Predictor
+    order: 3
+  bounder:
+    type: Bounder
+    bound: 0.008
+joints:
+  count: 7
+  joints:
+    - number: 1
+      jump_detector:
+        bounder:
+          type: Bounder
+          bound: 0.008
+    - number: 1
+      jump_detector:
+        bounder:
+          type: Bounder
+          bound: 0.008
+    - number: 1
+      jump_detector:
+        bounder:
+          type: Bounder
+          bound: 0.008
+    - number: 1
+      jump_detector:
+        bounder:
+          type: Bounder
+          bound: 0.008
+    - number: 1
+      jump_detector:
+        bounder:
+          type: Bounder
+          bound: 0.008
+    - number: 1
+      jump_detector:
+        bounder:
+          type: Bounder
+          bound: 0.008
+    - number: 1
+      jump_detector:
+        bounder:
+          type: Bounder
+          bound: 0.008
+...

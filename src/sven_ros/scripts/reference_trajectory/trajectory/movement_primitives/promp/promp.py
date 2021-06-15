@@ -49,15 +49,18 @@ class ProMP(object):
 			
 		return Mu_w,Sigma_w,Mu
 		
-	def calc_phi(self, time, derivative=0, normalize=False):
+	def calc_phi(self, time, derivative=0, normalize=True):
 		phi = np.zeros((len(self.basis_functions),1))
-		for i in range(len(self.basis_functions)):
-			phi[i,0] = self.basis_functions[i].evaluate(time,derivative=derivative)
+		if not normalize or derivative == 0:
+			for i in range(len(self.basis_functions)):
+				phi[i,0] = self.basis_functions[i].evaluate(time,derivative=derivative)
 		if normalize:
 			if derivative == 0:
 				phi[:,0] = phi[:,0] * 1 / np.sum(phi[:,0])
-			else:
-				phi[:,0] = phi[:,0] * 1 / np.sum(self.calc_phi(time, derivative=0, normalize=False))
+			elif derivative == 1:
+				zero_order = self.calc_phi(time, derivative=0, normalize=False)
+				first_order = self.calc_phi(time, derivative=1, normalize=False)
+				phi[:,0] = ((first_order * np.sum(zero_order[:,0]) - zero_order * np.sum(first_order[:,0])) * 1 / (np.sum(zero_order[:,0]) ** 2))[:,0]
 		return phi
 		
 	def mu_w(self):
@@ -100,6 +103,7 @@ class ProMP(object):
 			Mu_out = Mu[:index]
 			Sigma_out_in = Sigma[:index,index:]
 			Sigma_in = Sigma[index:,index:]
+			Sigma_out = Sigma[:index,:index]
 			Mu_in = np.transpose(np.array(via_points.values())) - Mu[index:]
 			Mu = Mu_out + Sigma_out_in.dot(np.linalg.inv(Sigma_in)).dot(Mu_in)
 			

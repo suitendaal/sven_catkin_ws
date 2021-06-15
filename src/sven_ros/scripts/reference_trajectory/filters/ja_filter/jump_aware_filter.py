@@ -14,7 +14,9 @@ class JumpAwareFilter(object):
 		self.predictor = predictor
 		self.bounder = bounder
 		self.max_window_length = kwargs.get('max_window_length',10)
-		self.time_step = kwargs.get('time_step',0.01)
+		
+	def copy(self):
+		return JumpAwareFilter(self._filter.copy(), self.velocity_estimator.copy(), self.predictor.copy(), self.bounder.copy(), max_window_length=self.max_window_length)
 
 	# Filter the data and predict jumping time indexes
 	def filter(self, data):
