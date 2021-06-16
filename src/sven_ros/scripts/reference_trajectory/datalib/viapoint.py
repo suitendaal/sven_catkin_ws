@@ -9,3 +9,9 @@ class ViaPoint(DataPoint):
 		super(ViaPoint, self).__init__(timestamp, value, timefactor)
 		self.derivative = derivative
 
+	def copy(self):
+		result = ViaPoint(self.timestamp, self.value)
+		result.time = self.time
+		result.derivative = self.derivative
+		return result
+

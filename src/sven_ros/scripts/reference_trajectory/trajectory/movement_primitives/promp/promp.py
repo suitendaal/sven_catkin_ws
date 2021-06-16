@@ -8,7 +8,7 @@ class ProMP(object):
 	
 	def __init__(self, basis_functions, **kwargs):
 		self.basis_functions = basis_functions
-		self.weights = kwargs.get('weights',[])
+		self.weights = kwargs.get('weights',np.zeros((len(self.basis_functions),1)))
 		self.weights_covariance = kwargs.get('weights_covariance',1E0 * np.eye(len(self.basis_functions)))
 		self.derivatives = kwargs.get('derivatives',0)
 		

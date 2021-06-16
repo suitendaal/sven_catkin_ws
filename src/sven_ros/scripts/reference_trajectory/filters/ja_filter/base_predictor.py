@@ -26,6 +26,5 @@ class BasePredictor(object):
 		for j in range(len(coefs)):
 			coef = coefs[j]
 			value = value + coef * (time ** (len(coefs) - j - 1))
-		#print("Coefs: ",coefs)
 		return value, [coefs]
 

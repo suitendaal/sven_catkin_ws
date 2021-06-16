@@ -51,5 +51,12 @@ default_jump_detector = JumpAwareFilter(d_filter, d_vel_est, d_pred, d_bounder, 
 # Jump detector per joint
 for i in range(n_joints):
 	joints[i].jump_detector = default_jump_detector.copy()
+	
+### Detect Jumps settings
+
+plot_pos = True
+plot_pred = True
+plot_vel = True
+show_jumping_indexes = True
 
 

@@ -49,16 +49,16 @@ class JumpAwareFilter(object):
 					bound = None
 			
 			if prediction_fun is not None:
-				prediction_functions.append(FunctionPoint(data[i].timestamp, prediction_fun))
+				prediction_functions.append(FunctionPoint(data[i].timestamp, prediction_fun), reset_time=False)
 			else:
-				prediction_functions.append(FunctionPoint(data[i].timestamp, None))
+				prediction_functions.append(FunctionPoint(data[i].timestamp, None), reset_time=False)
 			if bound_fun is not None:
-				bound_functions.append(FunctionPoint(data[i].timestamp, bound_fun))
+				bound_functions.append(FunctionPoint(data[i].timestamp, bound_fun), reset_time=False)
 			else:
-				bound_functions.append(FunctionPoint(data[i].timestamp, None))
+				bound_functions.append(FunctionPoint(data[i].timestamp, None), reset_time=False)
 		
-			predictions.append(DataPoint(data[i].timestamp, prediction))
-			bounds.append(DataPoint(data[i].timestamp, bound))
+			predictions.append(DataPoint(data[i].timestamp, prediction), reset_time=False)
+			bounds.append(DataPoint(data[i].timestamp, bound), reset_time=False)
 		
 			# Check if jump has occured
 			if prediction is not None and bound is not None and abs(data[i].value - prediction) >= bound:
@@ -70,9 +70,9 @@ class JumpAwareFilter(object):
 			end = i + 1
 			dataset = data[start:end].copy()
 			filtered_datapoint = self._filter.filter(dataset, window_length)[0][-1]
-			filtered_data.append(filtered_datapoint)
+			filtered_data.append(filtered_datapoint, reset_time=False)
 			vel_estimation = self.velocity_estimator.estimate(dataset, window_length)[0][-1]
-			vel_data.append(vel_estimation)
+			vel_data.append(vel_estimation, reset_time=False)
 
 			# Predict next datapoint
 			if window_length > 1:

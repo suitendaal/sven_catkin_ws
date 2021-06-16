@@ -12,4 +12,9 @@ class FunctionPoint(DataPoint):
 		else:
 			result.value = (None, [])
 		return result
+		
+	def copy(self):
+		result = FunctionPoint(self.timestamp, self.value)
+		result.time = self.time
+		return result
 

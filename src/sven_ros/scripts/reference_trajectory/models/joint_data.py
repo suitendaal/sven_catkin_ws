@@ -28,6 +28,12 @@ class JointData(object):
 			result = -self.pos_data[self.jumping_indexes[0]].time
 		return result
 		
+	def starting_time_before(self):
+		result = 0
+		if len(self.jumping_indexes) > 0:
+			result = -self.pos_data[self.jumping_indexes[0]-1].time
+		return result
+		
 	def jumps(self):
 		return DataSet([self.filtered_data[index].copy() for index in self.jumping_indexes],timefactor=self.pos_data.timefactor).align_time(self.starting_time())
 		

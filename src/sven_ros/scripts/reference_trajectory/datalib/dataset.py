@@ -2,25 +2,28 @@
 
 from .datapoint import DataPoint
 
-class DataSet(list):
+class DataSet():
 	"""docstring for DataSet."""
 
 	def __init__(self, *args, timefactor=1):
-		super(DataSet, self).__init__(*args)
+		self.data = list(*args)
 		self.timefactor = timefactor
 		self.starting_time = 0
 		self.aligned = False
-		for item in self:
-			item.time = (item.timestamp - (super().__getitem__(0).timestamp if self.aligned else 0)) / self.timefactor - self.starting_time	
+		for item in self.data:
+			item.time = (item.timestamp - (data[0].timestamp if self.aligned else 0)) / self.timefactor - self.starting_time
 			
 	def __neg__(self):
 		result = DataSet()
-		for datapoint in self:
+		for datapoint in self.data:
 			if datapoint is None:
 				result.append(None)
 			else:
-				result.append(-datapoint)
+				result.append(-datapoint, reset_time=False)
 		return result	
+		
+	def __len__(self):
+		return len(self.data)
 
 	def __add__(self, x):
 		result = DataSet()
@@ -30,15 +33,15 @@ class DataSet(list):
 					if self[i] is None:
 						result.append(None)
 					else:
-						result.append(self[i] + x[i])
+						result.append(self[i] + x[i], reset_time=False)
 			else:
 				return None
 		else:
-			for datapoint in self:
+			for datapoint in self.data:
 				if datapoint is None:
 					result.append(None)
 				else:
-					result.append(datapoint + x)
+					result.append(datapoint + x, reset_time=False)
 		return result
 
 	def __sub__(self, x):
@@ -46,24 +49,47 @@ class DataSet(list):
 		
 	def __abs__(self):
 		result = DataSet()
-		for datapoint in self:
-			result.append(abs(datapoint))
+		for datapoint in self.data:
+			result.append(abs(datapoint), reset_time=False)
+		return result
+		
+	def __getitem__(self, index):
+		result = self.data[index]
+		if isinstance(result, list):
+			res = DataSet(timefactor=self.timefactor)
+			res.aligned = self.aligned
+			res.starting_time = self.starting_time
+			for i in result:
+				res.append(i, reset_time=False)
+			return res
 		return result
 
 	def __setitem__(self, index, item):
-		item.time = (item.timestamp - (super().__getitem__(0).timestamp if self.aligned else 0)) / self.timefactor - self.starting_time
-		return super().__setitem__(index, item)
+		item.time = (item.timestamp - (self.data.__getitem__(0).timestamp if self.aligned else 0)) / self.timefactor - self.starting_time
+		return self.data.__setitem__(index, item)
+		
+	def __str__(self):
+		return self.data.__str__()
 		
 	def copy(self):
-		result = DataSet()
-		for i in self:
-			result.append(i.copy())
+		result = DataSet(timefactor=self.timefactor)
+		result.starting_time = self.starting_time
+		result.aligned = self.aligned
+		for i in self.data:
+			result.append(i.copy(), reset_time=False)
+		return result
+		
+	def append(self, item, reset_time=True):
+		result = self.data.append(item)
+		if reset_time:
+			item.time = (item.timestamp - (self.data.__getitem__(0).timestamp if self.aligned else 0)) / self.timefactor - self.starting_time
+		return result
 
 	def align_time(self, starting_time=0):
 		self.starting_time = starting_time
 		self.aligned = True
-		for item in self:
-			item.time = (item.timestamp - (super().__getitem__(0).timestamp if self.aligned else 0)) / self.timefactor - self.starting_time
+		for item in self.data:
+			item.time = (item.timestamp - (self.data.__getitem__(0).timestamp if self.aligned else 0)) / self.timefactor - self.starting_time
 		return self
 
 	def get_xy(self):
@@ -71,13 +97,13 @@ class DataSet(list):
 		
 	def time(self):
 		x = []
-		for datapoint in self:
+		for datapoint in self.data:
 			x.append(datapoint.time)
 		return x
 	
 	def values(self):
 		y = []
-		for datapoint in self:
+		for datapoint in self.data:
 			y.append(datapoint.value)
 		return y
 		
@@ -86,13 +112,25 @@ class DataSet(list):
 		result = DataSet(timefactor=self.timefactor)
 		for i in range(1,len(self)):
 			if self[i].value is not None and self[i-1].value is not None:
-				value = (self[i].value - self[i-1].value) / (self[i].time - self[i-1].time)
+				if isinstance(self[i].value, list):
+					value = []
+					for j in range(len(self[i].value)):
+						value.append((self[i].value[j] - self[i-1].value[j]) / (self[i].time - self[i-1].time))
+				else:
+					value = (self[i].value - self[i-1].value) / (self[i].time - self[i-1].time)
 			else:
 				value = None
 			timestamp = self[i-1].timestamp + (self[i].timestamp - self[i-1].timestamp) / 2
 			result.append(DataPoint(timestamp,value))
-		if len(result) > 1:
-			result.align_time(-(self[1].time - self[0].time) / 2)
+		if len(result) > 0:
+			result.align_time(-(self[1].time - self[0].time) / 2 - self[0].time)
+		return result
+		
+	# If value is a list
+	def get_index(self, index):
+		result = DataSet(timefactor=self.timefactor)
+		for i in self.data:
+			result.append(i[index], reset_time=False)
 		return result
 
 
