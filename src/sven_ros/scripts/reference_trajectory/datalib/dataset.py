@@ -79,9 +79,9 @@ class DataSet():
 			result.append(i.copy(), reset_time=False)
 		return result
 		
-	def append(self, item, reset_time=True):
+	def append(self, item, reset_time=False):
 		result = self.data.append(item)
-		if reset_time:
+		if reset_time and item is not None:
 			item.time = (item.timestamp - (self.data.__getitem__(0).timestamp if self.aligned else 0)) / self.timefactor - self.starting_time
 		return result
 

@@ -40,7 +40,9 @@ class LeastSquaresVelocityEstimator(VelocityEstimator):
 				power = len(coefs) - 1 - j
 				coef = coefs[j]
 				value = value + coef * power * (time ** (power - 1))
-			result.append(DataPoint(data[i].timestamp, value))
+			datapoint = DataPoint(data[i].timestamp, value)
+			datapoint.time = data[i].time
+			result.append(datapoint)
 			coefs_list.append(coefs)
 		return result, [coefs_list]
 

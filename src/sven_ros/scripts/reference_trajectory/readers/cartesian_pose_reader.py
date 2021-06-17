@@ -20,6 +20,6 @@ class CartesianPoseReader(RosbagReader):
 			b = datapoint.value.pose.orientation.y
 			c = datapoint.value.pose.orientation.z
 			d = datapoint.value.pose.orientation.w
-			data.append(DataPoint(timestamp, [x, y, z, a, b, c, d]))
+			data.append(DataPoint(timestamp, [x, y, z, a, b, c, d]), reset_time=True)
 		return data
 

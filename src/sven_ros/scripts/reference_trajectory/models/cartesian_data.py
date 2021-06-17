@@ -36,92 +36,79 @@ class CartesianData(object):
 		velocity_estimator = kwargs.get('velocity_estimator',None)
 		orientation_filter = kwargs.get('orientation_filter',None)
 		
-		if position_filter is None:
-			self.x_filtered = self.x.copy()
-			self.y_filtered = self.y.copy()
-			self.z_filtered = self.z.copy()
-		else:
-			phases = len(self.jump_intervals) + 1
-			for i in range(phases):
-				start, end = self.get_start_end(i)
-				if end == -1:
-					end = len(self.x)
-				for j in range(start,end):
-					x_filtered = position_filter.filter(self.x[start:(j+1)])[0][-1]
-					x_filtered.time = self.x[j].time
-					self.x_filtered.append(x_filtered, reset_time=False)
-					y_filtered = position_filter.filter(self.y[start:(j+1)])[0][-1]
-					y_filtered.time = self.y[j].time
-					self.y_filtered.append(y_filtered, reset_time=False)
-					z_filtered = position_filter.filter(self.z[start:(j+1)])[0][-1]
-					z_filtered.time = self.z[j].time
-					self.z_filtered.append(z_filtered, reset_time=False)
-				if i != phases - 1:
-					start, end = self.jump_intervals[i]
-					if end == -1:
-						end = len(self.x)
-					for j in range(start, end):
-						self.x_filtered.append(self.x[j].copy(), reset_time=False)
-						self.y_filtered.append(self.y[j].copy(), reset_time=False)
-						self.z_filtered.append(self.z[j].copy(), reset_time=False)
+		phases = len(self.jump_intervals) + 1
 		
+		# Velocity	
 		if velocity_estimator is None:
 			self.x_vel_est = self.x_diff.copy()
 			self.y_vel_est = self.y_diff.copy()
 			self.z_vel_est = self.z_diff.copy()
-		else:
-			phases = len(self.jump_intervals) + 1
-			for i in range(phases):
-				start, end = self.get_start_end(i)
-				if end == -1:
-					end = len(self.x)
-				for j in range(start,end):
-					x_vel = velocity_estimator.estimate(self.x[start:(j+1)])[0][-1]
-					x_vel.time = self.x[j].time
-					self.x_vel_est.append(x_vel, reset_time=False)
-					y_vel = velocity_estimator.estimate(self.y[start:(j+1)])[0][-1]
-					y_vel.time = self.y[j].time
-					self.y_vel_est.append(y_vel, reset_time=False)
-					z_vel = velocity_estimator.estimate(self.z[start:(j+1)])[0][-1]
-					z_vel.time = self.z[j].time
-					self.z_vel_est.append(z_vel, reset_time=False)
-				if i != phases - 1:
-					start, end = self.jump_intervals[i]
-					if end == -1:
-						end = len(self.x)
-					for j in range(start, end):
-						x_vel = self.x[j].copy()
-						x_vel.value = None
-						self.x_filtered.append(x_vel, reset_time=False)
-						y_vel = self.y[j].copy()
-						y_vel.value = None
-						self.y_filtered.append(y_vel, reset_time=False)
-						z_vel = self.z[j].copy()
-						z_vel.value = None
-						self.z_filtered.append(z_vel, reset_time=False)
-			
-		if orientation_filter is None:
-			for i in range(len(self.q)):
-				self.q_filtered[i] = self.q[i].copy()
-		else:
-			phases = len(self.jump_intervals) + 1
-			for i in range(phases):
-				start, end = self.get_start_end(i)
-				if end == -1:
-					end = len(self.x)
-				for j in range(start,end):
-					for k in range(len(self.q)):
-						q_filtered = orientation_filter.filter(self.q[k][start:(j+1)])[0][-1]
-						q_filtered.time = self.q[k][j].time
-						self.q_filtered[k].append(q_filtered, reset_time=False)
-				if i != phases - 1:
-					start, end = self.jump_intervals[i]
-					if end == -1:
-						end = len(self.x)
-					for j in range(start, end):
-						for k in range(len(self.q)):
-							self.q_filtered[k].append(self.q[k][j].copy(), reset_time=False)
 		
+		for i in range(phases):
+		
+			# Between jumps
+			start, end = self.get_start_end(i)
+			if end == -1:
+				end = len(self.x)
+				
+			# Position
+			if position_filter is None:
+				self.x_filtered.append(self.x[start:end].copy())
+				self.y_filtered.append(self.y[start:end].copy())
+				self.z_filtered.append(self.z[start:end].copy())
+			else:
+				x_filtered = position_filter.filter(self.x[start:end])[0]
+				y_filtered = position_filter.filter(self.x[start:end])[0]
+				z_filtered = position_filter.filter(self.x[start:end])[0]
+				for j in range(len(x_filtered)):
+					self.x_filtered.append(x_filtered[j])
+					self.y_filtered.append(x_filtered[j])
+					self.z_filtered.append(x_filtered[j])
+
+			# Velocity
+			if velocity_estimator is not None:
+				x_vel = velocity_estimator.estimate(self.x[start:end])[0]
+				y_vel = velocity_estimator.estimate(self.y[start:end])[0]
+				z_vel = velocity_estimator.estimate(self.z[start:end])[0]
+				for j in range(len(x_vel)):
+					self.x_vel_est.append(x_vel[j])
+					self.y_vel_est.append(y_vel[j])
+					self.z_vel_est.append(z_vel[j])
+					
+			# Orientation
+			for k in range(len(self.q)):
+				if orientation_filter is None:
+					for j in range(len(self.q[k])):
+						self.q_filtered[k].append(self.q[k][j].copy())
+				else:
+					q_filtered = orientation_filter.filter(self.q[k][start:end])[0]
+					for j in range(len(q_filtered)):
+						self.q_filtered[k].append(q_filtered[j])
+						
+			# Within jump
+			if i != phases - 1:
+				start, end = self.jump_intervals[i]
+				if end == -1:
+					end = len(self.x)
+				
+				for j in range(start,end):
+					
+					# Position						
+					self.x_filtered.append(self.x[j].copy())
+					self.y_filtered.append(self.y[j].copy())
+					self.z_filtered.append(self.z[j].copy())
+					
+					# Velocity
+					x_vel = self.x[j].copy()
+					x_vel.value = None
+					self.x_vel_est.append(x_vel)
+					self.y_vel_est.append(x_vel.copy())
+					self.z_vel_est.append(x_vel.copy())
+					
+					# Orientation
+					for k in range(len(self.q)):
+						self.q_filtered[k].append(self.q[k][j].copy())
+					
 	def get_start_end(self, phase):
 		if phase == 0:
 			start = 0

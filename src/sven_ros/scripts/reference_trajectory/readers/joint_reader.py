@@ -17,6 +17,6 @@ class JointReader(RosbagReader):
 			pos = datapoint.value.position[self.joint - 1]
 			vel = datapoint.value.velocity[self.joint - 1]
 			eff = datapoint.value.effort[self.joint - 1]
-			data.append(DataPoint(timestamp, [pos, vel, eff]))
+			data.append(DataPoint(timestamp, [pos, vel, eff]), reset_time=True)
 		return data
 

@@ -25,7 +25,7 @@ class LeastSquaresFilter(Filter):
 			end = i + 1
 			order = min(end - start - 1, self.order)
 			if order == 0:
-				result.append(DataPoint(data[i].timestamp, data[i].value))
+				result.append(data[i].copy())
 				continue
 			subset = data[start:end]
 			x = []
@@ -39,7 +39,9 @@ class LeastSquaresFilter(Filter):
 			for j in range(len(coefs)):
 				coef = coefs[j]
 				value = value + coef * (time ** (len(coefs) - j - 1))
-			result.append(DataPoint(data[i].timestamp, value))
+			datapoint = DataPoint(data[i].timestamp, value)
+			datapoint.time = data[i].time
+			result.append(datapoint)
 			coefs_list.append(coefs)
 		return result, [coefs_list]
 

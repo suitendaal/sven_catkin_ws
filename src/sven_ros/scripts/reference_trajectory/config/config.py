@@ -73,6 +73,6 @@ show_jumping_indexes = True
 
 ### Filtering settings
 end_effector.position_filter = LeastSquaresFilter(window_length=20, order=3)
-#end_effector.velocity_estimator = LeastSquaresVelocityEstimator(window_length=20, order=3)
-#end_effector.orientation_filter = LeastSquaresFilter(window_length=20, order=3)
+end_effector.velocity_estimator = LeastSquaresVelocityEstimator(window_length=20, order=3)
+end_effector.orientation_filter = LeastSquaresFilter(window_length=20, order=3)
 

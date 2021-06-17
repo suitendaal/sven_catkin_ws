@@ -48,17 +48,15 @@ class JumpAwareFilter(object):
 				else:
 					bound = None
 			
-			if prediction_fun is not None:
-				prediction_functions.append(FunctionPoint(data[i].timestamp, prediction_fun), reset_time=False)
-			else:
-				prediction_functions.append(FunctionPoint(data[i].timestamp, None), reset_time=False)
-			if bound_fun is not None:
-				bound_functions.append(FunctionPoint(data[i].timestamp, bound_fun), reset_time=False)
-			else:
-				bound_functions.append(FunctionPoint(data[i].timestamp, None), reset_time=False)
+			pred_fun_point = FunctionPoint(data[i].timestamp, prediction_fun)
+			pred_fun_point.time = data[i].time
+			prediction_functions.append(pred_fun_point)
+			bound_fun_point = FunctionPoint(data[i].timestamp, bound_fun)
+			bound_fun_point.time = data[i].time
+			bound_functions.append(bound_fun_point)
 		
-			predictions.append(DataPoint(data[i].timestamp, prediction), reset_time=False)
-			bounds.append(DataPoint(data[i].timestamp, bound), reset_time=False)
+			predictions.append(DataPoint(data[i].timestamp, prediction))
+			bounds.append(DataPoint(data[i].timestamp, bound))
 		
 			# Check if jump has occured
 			if prediction is not None and bound is not None and abs(data[i].value - prediction) >= bound:
