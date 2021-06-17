@@ -20,19 +20,31 @@ demos = [
 	'data/traj6.1_5.bag'
 ]
 
+# Jump intervals
+jump_intervals = [
+	[],
+	[],
+	[],
+	[[495, 501]]
+]
+
 # Load data files
 joints = []
 for i in range(n_joints):
 	joints.append(Joint(i+1))
-cartesian_data = []
+end_effector = EndEffector()
 
-for filename in demos:
+for i in range(len(demos)):
+	filename = demos[i]
+
 	# Read joint data
-	for i in range(n_joints):
-		joints[i].append_data(get_joint_data(filename,i+1)[0])
+	for j in range(n_joints):
+		joints[j].append_data(get_joint_data(filename,j+1)[0])
 		
 	# Read cartesian data
-	cartesian_data.append(get_cartesian_data(filename))
+	x, y, z, q = get_cartesian_data(filename)
+	jump_intervals_set = jump_intervals[i]
+	end_effector.append_data(x, y, z, q, jump_intervals_set)
 	
 ### Movement primitives
 
@@ -54,9 +66,13 @@ for i in range(n_joints):
 	
 ### Detect Jumps settings
 
-plot_pos = True
-plot_pred = True
-plot_vel = True
+plot_pos = False
+plot_pred = False
+plot_vel = False
 show_jumping_indexes = True
 
+### Filtering settings
+end_effector.position_filter = LeastSquaresFilter(window_length=20, order=3)
+#end_effector.velocity_estimator = LeastSquaresVelocityEstimator(window_length=20, order=3)
+#end_effector.orientation_filter = LeastSquaresFilter(window_length=20, order=3)
 

@@ -68,7 +68,7 @@ class JumpAwareFilter(object):
 			# Filter the data
 			start = max(0, i - window_length)
 			end = i + 1
-			dataset = data[start:end].copy()
+			dataset = data[start:end]
 			filtered_datapoint = self._filter.filter(dataset, window_length)[0][-1]
 			filtered_data.append(filtered_datapoint, reset_time=False)
 			vel_estimation = self.velocity_estimator.estimate(dataset, window_length)[0][-1]
