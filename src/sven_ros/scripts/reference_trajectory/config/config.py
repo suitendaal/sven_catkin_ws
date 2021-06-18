@@ -14,7 +14,6 @@ n_phases = 1
 
 # Files with demonstrations
 demos = [
-	'data/traj2.1_5.bag',
 	'data/traj3.1_5b.bag',
 	'data/traj4.1_5b.bag',
 	'data/traj6.1_5.bag'
@@ -22,10 +21,9 @@ demos = [
 
 # Jump intervals
 jump_intervals = [
-	[],
-	[],
-	[],
-	[[495, 501]]
+	[(353,383)],
+	[(404,466)],
+	[(495, 501)]
 ]
 
 # Load data files

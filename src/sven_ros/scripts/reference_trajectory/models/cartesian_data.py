@@ -31,6 +31,8 @@ class CartesianData(object):
 		self.y_vel_est = DataSet(timefactor=self.y.timefactor)
 		self.z_vel_est = DataSet(timefactor=self.z.timefactor)
 		
+		self.filtered = False
+		
 	def filter(self, **kwargs):
 		position_filter = kwargs.get('position_filter',None)
 		velocity_estimator = kwargs.get('velocity_estimator',None)
@@ -108,21 +110,23 @@ class CartesianData(object):
 					# Orientation
 					for k in range(len(self.q)):
 						self.q_filtered[k].append(self.q[k][j].copy())
+		
+		self.filtered = True
 					
 	def get_start_end(self, phase):
 		if phase == 0:
 			start = 0
 		elif phase > 0:
-			start = self.jump_intervals[phase-1][1] + 1
+			start = self.jump_intervals[phase-1][1]
 		else:
-			start = -1
+			start = 0
 			
 		if phase == len(self.jump_intervals):
 			end = -1
-		elif phase < len(self.jump_intervals):
+		elif phase < len(self.jump_intervals) and phase >= 0:
 			end = self.jump_intervals[phase][0]
 		else:
-			end = 0
+			end = -1
 		
 		return start, end
 		
@@ -153,7 +157,10 @@ class CartesianData(object):
 			return self.q
 		
 		start, end = self.get_start_end(phase)
-		return self.q[start:end]
+		result = []
+		for i in self.q:
+			result.append(i[start:end])
+		return result
 		
 	def get_x_filtered(self, phase=-1):
 		if phase == -1:
@@ -181,7 +188,10 @@ class CartesianData(object):
 			return self.q_filtered
 		
 		start, end = self.get_start_end(phase)
-		return self.q_filtered[start:end]
+		result = []
+		for i in self.q_filtered:
+			result.append(i[start:end])
+		return result
 		
 	def get_x_diff(self, phase=-1):
 		if phase == -1:
@@ -216,17 +226,6 @@ class CartesianData(object):
 			start += 1
 		return self.z_diff[start:end]
 		
-	def get_q_diff(self, phase=-1):
-		if phase == -1:
-			return self.q_diff
-		
-		start, end = self.get_start_end(phase)
-		if end >= 0:
-			end -= 1
-		if start > 0:
-			start += 1
-		return self.q_diff[start:end]
-		
 	def get_x_vel(self, phase=-1):
 		if phase == -1:
 			return self.x_vel_est
@@ -247,11 +246,4 @@ class CartesianData(object):
 		
 		start, end = self.get_start_end(phase)
 		return self.z_vel_est[start:end]
-		
-	def get_q_vel(self, phase=-1):
-		if phase == -1:
-			return self.q_vel_est
-		
-		start, end = self.get_start_end(phase)
-		return self.q_vel_est[start:end]
 		
