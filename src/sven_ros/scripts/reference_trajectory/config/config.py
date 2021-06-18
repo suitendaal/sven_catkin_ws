@@ -46,8 +46,8 @@ for i in range(len(demos)):
 	
 ### Movement primitives
 
-rbf_width = 1e-4
-n_rbfs_per_second = 50 / 0.7
+rbf_width = 5e-4
+n_rbfs_per_second = 35
 
 ### Jump detectors
 

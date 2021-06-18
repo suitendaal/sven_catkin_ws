@@ -24,6 +24,18 @@ class EndEffector(object):
 		for i in datasets:
 			self.cartesian_data[i].filter(position_filter=self.position_filter, velocity_estimator=self.velocity_estimator, orientation_filter=self.orientation_filter)
 			
+	def align_time(self, datasets, phase):
+		for j in range(len(datasets)):
+			if phase == 0:
+				# Align to impact
+				datasets[j].align_time(datasets[j][-1].time - datasets[j][0].time)
+			elif phase == len(self.cartesian_data[0].jump_intervals):
+				# Align to start
+				datasets[j].align_time()
+			else:
+				# Align to center
+				datasets[j].align_time((datasets[j][-1].time - datasets[j][0].time) / 2)
+			
 	# Phase is which part of the interval
 	def create_promps(self, phase, rbfs, promp_type='all'):
 		if promp_type == 'position' or promp_type == 'all':
@@ -44,14 +56,24 @@ class EndEffector(object):
 								vel_est = j.get_y_vel(phase).copy()
 							else:
 								vel_est = j.get_z_vel(phase).copy()
+							indexes_to_pop = []
 							for k in range(len(dataset)):
-								dataset[k].value = [dataset[k].value, vel_est[k].value]
+								if vel_est[k].value is None:
+									indexes_to_pop.insert(0,k)
+								else:
+									dataset[k].value = [dataset[k].value, vel_est[k].value]
+							for k in indexes_to_pop:
+								dataset.pop(k)
 						datasets.append(dataset)
 				
 				if self.velocity_estimator is None:		
-					self.pos_promps.append(ProMP(rbfs,derivatives=0,weights_covariance=1))
+					promp = ProMP(rbfs,derivatives=0,weights_covariance=1)
 				else:
-					self.pos_promps.append(ProMP(rbfs,derivatives=1,weights_covariance=1))
+					promp = ProMP(rbfs,derivatives=1,weights_covariance=1)
+				self.align_time(datasets, phase)
+				promp.learn(datasets)
+				self.pos_promps.append(promp)
+				
 		elif promp_type == 'orientation' or promp_type == 'all':
 			for i in range(4):
 				datasets = []
@@ -59,7 +81,10 @@ class EndEffector(object):
 					if j.filtered:
 						dataset = j.get_q_filtered(phase)[i].copy()
 						datasets.append(dataset)
-				self.or_promps.append(ProMP(rbfs,derivatives=0,weights_covariance=1))	
+				self.align_time(datasets, phase)
+				promp = ProMP(rbfs,derivatives=0,weights_covariance=1)
+				promp.learn(datasets)
+				self.or_promps.append(promp)	
 	
 	def create_basis_functions(self, phase, width, rbfs_per_second):
 		
@@ -79,12 +104,19 @@ class EndEffector(object):
 	def get_time_range(self, phase):
 		t_start = None
 		t_end = None
+		
+		datasets = []		
 		for i in self.cartesian_data:
 			start, end = i.get_start_end(phase)
-			print(i.x[start].time,i.x[end].time)
-			if t_start is None or i.x[start].time < t_start:
-				t_start = i.x[start].time
-			if t_end is None or i.x[end].time > t_end:
-				t_end = i.x[end].time
+			datasets.append(i.x[start:end])
+			
+		self.align_time(datasets, phase)
+		
+		for i in datasets:
+			if t_start is None or i[0].time < t_start:
+				t_start = i[0].time
+			if t_end is None or i[-1].time > t_end:
+				t_end = i[-1].time
+		
 		return t_start, t_end
 		

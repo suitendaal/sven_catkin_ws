@@ -132,6 +132,9 @@ class DataSet():
 		for i in self.data:
 			result.append(i[index], reset_time=False)
 		return result
+		
+	def pop(self, index):
+		return self.data.pop(index)
 
 
 def main():
