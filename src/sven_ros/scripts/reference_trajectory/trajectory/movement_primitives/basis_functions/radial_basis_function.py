@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import math
+import json
 from .basis_function import *
 
 class RadialBasisFunction(BasisFunction):
@@ -22,4 +23,12 @@ class RadialBasisFunction(BasisFunction):
 			return -(time - self.center) / self.width * self.evaluate(time, derivative=2, **kwargs) + -1 / self.width * self.evaluate(time, derivative=1, **kwargs) + -1 / self.width * self.evaluate(time, derivative=1, **kwargs)
 		else:
 			return 0
+
+	def toJSON(self):
+		json_object = dict()
+		json_object['type'] = 'RadialBasisFunction'
+		json_object['center'] = self.center
+		json_object['width'] = self.width
+		return json.dumps(json_object, 
+			sort_keys=True, indent=4)
 

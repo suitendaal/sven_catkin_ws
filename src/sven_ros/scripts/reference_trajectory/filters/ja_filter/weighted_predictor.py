@@ -15,8 +15,8 @@ class WeightedPredictor(BasePredictor):
 
 	def predict(self, data, window_length, time, **kwargs):
 		order = min(int(window_length / self.frequency), self.order)
-		if order == 0:
-			return data[-1].value, []
+		if order < self.order:
+			return None, []
 
 		x = []
 		y = []

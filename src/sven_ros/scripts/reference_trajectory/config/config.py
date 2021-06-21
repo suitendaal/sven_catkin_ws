@@ -8,7 +8,7 @@ from models import *
 n_joints = 7
 
 # Impacts
-n_phases = 1
+n_phases = 2
 
 ### Load data
 
@@ -21,16 +21,26 @@ demos = [
 
 # Jump intervals
 jump_intervals = [
-	[(353,383)],
-	[(404,466)],
-	[(495, 501)]
+	[(351,381)],
+	[(400,460)],
+	[(476,499)]
 ]
+
+# Files with demonstrations
+#demos = [
+#	'data/traj6.1_5.bag'
+#]
+
+## Jump intervals
+#jump_intervals = [
+#	[(495, 501)]
+#]
 
 # Load data files
 joints = []
 for i in range(n_joints):
 	joints.append(Joint(i+1))
-end_effector = EndEffector()
+end_effector = EndEffector(n_phases)
 
 for i in range(len(demos)):
 	filename = demos[i]
@@ -55,7 +65,7 @@ n_rbfs_per_second = 35
 d_filter = LeastSquaresFilter(window_length=20, order=3)
 d_vel_est = LeastSquaresVelocityEstimator(window_length=20, order=3)
 d_pred = WeightedPredictor(order=3,frequency=3)
-d_bounder = BaseBounder(bound=0.02)
+d_bounder = BaseBounder(bound=0.014)
 default_jump_detector = JumpAwareFilter(d_filter, d_vel_est, d_pred, d_bounder, max_window_length=20)
 
 # Jump detector per joint
@@ -64,8 +74,8 @@ for i in range(n_joints):
 	
 ### Detect Jumps settings
 
-plot_pos = False
-plot_pred = False
+plot_pos = True
+plot_pred = True
 plot_vel = False
 show_jumping_indexes = True
 
@@ -73,4 +83,5 @@ show_jumping_indexes = True
 end_effector.position_filter = LeastSquaresFilter(window_length=20, order=3)
 end_effector.velocity_estimator = LeastSquaresVelocityEstimator(window_length=20, order=3)
 end_effector.orientation_filter = LeastSquaresFilter(window_length=20, order=3)
+end_effector.position_extender = ConstantVelocityExtender(timesteps=100, delta_time=0.01)
 

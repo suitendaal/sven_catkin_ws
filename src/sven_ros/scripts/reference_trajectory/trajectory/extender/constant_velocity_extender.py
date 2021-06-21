@@ -6,41 +6,68 @@ from .extender import *
 class ConstantVelocityExtender(TrajectoryExtender):
 	"""docstring for TrajectoryExtender."""
 	
-	def __init__(self, velocity_estimator, **kwargs):
+	def __init__(self, **kwargs):
 		super(ConstantVelocityExtender, self).__init__(**kwargs)
-		self.velocity_estimator = velocity_estimator
 
-	def extend(self, trajectory):
+	def extend(self, trajectory, velocity_data, extend_before=True, extend_after=True):
+		if len(velocity_data) > 0:
+			vel_start = velocity_data[0].value
+			vel_end = velocity_data[-1].value
+		else:
+			vel_start = None
+			vel_end = None
+			
 		result = DataSet(timefactor=trajectory.timefactor)
-		vel_data = self.velocity_estimator.estimate(trajectory)
 		
-		vel_start = 0
-		vel_end = 0
-		i = 0
-		for i in range(len(vel_data)):
-			if vel_data[i].value is not None:
-				vel_start = vel_data[i].value
-				break
-		
-		for i in range(len(vel_data)):
-			if vel_data[-i-1].value is not None:
-				vel_end = vel_data[i].value
-				break
-		
-		for i in range(self.timesteps):
-			timestamp = trajectory[0].timestamp - (self.timesteps - i) * self.delta_time * trajectory.timefactor
-			value = trajectory[0].value - (self.timesteps - i) * self.delta_time * vel_start
-			result.append(DataPoint(timestamp, value))
+		if vel_start is not None and extend_before:
+			for i in range(self.timesteps):
+				timestamp = trajectory[0].timestamp - (self.timesteps - i) * self.delta_time * trajectory.timefactor
+				value = trajectory[0].value - (self.timesteps - i) * self.delta_time * vel_start
+				datapoint = DataPoint(timestamp, value)
+				datapoint.time = trajectory[0].time - (self.timesteps - i) * self.delta_time
+				result.append(datapoint)
 		
 		for i in trajectory:
-			result.append(DataPoint(i.timestamp, i.value))
+			result.append(i.copy())
 			
-		for i in range(self.timesteps):
-			timestamp = trajectory[-1].timestamp + (i+1) * self.delta_time * trajectory.timefactor
-			value = trajectory[-1].value + (i+1) * self.delta_time * vel_start
-			result.append(DataPoint(timestamp, value))
-			
-		result.align_time(trajectory[0].time - result[0].time)
+		if vel_end is not None and extend_after:
+			for i in range(self.timesteps):
+				timestamp = trajectory[-1].timestamp + (i+1) * self.delta_time * trajectory.timefactor
+				value = trajectory[-1].value + (i+1) * self.delta_time * vel_start
+				datapoint = DataPoint(timestamp, value)
+				datapoint.time = trajectory[-1].time + (i+1) * self.delta_time
+				result.append(datapoint)
 
-		return result		
+		return result
+		
+	def extend_velocity(self, velocity_data, extend_before=True, extend_after=True):
+		if len(velocity_data) > 0:
+			vel_start = velocity_data[0].value
+			vel_end = velocity_data[-1].value
+		else:
+			vel_start = None
+			vel_end = None
+			
+		result = DataSet(timefactor=velocity_data.timefactor)
+		
+		if vel_start is not None and extend_before:
+			for i in range(self.timesteps):
+				timestamp = velocity_data[0].timestamp - (self.timesteps - i) * self.delta_time * velocity_data.timefactor
+				value = vel_start
+				datapoint = DataPoint(timestamp, value)
+				datapoint.time = velocity_data[0].time - (self.timesteps - i) * self.delta_time
+				result.append(datapoint)
+		
+		for i in velocity_data:
+			result.append(i.copy())
+			
+		if vel_end is not None and extend_after:
+			for i in range(self.timesteps):
+				timestamp = velocity_data[-1].timestamp + (i+1) * self.delta_time * velocity_data.timefactor
+				value = vel_end
+				datapoint = DataPoint(timestamp, value)
+				datapoint.time = velocity_data[-1].time + (i+1) * self.delta_time
+				result.append(datapoint)
+
+		return result
 	

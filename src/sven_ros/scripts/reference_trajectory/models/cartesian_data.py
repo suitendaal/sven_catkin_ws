@@ -19,17 +19,19 @@ class CartesianData(object):
 		for i in range(len(self.q)):
 			self.q_filtered.append(DataSet(timefactor=self.q[i].timefactor))
 		
-		self.pos_info = []
-		self.vel_info = []
-		self.or_info = []
-		
 		self.x_diff = x.diff()
 		self.y_diff = y.diff()
 		self.z_diff = z.diff()
+		self.q_diff = []
+		for i in range(len(self.q)):
+			self.q_diff.append(q[i].diff())
 		
 		self.x_vel_est = DataSet(timefactor=self.x.timefactor)
 		self.y_vel_est = DataSet(timefactor=self.y.timefactor)
 		self.z_vel_est = DataSet(timefactor=self.z.timefactor)
+		self.q_vel_est = []
+		for i in range(len(self.q)):
+			self.q_vel_est.append(DataSet(timefactor=self.q[i].timefactor))
 		
 		self.filtered = False
 		
@@ -37,6 +39,7 @@ class CartesianData(object):
 		position_filter = kwargs.get('position_filter',None)
 		velocity_estimator = kwargs.get('velocity_estimator',None)
 		orientation_filter = kwargs.get('orientation_filter',None)
+		orientation_velocity_estimator = kwargs.get('orientation_velocity_estimator',None)
 		
 		phases = len(self.jump_intervals) + 1
 		
@@ -60,12 +63,12 @@ class CartesianData(object):
 				self.z_filtered.append(self.z[start:end].copy())
 			else:
 				x_filtered = position_filter.filter(self.x[start:end])[0]
-				y_filtered = position_filter.filter(self.x[start:end])[0]
-				z_filtered = position_filter.filter(self.x[start:end])[0]
+				y_filtered = position_filter.filter(self.y[start:end])[0]
+				z_filtered = position_filter.filter(self.z[start:end])[0]
 				for j in range(len(x_filtered)):
 					self.x_filtered.append(x_filtered[j])
-					self.y_filtered.append(x_filtered[j])
-					self.z_filtered.append(x_filtered[j])
+					self.y_filtered.append(y_filtered[j])
+					self.z_filtered.append(z_filtered[j])
 
 			# Velocity
 			if velocity_estimator is not None:
@@ -86,6 +89,13 @@ class CartesianData(object):
 					q_filtered = orientation_filter.filter(self.q[k][start:end])[0]
 					for j in range(len(q_filtered)):
 						self.q_filtered[k].append(q_filtered[j])
+				
+				# Orientation velocity
+				if orientation_velocity_estimator is not None:
+					q_vel = orientation_velocity_estimator.estimate(self.q[k][start:end])[0]
+					for j in range(len(self.q[k])):
+						self.q_vel_est[k].append(q_vel[j])
+					
 						
 			# Within jump
 			if i != phases - 1:
@@ -95,21 +105,29 @@ class CartesianData(object):
 				
 				for j in range(start,end):
 					
-					# Position						
-					self.x_filtered.append(self.x[j].copy())
-					self.y_filtered.append(self.y[j].copy())
-					self.z_filtered.append(self.z[j].copy())
+					# Position
+					if position_filter is not None:
+						self.x_filtered.append(self.x[j].copy())
+						self.y_filtered.append(self.y[j].copy())
+						self.z_filtered.append(self.z[j].copy())
 					
 					# Velocity
-					x_vel = self.x[j].copy()
-					x_vel.value = None
-					self.x_vel_est.append(x_vel)
-					self.y_vel_est.append(x_vel.copy())
-					self.z_vel_est.append(x_vel.copy())
+					if velocity_estimator is not None:
+						x_vel = self.x[j].copy()
+						x_vel.value = None
+						self.x_vel_est.append(x_vel)
+						self.y_vel_est.append(x_vel.copy())
+						self.z_vel_est.append(x_vel.copy())
 					
 					# Orientation
 					for k in range(len(self.q)):
-						self.q_filtered[k].append(self.q[k][j].copy())
+						if orientation_filter is not None:
+							self.q_filtered[k].append(self.q[k][j].copy())
+						# Orientation velocity
+						if orientation_velocity_estimator is not None:
+							q_vel = self.q[k][k].copy()
+							q_vel.value = None
+							self.q_vel_est[k].append(q_vel)
 		
 		self.filtered = True
 					
@@ -130,120 +148,125 @@ class CartesianData(object):
 		
 		return start, end
 		
-		
 	def get_x(self, phase=-1):
 		if phase == -1:
-			return self.x
+			return self.x.copy()
 		
 		start, end = self.get_start_end(phase)
-		return self.x[start:end]
+		return self.x[start:end].copy()
 		
 	def get_y(self, phase=-1):
 		if phase == -1:
-			return self.y
+			return self.y.copy()
 		
 		start, end = self.get_start_end(phase)
-		return self.y[start:end]
+		return self.y[start:end].copy()
 		
 	def get_z(self, phase=-1):
 		if phase == -1:
-			return self.z
+			return self.z.copy()
 		
 		start, end = self.get_start_end(phase)
-		return self.z[start:end]
+		return self.z[start:end].copy()
 		
 	def get_q(self, phase=-1):
 		if phase == -1:
-			return self.q
+			result = []
+			for i in self.q:
+				result.append(i.copy())
+			return result
 		
 		start, end = self.get_start_end(phase)
 		result = []
 		for i in self.q:
-			result.append(i[start:end])
+			result.append(i[start:end].copy())
 		return result
 		
 	def get_x_filtered(self, phase=-1):
 		if phase == -1:
-			return self.x_filtered
+			return self.x_filtered.copy()
 		
 		start, end = self.get_start_end(phase)
-		return self.x_filtered[start:end]
+		return self.x_filtered[start:end].copy()
 		
 	def get_y_filtered(self, phase=-1):
 		if phase == -1:
-			return self.y_filtered
+			return self.y_filtered.copy()
 		
 		start, end = self.get_start_end(phase)
-		return self.y_filtered[start:end]
+		return self.y_filtered[start:end].copy()
 		
 	def get_z_filtered(self, phase=-1):
 		if phase == -1:
-			return self.z_filtered
+			return self.z_filtered.copy()
 		
 		start, end = self.get_start_end(phase)
-		return self.z_filtered[start:end]
+		return self.z_filtered[start:end].copy()
 		
 	def get_q_filtered(self, phase=-1):
 		if phase == -1:
-			return self.q_filtered
+			result = []
+			for i in self.q_filtered:
+				result.append(i.copy())
+			return result
 		
 		start, end = self.get_start_end(phase)
 		result = []
 		for i in self.q_filtered:
-			result.append(i[start:end])
+			result.append(i[start:end].copy())
 		return result
 		
 	def get_x_diff(self, phase=-1):
 		if phase == -1:
-			return self.x_diff
+			return self.x_diff.copy()
 		
 		start, end = self.get_start_end(phase)
 		if end >= 0:
 			end -= 1
 		if start > 0:
 			start += 1
-		return self.x_diff[start:end]
+		return self.x_diff[start:end].copy()
 		
 	def get_y_diff(self, phase=-1):
 		if phase == -1:
-			return self.y_diff
+			return self.y_diff.copy()
 		
 		start, end = self.get_start_end(phase)
 		if end >= 0:
 			end -= 1
 		if start > 0:
 			start += 1
-		return self.y_diff[start:end]
+		return self.y_diff[start:end].copy()
 		
 	def get_z_diff(self, phase=-1):
 		if phase == -1:
-			return self.z_diff
+			return self.z_diff.copy()
 		
 		start, end = self.get_start_end(phase)
 		if end >= 0:
 			end -= 1
 		if start > 0:
 			start += 1
-		return self.z_diff[start:end]
+		return self.z_diff[start:end].copy()
 		
 	def get_x_vel(self, phase=-1):
 		if phase == -1:
-			return self.x_vel_est
+			return self.x_vel_est.copy()
 		
 		start, end = self.get_start_end(phase)
-		return self.x_vel_est[start:end]
+		return self.x_vel_est[start:end].copy()
 		
 	def get_y_vel(self, phase=-1):
 		if phase == -1:
-			return self.y_vel_est
+			return self.y_vel_est.copy()
 		
 		start, end = self.get_start_end(phase)
-		return self.y_vel_est[start:end]
+		return self.y_vel_est[start:end].copy()
 		
 	def get_z_vel(self, phase=-1):
 		if phase == -1:
-			return self.z_vel_est
+			return self.z_vel_est.copy()
 		
 		start, end = self.get_start_end(phase)
-		return self.z_vel_est[start:end]
+		return self.z_vel_est[start:end].copy()
 		
