@@ -2,7 +2,7 @@
 
 import numpy as np
 from .cartesian_data import *
-from .phase_wrapper import *
+from .promp_handler import *
 from trajectory import *
 from datalib import *
 
@@ -55,7 +55,7 @@ class EndEffector(object):
 			extend_after = True
 			if phase == 0:
 				extend_before = False
-			if len(self.cartesian_data) == 0 or phase == len(self.cartesian_data[0].jump_intervals):
+			if len(self.cartesian_data) == 0 or phase == self.n_phases - 1:
 				extend_after = False
 			
 			position_data = self.position_extender.extend(position_data, velocity_data, extend_before=extend_before, extend_after=extend_after, extended_times_before=deleted_before, extended_times_after=deleted_after)
@@ -124,7 +124,7 @@ class EndEffector(object):
 						self.align_time(dataset, phase)
 						
 						for k in indexes_to_pop:
-							deleted_before.append(dataset[k])
+							deleted_before.append(dataset[k].time)
 							dataset.pop(k)
 								
 						# Remove indexes that fall out of the time range
@@ -160,8 +160,8 @@ class EndEffector(object):
 				else:
 					promp = ProMP(rbfs,derivatives=1,weights_covariance=1)
 				promp.learn(datasets)
-				mp_wrapper = PhaseWrapper(promp, phase_starting_time=phase_starting_time, phase_ending_time=phase_ending_time, starting_time=starting_time, ending_time=ending_time, extended_starting_time=extended_starting_time, extended_ending_time=extended_ending_time)
-				self.pos_promps[phase].append(mp_wrapper)
+				mp_handler = ProMPHandler(promp, phase_starting_time=phase_starting_time, phase_ending_time=phase_ending_time, starting_time=starting_time, ending_time=ending_time, extended_starting_time=extended_starting_time, extended_ending_time=extended_ending_time)
+				self.pos_promps[phase].append(mp_handler)
 				
 		elif promp_type == 'orientation' or promp_type == 'all':
 			for i in range(4):
@@ -228,6 +228,8 @@ class EndEffector(object):
 		return t_start, t_end
 		
 	def align_promp_time(self, phase):
+	
+		# Position promps
 		for i in range(len(self.pos_promps[phase])):
 			promp = self.pos_promps[phase][i]
 			

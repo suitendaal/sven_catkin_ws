@@ -24,7 +24,7 @@ class LeastSquaresVelocityEstimator(VelocityEstimator):
 			start = max(0, i - window_length)
 			end = i + 1
 			order = min(end - start - 1, self.order)
-			if order == 0:
+			if order < self.order:
 				datapoint = DataPoint(data[i].timestamp, None)
 				datapoint.time = data[i].time
 				result.append(datapoint)

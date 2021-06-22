@@ -1,8 +1,9 @@
 #!/usr/bin/python3
 
+import json
 from datalib import *
 
-class PhaseWrapper(object):
+class ProMPHandler(object):
 	"""docstring for Joint."""
 
 	def __init__(self, movement_primitive, **kwargs):
@@ -48,4 +49,31 @@ class PhaseWrapper(object):
 		
 	def align_time(self, time_shift):
 		self.time_shift = time_shift
+		
+	def to_dict(self):
+		json_object = dict()
+		
+		# Times of entire phase
+		json_object['phase_starting_time'] = self.phase_starting_time
+		json_object['phase_ending_time'] = self.phase_ending_time
+		
+		# Times of usable phase data
+		json_object['starting_time'] = self.starting_time
+		json_object['ending_time'] = self.ending_time
+		
+		# Times of extended phase. MP is valid for these times.
+		json_object['extended_starting_time'] = self.extended_starting_time
+		json_object['extended_ending_time'] = self.extended_ending_time
+		
+		# Next and previous phase. Time difference between phases.
+		json_object['previous_ending_time'] = self.previous_ending_time
+		json_object['self.next_starting_time'] = self.next_starting_time
+		
+		# Shift over time for evaluation.
+		json_object['time_shift'] = self.time_shift
+		
+		# Movement primitive
+		json_object['movement_primitive'] = self.movement_primitive.to_dict()
+		
+		return json_object
 		

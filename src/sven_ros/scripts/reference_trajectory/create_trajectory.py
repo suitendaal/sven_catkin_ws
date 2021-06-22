@@ -9,17 +9,20 @@ end_effector.filter()
 plt.figure()
 for phase in range(config.n_phases):
 
+#	z = end_effector.cartesian_data[2].get_z_vel(phase)
+#	plt.plot(z.time(),z.values())
+
 	# Create promps
 	rbfs = end_effector.create_basis_functions(phase=phase, width=config.rbf_width, rbfs_per_second=config.n_rbfs_per_second)
 	end_effector.create_promps(phase=phase, rbfs=rbfs, promp_type='all')
 	end_effector.align_promp_time(phase)
 	
 	# Evaluate promps
-	t_start, t_end = end_effector.pos_promps[phase][2].get_phase_start_end()
+	t_start, t_end = end_effector.pos_promps[phase][2].get_extended_start_end()
 	x = np.arange(t_start,t_end, 0.01).tolist()
 	mu,sigma = end_effector.pos_promps[phase][2].evaluate(x, derivative=0)
 	
-	print("ProMP: ",t_start, t_end)
+	print("ProMP: ",end_effector.pos_promps[phase][2].get_start_end())
 	
 	plt.plot(x,mu)
 	

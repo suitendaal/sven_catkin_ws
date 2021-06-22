@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 
 import numpy as np
-import json
 from datalib import *
 
 class ProMP(object):
@@ -115,19 +114,18 @@ class ProMP(object):
 		
 		return Mu,Sigma
 		
-	def toJSON(self):
+	def to_dict(self):
 		json_object = dict()
 		
 		# Basis function
 		json_object['basis_functions'] = []
 		for i in self.basis_functions:
-			json_object['basis_functions'].append(i.toJSON())
+			json_object['basis_functions'].append(i.to_dict())
 		json_object['derivatives'] = self.derivatives
 			
 		# Weights
 		json_object['weights'] = self.weights.tolist()
 		json_object['weights_covariance'] = self.weights_covariance.tolist()
 			
-		return json.dumps(json_object, 
-			sort_keys=True, indent=4)
+		return json_object
 		
