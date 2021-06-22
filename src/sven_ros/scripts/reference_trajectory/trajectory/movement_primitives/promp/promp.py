@@ -14,9 +14,6 @@ class ProMP(object):
 		if isinstance(self.weights_covariance, int):
 			self.weights_covariance = self.weights_covariance * np.eye(len(self.basis_functions))
 		self.derivatives = kwargs.get('derivatives',0)
-		self.time_shift = kwargs.get('time_shift',0)
-		self.starting_time = kwargs.get('starting_time',None)
-		self.ending_time = kwargs.get('ending_time',None)
 		
 	def learn(self, datasets, **kwargs):
 	
@@ -42,12 +39,6 @@ class ProMP(object):
 			x = np.transpose(np.array([values]))
 			pseud = np.transpose(np.linalg.pinv(psi))
 			self.weights[:,i] = pseud.dot(x)[:,0]
-			
-			# Starting end ending time
-			if self.starting_time is None or time_vector[0] > self.starting_time:
-				self.starting_time = time_vector[0]
-			if self.ending_time is None or time_vector[-1] < self.ending_time:
-				self.ending_time = time_vector[-1]
 		
 		# Calculate mean and covariance
 		Mu_w = np.mean(self.weights,axis=1)
@@ -93,8 +84,6 @@ class ProMP(object):
 			time = time.copy()
 		
 		index = len(time)
-		for i in range(len(time)):
-			time[i] = time[i] - self.time_shift
 		time.extend(via_points.time())
 		
 		Mu_w = self.mu_w()
@@ -126,15 +115,6 @@ class ProMP(object):
 		
 		return Mu,Sigma
 		
-	def align_time(self, time_shift):
-		self.time_shift = time_shift
-		
-	def get_starting_time(self):
-		return self.starting_time + self.time_shift
-		
-	def get_ending_time(self):
-		return self.ending_time + self.time_shift
-		
 	def toJSON(self):
 		json_object = dict()
 		
@@ -147,11 +127,6 @@ class ProMP(object):
 		# Weights
 		json_object['weights'] = self.weights.tolist()
 		json_object['weights_covariance'] = self.weights_covariance.tolist()
-		
-		# Time settings
-		json_object['time_shift'] = self.time_shift
-		json_object['starting_time'] = self.starting_time
-		json_object['ending_time'] = self.ending_time
 			
 		return json.dumps(json_object, 
 			sort_keys=True, indent=4)

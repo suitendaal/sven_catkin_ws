@@ -15,17 +15,34 @@ for phase in range(config.n_phases):
 	end_effector.align_promp_time(phase)
 	
 	# Evaluate promps
-	x = np.arange(end_effector.pos_promps[phase][2].get_starting_time(), config.end_effector.pos_promps[phase][2].get_ending_time(), 0.01).tolist()
+	t_start, t_end = end_effector.pos_promps[phase][2].get_phase_start_end()
+	x = np.arange(t_start,t_end, 0.01).tolist()
 	mu,sigma = end_effector.pos_promps[phase][2].evaluate(x, derivative=0)
+	
+	print("ProMP: ",t_start, t_end)
 	
 	plt.plot(x,mu)
 	
-z1 = end_effector.cartesian_data[0].get_z_filtered()
-z1.align_time(z1[end_effector.cartesian_data[0].jump_intervals[0][0]-1].time - z1[0].time)
-x1,y1 = z1.get_xy()
-for i in range(len(x1)):
-	x1[i] = x1[i] + end_effector.pos_promps[phase][2].starting_time + 1
-plt.plot(x1,y1)
+#z1 = end_effector.cartesian_data[0].get_z_filtered()
+#z1.align_time(z1[end_effector.cartesian_data[0].jump_intervals[0][0]-1].time - z1[0].time + end_effector.pos_promps[0][2].starting_time)
+#x1,y1 = z1.get_xy()
+#plt.plot(x1,y1)
+#plt.plot(x1[end_effector.cartesian_data[0].jump_intervals[0][0]],y1[end_effector.cartesian_data[0].jump_intervals[0][0]],'*')
+#print("Z1: ",x1[0],x1[-1])
+
+#z2 = end_effector.cartesian_data[1].get_z_filtered()
+#z2.align_time(z2[end_effector.cartesian_data[1].jump_intervals[0][0]-1].time - z2[0].time + end_effector.pos_promps[0][2].starting_time)
+#x2,y2 = z2.get_xy()
+#plt.plot(x2,y2)
+#plt.plot(x2[end_effector.cartesian_data[1].jump_intervals[0][0]],y2[end_effector.cartesian_data[1].jump_intervals[0][0]],'*')
+#print("Z2: ",x2[0],x2[-1])
+
+#z3 = end_effector.cartesian_data[2].get_z_filtered()
+#z3.align_time(z3[end_effector.cartesian_data[2].jump_intervals[0][0]-1].time - z3[0].time + end_effector.pos_promps[0][2].starting_time)
+#x3,y3 = z3.get_xy()
+#plt.plot(x3,y3)
+#plt.plot(x3[end_effector.cartesian_data[2].jump_intervals[0][0]],y3[end_effector.cartesian_data[2].jump_intervals[0][0]],'*')
+#print("Z3: ",x3[0],x3[-1])
 
 plt.show()
 
