@@ -1,8 +1,10 @@
 #!/usr/bin/python3
 
+import json
 import numpy as np
 import matplotlib.pyplot as plt
 import config
+from writers import *
 from config import end_effector
 
 end_effector.filter()
@@ -23,6 +25,8 @@ for phase in range(config.n_phases):
 	mu,sigma = end_effector.pos_promps[phase][2].evaluate(x, derivative=0)
 	
 	print("ProMP: ",end_effector.pos_promps[phase][2].get_start_end())
+	print("ProMP extended: ", end_effector.pos_promps[phase][2].get_extended_start_end())
+	print("Basis functions: ", (end_effector.pos_promps[phase][2].movement_primitive.basis_functions[0].center + end_effector.pos_promps[phase][2].time_shift, end_effector.pos_promps[phase][2].movement_primitive.basis_functions[-1].center + end_effector.pos_promps[phase][2].time_shift))
 	
 	plt.plot(x,mu)
 	
@@ -48,6 +52,8 @@ for phase in range(config.n_phases):
 #print("Z3: ",x3[0],x3[-1])
 
 plt.show()
+
+write_promps(config.output_file, end_effector.to_dict())
 
 #phase = 0
 #config.end_effector.filter()

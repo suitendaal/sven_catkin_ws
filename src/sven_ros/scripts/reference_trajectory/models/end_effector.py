@@ -45,12 +45,18 @@ class EndEffector(object):
 			dataset.align_time((dataset[-1].time - dataset[0].time) / 2)
 			
 	def extend_position_velocity_data(self, dataset, phase, deleted_before=[], deleted_after=[]):
+		return self.extend_data(self.position_extender, dataset, phase, deleted_before=deleted_before, deleted_after=deleted_after)
+		
+	def extend_orientation_data(self, dataset, phase, deleted_before=[], deleted_after=[]):
+		return self.extend_data(self.orientation_extender, dataset, phase, deleted_before=deleted_before, deleted_after=deleted_after)
+		
+	def extend_data(self, extender, dataset, phase, deleted_before=[], deleted_after=[]):
 		position_data = dataset.copy()
 		velocity_data = dataset.copy()
 		for i in range(len(dataset)):
 			position_data[i].value = dataset[i].value[0]
 			velocity_data[i].value = dataset[i].value[1]
-		if self.position_extender is not None:
+		if extender is not None:
 			extend_before = True
 			extend_after = True
 			if phase == 0:
@@ -58,8 +64,8 @@ class EndEffector(object):
 			if len(self.cartesian_data) == 0 or phase == self.n_phases - 1:
 				extend_after = False
 			
-			position_data = self.position_extender.extend(position_data, velocity_data, extend_before=extend_before, extend_after=extend_after, extended_times_before=deleted_before, extended_times_after=deleted_after)
-			velocity_data = self.position_extender.extend_velocity(velocity_data, extend_before=extend_before, extend_after=extend_after, extended_times_before=deleted_before, extended_times_after=deleted_after)
+			position_data = extender.extend(position_data, velocity_data, extend_before=extend_before, extend_after=extend_after, extended_times_before=deleted_before, extended_times_after=deleted_after)
+			velocity_data = extender.extend_velocity(velocity_data, extend_before=extend_before, extend_after=extend_after, extended_times_before=deleted_before, extended_times_after=deleted_after)
 			
 			result = DataSet(timefactor=dataset.timefactor)
 			for i in range(len(position_data)):
@@ -163,24 +169,86 @@ class EndEffector(object):
 				mp_handler = ProMPHandler(promp, phase_starting_time=phase_starting_time, phase_ending_time=phase_ending_time, starting_time=starting_time, ending_time=ending_time, extended_starting_time=extended_starting_time, extended_ending_time=extended_ending_time)
 				self.pos_promps[phase].append(mp_handler)
 				
-		elif promp_type == 'orientation' or promp_type == 'all':
+		if promp_type == 'orientation' or promp_type == 'all':
 			for i in range(4):
+			
+				# Create ProMP
 				datasets = []
+				
+				# Times of entire phase
+				phase_starting_time = t_start
+				phase_ending_time = t_end
+				
+				# Times of usable phase data
+				starting_time = None
+				ending_time = None
+				
+				# Times of extended phase. MP is valid for these times.
+				extended_starting_time = None
+				extended_ending_time = None
+				
 				for j in self.cartesian_data:
 					if j.filtered:
-						dataset = j.get_q_filtered(phase)[i].copy()
+					
+						# Select position data
+						dataset = j.get_q_filtered(phase)[i]
+							
+						indexes_to_pop = []
+						deleted_before = []
+						deleted_after = []
+							
+						# Select velocity data
+						if self.orientation_velocity_estimator is not None:
+							vel_est = j.get_q_vel(phase)[i]
+								
+							# Remove None indexes
+							for k in range(len(dataset)):
+								if vel_est[k].value is None:
+									indexes_to_pop.insert(0,k)
+								else:
+									dataset[k].value = [dataset[k].value, vel_est[k].value]
+									
 						self.align_time(dataset, phase)
+						
+						for k in indexes_to_pop:
+							deleted_before.append(dataset[k].time)
+							dataset.pop(k)
+								
+						# Remove indexes that fall out of the time range
 						indexes_to_pop = []
 						for k in range(len(dataset)):
 							if dataset[k].time < t_start or dataset[k].time > t_end:
 								indexes_to_pop.insert(0,k)
+								if dataset[k].time < t_start:
+									deleted_before.append(dataset[k].time)
+								else:
+									deleted_after.append(dataset[k].time)
 						for k in indexes_to_pop:
 							dataset.pop(k)
-						# TODO: extend orientation
+							
+						if starting_time is None or dataset[0].time > starting_time:
+							starting_time = dataset[0].time
+						if ending_time is None or dataset[-1].time < ending_time:
+							ending_time = dataset[-1].time
+								
+						# Extend trajectory
+						if self.orientation_velocity_estimator is not None:
+							dataset = self.extend_orientation_data(dataset, phase, deleted_before=deleted_before, deleted_after=deleted_after)
+						
+						if extended_starting_time is None or dataset[0].time > extended_starting_time:
+							extended_starting_time = dataset[0].time
+						if extended_ending_time is None or dataset[-1].time < extended_ending_time:
+							extended_ending_time = dataset[-1].time
+						
 						datasets.append(dataset)
-				promp = ProMP(rbfs,derivatives=0,weights_covariance=1)
+				
+				if self.orientation_velocity_estimator is None:		
+					promp = ProMP(rbfs,derivatives=0,weights_covariance=1)
+				else:
+					promp = ProMP(rbfs,derivatives=1,weights_covariance=1)
 				promp.learn(datasets)
-				self.or_promps[phase].append(promp)	
+				mp_handler = ProMPHandler(promp, phase_starting_time=phase_starting_time, phase_ending_time=phase_ending_time, starting_time=starting_time, ending_time=ending_time, extended_starting_time=extended_starting_time, extended_ending_time=extended_ending_time)
+				self.or_promps[phase].append(mp_handler)	
 	
 	def create_basis_functions(self, phase, width, rbfs_per_second):
 		
@@ -257,17 +325,56 @@ class EndEffector(object):
 				time_align = self.pos_promps[phase-1][i].get_phase_start_end()[1] - promp.phase_starting_time + promp.previous_ending_time
 			promp.align_time(time_align)
 			
-#		for i in range(len(self.or_promps[phase])):
-#			promp = self.or_promps[phase][i]
-#			if phase == 0 or (phase == -1 and len(self.or_promps == 1)):
-#				time_align = -promp.starting_time
-#			else:
-#				jump_times = []
-#				for j in self.cartesian_data:
-#					jump_times.append(j.x[j.jump_intervals[phase-1][1]].time - j.x[i.jump_intervals[phase-1][0]].time)
-#				time_align = self.or_promps[phase-1][i].get_phase_start_end()[1] + np.mean(jump_times)
-#			promp.align_time(time_align)
+		# Orientation promps
+		for i in range(len(self.or_promps[phase])):
+			promp = self.or_promps[phase][i]
 			
+			# Jumping times
+			if self.n_phases > 1:
+				
+				# Not the last phase
+				if phase >= 0 and phase < self.n_phases - 1:
+					jump_times = []
+					for j in self.cartesian_data:
+						jump_times.append(j.x[j.jump_intervals[phase][1]].time - j.x[j.jump_intervals[phase][0]].time)
+					promp.next_starting_time = np.mean(jump_times)
+				
+				# Not the first phase
+				if phase > 0 and phase < self.n_phases:
+					jump_times = []
+					for j in self.cartesian_data:
+						jump_times.append(j.x[j.jump_intervals[phase-1][1]].time - j.x[j.jump_intervals[phase-1][0]].time)
+					promp.previous_ending_time = np.mean(jump_times)
 			
+			# Align time
+			if phase == 0 or (phase == -1 and len(self.pos_promps == 1)):
+				time_align = -promp.phase_starting_time
+			else:
+				time_align = self.or_promps[phase-1][i].get_phase_start_end()[1] - promp.phase_starting_time + promp.previous_ending_time
+			promp.align_time(time_align)
 			
+	def to_dict(self):
+		json_object = dict()
+		
+		# Number of phases
+		json_object['n_phases'] = self.n_phases
+		
+		# Position ProMPs
+		json_object['pos_promps'] = []
+		for i in self.pos_promps:
+			pos_promp_dicts = []
+			for j in i:
+				pos_promp_dicts.append(j.to_dict())
+			json_object['pos_promps'].append(pos_promp_dicts)
+			
+		
+		# Orientation ProMPs
+		json_object['or_promps'] = []
+		for i in self.or_promps:
+			or_promp_dicts = []
+			for j in i:
+				or_promp_dicts.append(j.to_dict())
+			json_object['or_promps'].append(or_promp_dicts)
+			
+		return json_object	
 		
