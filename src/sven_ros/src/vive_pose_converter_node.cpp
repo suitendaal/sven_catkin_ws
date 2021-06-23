@@ -1,26 +1,61 @@
 #include "ros/ros.h"
-#include "geometry_msgs/TwistStamped.h"
 #include "geometry_msgs/PoseStamped.h"
-
 #include <sstream>
 
-
-void vive_pose_callback(const geometry_msgs::TwistStamped::ConstPtr& msg)
+class VivePoseConverterNode
 {
-	ROS_INFO("Message received");
-	// TODO: convert twist to pose with bounds
+public:
+	ros::NodeHandle nh;
+	
+	VivePoseConverterNode();
+    ~VivePoseConverterNode();
+	void run();
+
+private:
+	ros::Publisher pose_pub;
+	ros::Subscriber vive_sub;
+	
+	void vive_pose_callback(const geometry_msgs::PoseStamped::ConstPtr& msg);
+	bool pose_within_bounds(const geometry_msgs::PoseStamped::ConstPtr& msg);
+};
+
+VivePoseConverterNode::VivePoseConverterNode()
+: nh()
+{
+	pose_pub = nh.advertise<geometry_msgs::PoseStamped>("robot_input_pose", 1000);
+	vive_sub = nh.subscribe("/vive/pose1", 1000, &VivePoseConverterNode::vive_pose_callback, this);
 }
+
+VivePoseConverterNode::~VivePoseConverterNode()
+{
+	return;
+}
+
+void VivePoseConverterNode::run()
+{
+	ros::spin();
+}
+
+void VivePoseConverterNode::vive_pose_callback(const geometry_msgs::PoseStamped::ConstPtr& msg)
+{
+	ROS_INFO("Vive pose received");
+	if (pose_within_bounds(msg))
+	{
+		pose_pub.publish(msg);
+	}
+}
+
+bool VivePoseConverterNode::pose_within_bounds(const geometry_msgs::PoseStamped::ConstPtr& msg)
+{
+	return true;
+}
+
 
 int main(int argc, char **argv)
 {
 	ros::init(argc, argv, "vive_pose_converter");
-	ros::NodeHandle nh;
-
-	ros::Publisher chatter_pub = nh.advertise<geometry_msgs::PoseStamped>("robot_input_pose", 1000);
-	ros::Subscriber sub = nh.subscribe("/vive/twist1", 1000, vive_pose_callback);
-
-	ros::spin();
-
+	VivePoseConverterNode node;
+	node.run();
 	return 0;
 }
 
