@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<launch>
+
+  <rosparam param="/vive_pose_converter/x_min">-1</rosparam>
+  <rosparam param="/vive_pose_converter/x_max">1</rosparam>
+  <rosparam param="/vive_pose_converter/y_min">-1</rosparam>
+  <rosparam param="/vive_pose_converter/y_max">1</rosparam>
+  <rosparam param="/vive_pose_converter/z_min">-1</rosparam>
+  <rosparam param="/vive_pose_converter/z_max">1</rosparam>
+
+  <node name="vive_pose_converter_node" pkg="sven_ros" type="vive_pose_converter_node" output="screen" required="true"/>
+
+</launch>
+
