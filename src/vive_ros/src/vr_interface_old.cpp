@@ -1,6 +1,5 @@
 #include <iostream>
 #include <string>
-#include <math.h>
 #include <map>
 #include "vive_ros/vr_interface.h"
 
@@ -150,33 +149,6 @@ int VRInterface::GetDeviceVel(int index, double lin_vel[3], double ang_vel[3])
   return 0;
 }
 
-int VRInterface::GetDevicePose(int index, double position[3], double quaternion[4])
-{
-  if (index < max_devices_)
-  {
-    if (device_poses_[index].bDeviceIsConnected && device_poses_[index].eTrackingResult == vr::TrackingResult_Running_OK)
-    {
-      vr::HmdVector3_t position_;
-      vr::HmdQuaternion_t quaternion_;
-      
-      position_ = GetPosition(device_poses_[index].mDeviceToAbsoluteTracking);
-      quaternion_ = GetRotation(device_poses_[index].mDeviceToAbsoluteTracking);
-      
-      for (int i = 0; i < 3; i++) {
-      	position[i] = position_.v[i];
-      }
-      quaternion[0] = quaternion_.w;
-      quaternion[1] = quaternion_.x;
-      quaternion[2] = quaternion_.y;
-      quaternion[3] = quaternion_.z;
-      
-      return pHMD_->GetTrackedDeviceClass(index);
-    }
-  }
-    
-  return 0;
-}
-
 void VRInterface::UpdateCalibration()
 {
   vr::EVRInitError eError = vr::VRInitError_None;
@@ -228,35 +200,3 @@ void VRInterface::TriggerHapticPulse(vr::TrackedDeviceIndex_t unControllerDevice
 void VRInterface::setErrorMsgCallback(ErrorMsgCallback fn) { error_ = fn; }
 void VRInterface::setInfoMsgCallback(InfoMsgCallback fn) { info_ = fn; }
 void VRInterface::setDebugMsgCallback(DebugMsgCallback fn) { debug_ = fn; }
-
-//-----------------------------------------------------------------------------
-// Purpose: Calculates quaternion (qw,qx,qy,qz) representing the rotation
-// from: https://github.com/Omnifinity/OpenVR-Tracking-Example/blob/master/HTC%20Lighthouse%20Tracking%20Example/LighthouseTracking.cpp
-//-----------------------------------------------------------------------------
-
-vr::HmdQuaternion_t VRInterface::GetRotation(vr::HmdMatrix34_t matrix) {
-    vr::HmdQuaternion_t q;
-
-    q.w = sqrt(fmax(0, 1 + matrix.m[0][0] + matrix.m[1][1] + matrix.m[2][2])) / 2;
-    q.x = sqrt(fmax(0, 1 + matrix.m[0][0] - matrix.m[1][1] - matrix.m[2][2])) / 2;
-    q.y = sqrt(fmax(0, 1 - matrix.m[0][0] + matrix.m[1][1] - matrix.m[2][2])) / 2;
-    q.z = sqrt(fmax(0, 1 - matrix.m[0][0] - matrix.m[1][1] + matrix.m[2][2])) / 2;
-    q.x = copysign(q.x, matrix.m[2][1] - matrix.m[1][2]);
-    q.y = copysign(q.y, matrix.m[0][2] - matrix.m[2][0]);
-    q.z = copysign(q.z, matrix.m[1][0] - matrix.m[0][1]);
-    return q;
-}
-//-----------------------------------------------------------------------------
-// Purpose: Extracts position (x,y,z).
-// from: https://github.com/Omnifinity/OpenVR-Tracking-Example/blob/master/HTC%20Lighthouse%20Tracking%20Example/LighthouseTracking.cpp
-//-----------------------------------------------------------------------------
-
-vr::HmdVector3_t VRInterface::GetPosition(vr::HmdMatrix34_t matrix) {
-    vr::HmdVector3_t vector;
-
-    vector.v[0] = matrix.m[0][3];
-    vector.v[1] = matrix.m[1][3];
-    vector.v[2] = matrix.m[2][3];
-
-    return vector;
-}

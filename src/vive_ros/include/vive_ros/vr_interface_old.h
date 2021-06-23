@@ -27,7 +27,6 @@ class VRInterface
     
     int GetDeviceMatrix(int index, double pMatrix[3][4]);
     int GetDeviceVel(int index, double lin_vel[3], double ang_vel[3]);
-    int GetDevicePose(int index, double lin_vel[3], double ang_vel[3]);
     bool IsDeviceConnected(int index);
     
     void setErrorMsgCallback(ErrorMsgCallback fn);
@@ -41,9 +40,6 @@ class VRInterface
     vr::IVRChaperone *pChaperone_;
     
     uint max_devices_;
-    
-    vr::HmdQuaternion_t GetRotation(vr::HmdMatrix34_t matrix);
-    vr::HmdVector3_t GetPosition(vr::HmdMatrix34_t matrix);
     
   private:
     DebugMsgCallback debug_;
