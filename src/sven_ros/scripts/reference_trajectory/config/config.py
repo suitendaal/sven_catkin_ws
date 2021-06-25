@@ -77,7 +77,7 @@ for i in range(n_joints):
 plot_pos = True
 plot_pred = True
 plot_vel = True
-filter_cartesian_with_jump = True
+filter_cartesian_with_jump = False
 plot_cartesian_pos = True
 plot_cartesian_vel = True
 show_jumping_indexes = True
