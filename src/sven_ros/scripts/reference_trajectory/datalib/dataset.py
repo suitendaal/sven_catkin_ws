@@ -11,7 +11,7 @@ class DataSet():
 		self.starting_time = 0
 		self.aligned = False
 		for item in self.data:
-			item.time = (item.timestamp - (data[0].timestamp if self.aligned else 0)) / self.timefactor - self.starting_time
+			item.time = (item.timestamp - (data[0].timestamp if self.aligned else 0)) / self.timefactor + self.starting_time
 			
 	def __neg__(self):
 		result = DataSet()
@@ -65,7 +65,7 @@ class DataSet():
 		return result
 
 	def __setitem__(self, index, item):
-		item.time = (item.timestamp - (self.data.__getitem__(0).timestamp if self.aligned else 0)) / self.timefactor - self.starting_time
+		item.time = (item.timestamp - (self.data.__getitem__(0).timestamp if self.aligned else 0)) / self.timefactor + self.starting_time
 		return self.data.__setitem__(index, item)
 		
 	def __str__(self):
@@ -82,14 +82,14 @@ class DataSet():
 	def append(self, item, reset_time=False):
 		result = self.data.append(item)
 		if reset_time and item is not None:
-			item.time = (item.timestamp - (self.data.__getitem__(0).timestamp if self.aligned else 0)) / self.timefactor - self.starting_time
+			item.time = (item.timestamp - (self.data.__getitem__(0).timestamp if self.aligned else 0)) / self.timefactor + self.starting_time
 		return result
 
 	def align_time(self, starting_time=0):
 		self.starting_time = starting_time
 		self.aligned = True
 		for item in self.data:
-			item.time = (item.timestamp - (self.data.__getitem__(0).timestamp if self.aligned else 0)) / self.timefactor - self.starting_time
+			item.time = (item.timestamp - (self.data.__getitem__(0).timestamp if self.aligned else 0)) / self.timefactor + self.starting_time
 		return self
 
 	def get_xy(self):

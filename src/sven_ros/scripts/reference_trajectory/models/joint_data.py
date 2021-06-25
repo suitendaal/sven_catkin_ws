@@ -25,13 +25,13 @@ class JointData(object):
 	def starting_time(self):
 		result = 0
 		if len(self.jumping_indexes) > 0:
-			result = -self.pos_data[self.jumping_indexes[0]].time
+			result = self.pos_data[self.jumping_indexes[0]].time
 		return result
 		
 	def starting_time_before(self):
 		result = 0
 		if len(self.jumping_indexes) > 0:
-			result = -self.pos_data[self.jumping_indexes[0]-1].time
+			result = self.pos_data[self.jumping_indexes[0]-1].time
 		return result
 		
 	def jumps(self):

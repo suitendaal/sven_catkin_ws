@@ -40,8 +40,12 @@ class CartesianData(object):
 		velocity_estimator = kwargs.get('velocity_estimator',None)
 		orientation_filter = kwargs.get('orientation_filter',None)
 		orientation_velocity_estimator = kwargs.get('orientation_velocity_estimator',None)
+		with_jumps = kwargs.get('with_jumps',True)
 		
-		phases = len(self.jump_intervals) + 1
+		if with_jumps:
+			phases = len(self.jump_intervals) + 1
+		else:
+			phases = 1
 		
 		# Velocity	
 		if velocity_estimator is None:
@@ -50,6 +54,9 @@ class CartesianData(object):
 			self.z_vel_est = self.z_diff.copy()
 		
 		for i in range(phases):
+		
+			if not with_jumps:
+				i = -1
 		
 			# Between jumps
 			start, end = self.get_start_end(i)
@@ -98,7 +105,7 @@ class CartesianData(object):
 					
 						
 			# Within jump
-			if i != phases - 1:
+			if i != phases - 1 and i != -1:
 				start, end = self.jump_intervals[i]
 				if end == -1:
 					end = len(self.x)

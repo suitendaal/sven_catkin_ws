@@ -27,22 +27,22 @@ class EndEffector(object):
 	def append_data(self, x, y, z, q, jump_intervals):
 		self.cartesian_data.append(CartesianData(x,y,z,q,jump_intervals))
 		
-	def filter(self, datasets=None):
+	def filter(self, datasets=None, with_jumps=True):
 		if datasets is None:
 			datasets = range(len(self.cartesian_data))
 		for i in datasets:
-			self.cartesian_data[i].filter(position_filter=self.position_filter, velocity_estimator=self.velocity_estimator, orientation_filter=self.orientation_filter, orientation_velocity_estimator=self.orientation_velocity_estimator)
+			self.cartesian_data[i].filter(position_filter=self.position_filter, velocity_estimator=self.velocity_estimator, orientation_filter=self.orientation_filter, orientation_velocity_estimator=self.orientation_velocity_estimator, with_jumps=with_jumps)
 			
 	def align_time(self, dataset, phase):
 		if phase == 0:
 			# Align to impact
-			dataset.align_time(dataset[-1].time - dataset[0].time)
+			dataset.align_time(dataset[0].time - dataset[-1].time)
 		elif phase == len(self.cartesian_data[0].jump_intervals):
 			# Align to start
 			dataset.align_time()
 		else:
 			# Align to center
-			dataset.align_time((dataset[-1].time - dataset[0].time) / 2)
+			dataset.align_time((dataset[0].time - dataset[-1].time) / 2)
 			
 	def extend_position_velocity_data(self, dataset, phase, deleted_before=[], deleted_after=[]):
 		return self.extend_data(self.position_extender, dataset, phase, deleted_before=deleted_before, deleted_after=deleted_after)

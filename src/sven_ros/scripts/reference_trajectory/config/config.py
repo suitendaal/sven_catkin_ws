@@ -72,12 +72,18 @@ default_jump_detector = JumpAwareFilter(d_filter, d_vel_est, d_pred, d_bounder, 
 for i in range(n_joints):
 	joints[i].jump_detector = default_jump_detector.copy()
 	
-### Detect Jumps settings
+### Detect Jumps output settings
 
 plot_pos = True
 plot_pred = True
-plot_vel = False
+plot_vel = True
+filter_cartesian_with_jump = True
+plot_cartesian_pos = True
+plot_cartesian_vel = True
 show_jumping_indexes = True
+save_figs = True
+save_figs_location = 'figures/detect_jumps'
+show_figs = False
 
 ### Filtering settings
 
@@ -86,8 +92,18 @@ end_effector.velocity_estimator = LeastSquaresVelocityEstimator(window_length=20
 end_effector.orientation_filter = LeastSquaresFilter(window_length=20, order=3)
 end_effector.position_extender = ConstantVelocityExtender(timesteps=100, delta_time=0.01)
 
-### Output
+### Create reference output settings
+
+# Plotting settings
+plot_pos_mp = True
+plot_pos_data = True
+plot_vel_mp = True
+plot_vel_data = True
+save_trajectory_figs = True
+save_trajectory_figs_location = 'figures/create_trajectory'
+show_trajectory_figs = False
 
 # Output filename
+write_mps = True
 output_file = 'output/data.json'
 
