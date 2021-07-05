@@ -1,0 +1,5 @@
+Symlinking /home/sven/ialfd/sven_catkin_ws/devel/share/vive_ros/cmake/vive_rosConfig-version.cmake
+Symlinking /home/sven/ialfd/sven_catkin_ws/devel/share/vive_ros/cmake/vive_rosConfig.cmake
+Symlinking /home/sven/ialfd/sven_catkin_ws/devel/lib/vive_ros/vive_pose_node
+Symlinking /home/sven/ialfd/sven_catkin_ws/devel/lib/vive_ros/vive_node
+Symlinking /home/sven/ialfd/sven_catkin_ws/devel/lib/pkgconfig/vive_ros.pc

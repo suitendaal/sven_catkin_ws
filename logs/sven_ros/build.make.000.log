@@ -1,0 +1,4 @@
+[35m[1mScanning dependencies of target vive_pose_converter_node[0m
+[ 50%] [32mBuilding CXX object CMakeFiles/vive_pose_converter_node.dir/src/vive_pose_converter_node.cpp.o[0m
+[100%] [32m[1mLinking CXX executable /home/sven/ialfd/sven_catkin_ws/devel/.private/sven_ros/lib/sven_ros/vive_pose_converter_node[0m
+[100%] Built target vive_pose_converter_node

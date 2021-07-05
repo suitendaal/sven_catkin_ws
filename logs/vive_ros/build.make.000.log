@@ -1,0 +1,18 @@
+[35m[1mScanning dependencies of target vive_node[0m
+[  7%] [32mBuilding CXX object CMakeFiles/vive_node.dir/home/sven/libraries/openvr/samples/shared/Matrices.cpp.o[0m
+[ 14%] [32mBuilding CXX object CMakeFiles/vive_node.dir/home/sven/libraries/openvr/samples/shared/lodepng.cpp.o[0m
+[ 21%] [32mBuilding CXX object CMakeFiles/vive_node.dir/home/sven/libraries/openvr/samples/shared/pathtools.cpp.o[0m
+[ 28%] [32mBuilding CXX object CMakeFiles/vive_node.dir/home/sven/libraries/openvr/samples/shared/strtools.cpp.o[0m
+[ 35%] [32mBuilding CXX object CMakeFiles/vive_node.dir/src/vive_node.cpp.o[0m
+[35m[1mScanning dependencies of target vive_pose_node[0m
+[ 42%] [32mBuilding CXX object CMakeFiles/vive_pose_node.dir/home/sven/libraries/openvr/samples/shared/Matrices.cpp.o[0m
+[ 50%] [32mBuilding CXX object CMakeFiles/vive_pose_node.dir/home/sven/libraries/openvr/samples/shared/lodepng.cpp.o[0m
+[ 57%] [32mBuilding CXX object CMakeFiles/vive_pose_node.dir/home/sven/libraries/openvr/samples/shared/pathtools.cpp.o[0m
+[ 64%] [32mBuilding CXX object CMakeFiles/vive_pose_node.dir/home/sven/libraries/openvr/samples/shared/strtools.cpp.o[0m
+[ 71%] [32mBuilding CXX object CMakeFiles/vive_pose_node.dir/src/vive_pose_node.cpp.o[0m
+[ 78%] [32mBuilding CXX object CMakeFiles/vive_node.dir/src/vr_interface.cpp.o[0m
+[ 85%] [32mBuilding CXX object CMakeFiles/vive_pose_node.dir/src/vr_interface.cpp.o[0m
+[ 92%] [32m[1mLinking CXX executable /home/sven/ialfd/sven_catkin_ws/devel/.private/vive_ros/lib/vive_ros/vive_node[0m
+[ 92%] Built target vive_node
+[100%] [32m[1mLinking CXX executable /home/sven/ialfd/sven_catkin_ws/devel/.private/vive_ros/lib/vive_ros/vive_pose_node[0m
+[100%] Built target vive_pose_node

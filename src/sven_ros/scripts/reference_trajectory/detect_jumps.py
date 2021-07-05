@@ -51,6 +51,7 @@ for i in range(config.n_joints):
 			plt.xlabel('Time [s]',fontsize=fontsize2)
 			plt.ylabel('Position [rad]',fontsize=fontsize2)
 			plt.legend(['Position data','Filtered data','Predicted data','Jumps'],fontsize=fontsize2)
+			plt.xlim(config.jumps_x_lim[j])
 			
 			if config.save_figs:
 				plt.savefig(config.save_figs_location + '/' + fig.axes[0].get_title() + '.png')
@@ -82,6 +83,7 @@ for i in range(config.n_joints):
 			plt.xlabel('Time [s]',fontsize=fontsize2)
 			plt.ylabel('Position [rad]',fontsize=fontsize2)
 			plt.legend(['Predictions','Bounds','Jumps'],fontsize=fontsize2)
+			plt.xlim(config.jumps_x_lim[j])
 			
 			if config.save_figs:
 				plt.savefig(config.save_figs_location + '/' + fig.axes[0].get_title() + '.png')
@@ -113,6 +115,7 @@ for i in range(config.n_joints):
 			plt.xlabel('Time [s]',fontsize=fontsize2)
 			plt.ylabel('Velocity [rad/s]',fontsize=fontsize2)
 			plt.legend(['Euler differentiation','Estimation','Jumps'],fontsize=fontsize2)
+			plt.xlim(config.jumps_x_lim[j])
 			
 			if config.save_figs:
 				plt.savefig(config.save_figs_location + '/' + fig.axes[0].get_title() + '.png')
@@ -187,6 +190,7 @@ if config.plot_cartesian_pos or config.plot_cartesian_vel:
 				plt.xlabel('Time [s]',fontsize=fontsize2)
 				plt.ylabel('Position [rad]',fontsize=fontsize2)
 				plt.legend(legend,fontsize=fontsize2)
+				plt.xlim(config.jumps_x_lim[j])
 				
 				if config.save_figs:
 					plt.savefig(config.save_figs_location + '/' + fig.axes[0].get_title() + '.png')
@@ -232,6 +236,7 @@ if config.plot_cartesian_pos or config.plot_cartesian_vel:
 				plt.xlabel('Time [s]',fontsize=fontsize2)
 				plt.ylabel('Velocity [rad/s]',fontsize=fontsize2)
 				plt.legend(legend,fontsize=fontsize2)
+				plt.xlim(config.jumps_x_lim[j])
 				
 				if config.save_figs:
 					plt.savefig(config.save_figs_location + '/' + fig.axes[0].get_title() + '.png')

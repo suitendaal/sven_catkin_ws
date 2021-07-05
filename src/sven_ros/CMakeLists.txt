@@ -17,11 +17,15 @@ catkin_package()
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
+  include
   ${catkin_INCLUDE_DIRS}
 )
 
-# Build node
+# Build VIVE pose converter node
 add_executable(vive_pose_converter_node src/vive_pose_converter_node.cpp)
 target_link_libraries(vive_pose_converter_node ${catkin_LIBRARIES})
+
+# Build jump detector node
+add_executable(jump_detector_node src/jump_detector_node.cpp)
+target_link_libraries(jump_detector_node ${catkin_LIBRARIES})
 

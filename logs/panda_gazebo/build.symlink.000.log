@@ -1,0 +1,5 @@
+Symlinking /home/sven/ialfd/sven_catkin_ws/devel/share/panda_gazebo/cmake/panda_gazeboConfig.cmake
+Symlinking /home/sven/ialfd/sven_catkin_ws/devel/share/panda_gazebo/cmake/panda_gazeboConfig-version.cmake
+Symlinking /home/sven/ialfd/sven_catkin_ws/devel/lib/libpanda_gazebo_ros_control.so
+Symlinking /home/sven/ialfd/sven_catkin_ws/devel/lib/libpanda_robot_hw_sim.so
+Symlinking /home/sven/ialfd/sven_catkin_ws/devel/lib/pkgconfig/panda_gazebo.pc

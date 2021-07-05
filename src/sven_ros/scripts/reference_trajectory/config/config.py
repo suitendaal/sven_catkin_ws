@@ -84,6 +84,8 @@ show_jumping_indexes = True
 save_figs = True
 save_figs_location = 'figures/detect_jumps'
 show_figs = False
+#jumps_x_lim = [(3.6,4.2),(4.3,4.9),(4.6,5.2)]
+jumps_x_lim = [(3.2,4.4),(3.6,5.0),(4.6,5.6)]
 
 ### Filtering settings
 
