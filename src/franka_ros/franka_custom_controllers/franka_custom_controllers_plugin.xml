@@ -1,5 +1,5 @@
-<library path="lib/libfranka_example_controllers">
-  <class name="franka_example_controllers/ImpactAwareCartesianImpedanceController" type="franka_example_controllers::ImpactAwareCartesianImpedanceController" base_class_type="controller_interface::ControllerBase">
+<library path="lib/libfranka_custom_controllers">
+  <class name="franka_custom_controllers/ImpactAwareCartesianImpedanceController" type="franka_custom_controllers::ImpactAwareCartesianImpedanceController" base_class_type="controller_interface::ControllerBase">
     <description>
       TODO.
     </description>

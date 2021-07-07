@@ -20,7 +20,7 @@
 #include <franka_hw/franka_model_interface.h>
 #include <franka_hw/franka_state_interface.h>
 
-namespace franka_example_controllers {
+namespace franka_custom_controllers {
 
 enum class ControlMode {
   default_control_mode = 0,
@@ -76,4 +76,4 @@ class ImpactAwareCartesianImpedanceController : public controller_interface::Mul
   void equilibriumPoseCallback(const geometry_msgs::PoseStampedConstPtr& msg);
 };
 
-}  // namespace franka_example_controllers
+}  // namespace franka_custom_controllers

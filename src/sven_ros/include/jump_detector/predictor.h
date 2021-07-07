@@ -10,7 +10,7 @@ class Predictor {
   private:
   
   public:
-  virtual double predict(std::vector<DataPoint> data, double time) = 0;
+  virtual bool predict(std::vector<DataPoint> data, double time, double &value) = 0;
 
 };
 

@@ -8,6 +8,8 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
 )
 
+find_package(Eigen3 REQUIRED)
+
 ## Generate added messages and services
 #generate_messages(DEPENDENCIES std_msgs)
 
@@ -19,6 +21,7 @@ catkin_package()
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
+  ${EIGEN3_INCLUDE_DIRS}
 )
 
 # Build VIVE pose converter node

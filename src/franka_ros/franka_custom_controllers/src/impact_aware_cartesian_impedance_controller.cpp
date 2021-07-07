@@ -12,7 +12,7 @@
 
 #include <franka_example_controllers/pseudo_inversion.h>
 
-namespace franka_example_controllers {
+namespace franka_custom_controllers {
 
 bool ImpactAwareCartesianImpedanceController::init(hardware_interface::RobotHW* robot_hw, ros::NodeHandle& node_handle) {
   // Not used?
@@ -158,7 +158,7 @@ void ImpactAwareCartesianImpedanceController::update(const ros::Time& /*time*/,
   // pseudoinverse for nullspace handling
   // kinematic pseuoinverse
   Eigen::MatrixXd jacobian_transpose_pinv;
-  pseudoInverse(jacobian.transpose(), jacobian_transpose_pinv);
+  franka_example_controllers::pseudoInverse(jacobian.transpose(), jacobian_transpose_pinv);
 
   // Cartesian PD control with damping ratio = 1
   switch (control_mode) {
@@ -226,7 +226,7 @@ void ImpactAwareCartesianImpedanceController::equilibriumPoseCallback(const geom
   }
 }
 
-}  // namespace franka_example_controllers
+}  // namespace franka_custom_controllers
 
-PLUGINLIB_EXPORT_CLASS(franka_example_controllers::ImpactAwareCartesianImpedanceController,
+PLUGINLIB_EXPORT_CLASS(franka_custom_controllers::ImpactAwareCartesianImpedanceController,
                        controller_interface::ControllerBase)

@@ -18,7 +18,7 @@ class JumpDetector {
     data_()
     {}
   
-  	virtual bool datapoint_arrived(double value, double time) {
+  	virtual bool datapoint_arrived(double time, double value) {
   	  DataPoint datapoint(time,value);
   	  data_.push(datapoint);
   	  if (data_.size() > max_window_length_ + 1) {

@@ -30,7 +30,7 @@ find_package(Franka 0.7.0 REQUIRED)
 #  JointTorqueComparison.msg
 #)
 
-#generate_messages()
+#generate_messages(DEPENDENCIES std_msgs)
 
 #generate_dynamic_reconfigure_options(
 #  cfg/compliance_param.cfg

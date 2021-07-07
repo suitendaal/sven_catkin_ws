@@ -10,7 +10,7 @@ class Bounder {
   private:
   
   public:
-  virtual double bound(std::vector<DataPoint> data, double time) = 0;
+  virtual bool bound(std::vector<DataPoint> data, double time, double &value) = 0;
 
 };
 
