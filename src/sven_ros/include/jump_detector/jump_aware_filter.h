@@ -42,6 +42,7 @@ private:
       
       if (predictor_->predict(v, time, predicted_value) && bounder_->bound(v, time, bounded_value)) {
       	jump_detected = abs(predicted_value - value) > bounded_value;
+      	std::cout << "Value: " << value << ", Predicted value: " << predicted_value << ", Jump detected: " << jump_detected << std::endl;
       }
       
       if (jump_detected) {

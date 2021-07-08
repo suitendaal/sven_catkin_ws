@@ -3,12 +3,28 @@
 
 #include <vector>
 #include <Eigen/Dense>
-#include <iostream>
 
 namespace polynomial {
+
+  std::vector<double> polyfit(std::vector<double> times, std::vector<double> values, int order);
+  std::vector<double> polyfit(std::vector<double> times, std::vector<double> values, int order, std::vector<double> weights);
+  double polyval(std::vector<double> coefficients, double time);
+
   
   // Stores a vector containing the coefficients of polyfit
   std::vector<double> polyfit(std::vector<double> times, std::vector<double> values, int order) {
+    
+    std::vector<double> weights(times.size());
+    for (int i = 0; i < weights.size(); i++) {
+      weights[i] = 1;
+    }
+    
+    return polyfit(times, values, order, weights);
+    
+  }
+  
+  // Returns a vector containing the coefficients of weighted polyfit
+  std::vector<double> polyfit(std::vector<double> times, std::vector<double> values, int order, std::vector<double> weights) {
     
     // Result
     std::vector<double> coefficients;
@@ -22,31 +38,30 @@ namespace polynomial {
       }
     }
     
-    std::cout << T << std::endl;
-    
     // Outcome vector
     Eigen::VectorXd y(values.size());
     for (int i = 0; i < values.size(); i++) {
       y(i) = values[i];
     }
     
-    // Coefficients vector, doesnt go very well
-    Eigen::VectorXd coefs = T.completeOrthogonalDecomposition().pseudoInverse().transpose() * y;
+    // Multiply with weights
+    Eigen::VectorXd w(weights.size());
+    for (int i = 0; i < weights.size(); i++) {
+      w(i) = weights[i];
+    }
+    T.array().colwise() *= w.array();
+    y.array() *= w.array();
+    
+    // Coefficients vector
+    Eigen::VectorXd coefs(order + 1);
+    Eigen::MatrixXd pinv(T.completeOrthogonalDecomposition().pseudoInverse());
+    coefs << pinv * y;
 
     for (int i = 0; i < order + 1; i++) {
       coefficients.push_back(coefs(i));
     }
     
     return coefficients;
-  }
-  
-  // Returns a vector containing the coefficients of weighted polyfit
-  std::vector<double> polyfit(std::vector<double> times, std::vector<double> values, int order, std::vector<double> weights) {
-    for (int i = 0; i < times.size(); i++) {
-      times[i] = times[i] * weights[i];
-      values[i] = values[i] * weights[i];
-    }
-    return polyfit(times, values, order);
   }
   
   // Returns the evaluation of a polynomial
