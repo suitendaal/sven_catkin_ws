@@ -1,0 +1,30 @@
+<?xml version="1.0" ?>
+<launch>
+  <node name="jump_detector_joint1" pkg="sven_ros" type="jump_detector_node" output="screen" required="true">
+    <rosparam command="load" file="$(find sven_ros)/config/jump_detector/jump_detector_joint1.yaml" />
+  </node>
+  
+  <node name="jump_detector_joint2" pkg="sven_ros" type="jump_detector_node" output="screen" required="true">
+    <rosparam command="load" file="$(find sven_ros)/config/jump_detector/jump_detector_joint2.yaml" />
+  </node>
+  
+  <node name="jump_detector_joint3" pkg="sven_ros" type="jump_detector_node" output="screen" required="true">
+    <rosparam command="load" file="$(find sven_ros)/config/jump_detector/jump_detector_joint3.yaml" />
+  </node>
+  
+  <node name="jump_detector_joint4" pkg="sven_ros" type="jump_detector_node" output="screen" required="true">
+    <rosparam command="load" file="$(find sven_ros)/config/jump_detector/jump_detector_joint4.yaml" />
+  </node>
+  
+  <node name="jump_detector_joint5" pkg="sven_ros" type="jump_detector_node" output="screen" required="true">
+    <rosparam command="load" file="$(find sven_ros)/config/jump_detector/jump_detector_joint5.yaml" />
+  </node>
+  
+  <node name="jump_detector_joint6" pkg="sven_ros" type="jump_detector_node" output="screen" required="true">
+    <rosparam command="load" file="$(find sven_ros)/config/jump_detector/jump_detector_joint6.yaml" />
+  </node>
+  
+  <node name="jump_detector_joint7" pkg="sven_ros" type="jump_detector_node" output="screen" required="true">
+    <rosparam command="load" file="$(find sven_ros)/config/jump_detector/jump_detector_joint7.yaml" />
+  </node>
+</launch>

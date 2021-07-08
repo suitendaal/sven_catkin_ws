@@ -6,15 +6,20 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  sensor_msgs
+  message_generation
 )
 
 find_package(Eigen3 REQUIRED)
 
 ## Generate added messages and services
-#generate_messages(DEPENDENCIES std_msgs)
+add_message_files(FILES BoolStamped.msg)
+generate_messages(DEPENDENCIES std_msgs)
 
 # Declare catkin package
-catkin_package()
+catkin_package(CATKIN_DEPENDS 
+  message_runtime
+)
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations

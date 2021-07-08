@@ -1,0 +1,10 @@
+joint: 2
+ja_filter_config:
+  max_window_length: 20
+predictor_config:
+  order: 3
+  n_not_analyzed: 2
+  min_n_datapoints: 4
+bounder_config:
+  bound: 0.9
+
