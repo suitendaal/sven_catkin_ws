@@ -1,0 +1,6 @@
+#ifndef SVEN_ROS_CONTROLLER_NODE_H
+#define SVEN_ROS_CONTROLLER_NODE_H
+
+#include <ros/ros.h>
+
+#endif // SVEN_ROS_CONTROLLER_NODE_H

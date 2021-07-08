@@ -37,3 +37,7 @@ target_link_libraries(vive_pose_converter_node ${catkin_LIBRARIES})
 add_executable(jump_detector_node src/jump_detector_node.cpp)
 target_link_libraries(jump_detector_node ${catkin_LIBRARIES})
 
+# Build sven ros controller node
+add_executable(sven_ros_controller_node src/sven_ros_controller_node.cpp)
+target_link_libraries(sven_ros_controller_node ${catkin_LIBRARIES})
+

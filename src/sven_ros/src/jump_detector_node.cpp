@@ -1,7 +1,7 @@
-#include "sven_ros/jump_detector_node.h"
-#include "jump_detector/jump_aware_filter.h"
-#include "jump_detector/constant_bounder.h"
-#include "jump_detector/weighted_predictor.h"
+#include <sven_ros/jump_detector_node.h>
+#include <jump_detector/jump_aware_filter.h>
+#include <jump_detector/constant_bounder.h>
+#include <jump_detector/weighted_predictor.h>
 
 JumpDetectorNode::JumpDetectorNode(int joint, JumpDetector &detector)
 : joint_(joint),
