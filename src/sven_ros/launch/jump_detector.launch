@@ -2,29 +2,36 @@
 <launch>
   <node name="jump_detector_joint1" pkg="sven_ros" type="jump_detector_node" output="screen" required="true">
     <rosparam command="load" file="$(find sven_ros)/config/jump_detector/jump_detector_joint1.yaml" />
+    <remap from="/sven_ros/jump_detector" to="/sven_ros/jump_detector1"/>
   </node>
   
   <node name="jump_detector_joint2" pkg="sven_ros" type="jump_detector_node" output="screen" required="true">
     <rosparam command="load" file="$(find sven_ros)/config/jump_detector/jump_detector_joint2.yaml" />
+    <remap from="/sven_ros/jump_detector" to="/sven_ros/jump_detector2"/>
   </node>
   
   <node name="jump_detector_joint3" pkg="sven_ros" type="jump_detector_node" output="screen" required="true">
     <rosparam command="load" file="$(find sven_ros)/config/jump_detector/jump_detector_joint3.yaml" />
+    <remap from="/sven_ros/jump_detector" to="/sven_ros/jump_detector3"/>
   </node>
   
   <node name="jump_detector_joint4" pkg="sven_ros" type="jump_detector_node" output="screen" required="true">
     <rosparam command="load" file="$(find sven_ros)/config/jump_detector/jump_detector_joint4.yaml" />
+    <remap from="/sven_ros/jump_detector" to="/sven_ros/jump_detector4"/>
   </node>
   
   <node name="jump_detector_joint5" pkg="sven_ros" type="jump_detector_node" output="screen" required="true">
     <rosparam command="load" file="$(find sven_ros)/config/jump_detector/jump_detector_joint5.yaml" />
+    <remap from="/sven_ros/jump_detector" to="/sven_ros/jump_detector5"/>
   </node>
   
   <node name="jump_detector_joint6" pkg="sven_ros" type="jump_detector_node" output="screen" required="true">
     <rosparam command="load" file="$(find sven_ros)/config/jump_detector/jump_detector_joint6.yaml" />
+    <remap from="/sven_ros/jump_detector" to="/sven_ros/jump_detector6"/>
   </node>
   
   <node name="jump_detector_joint7" pkg="sven_ros" type="jump_detector_node" output="screen" required="true">
     <rosparam command="load" file="$(find sven_ros)/config/jump_detector/jump_detector_joint7.yaml" />
+    <remap from="/sven_ros/jump_detector" to="/sven_ros/jump_detector7"/>
   </node>
 </launch>
