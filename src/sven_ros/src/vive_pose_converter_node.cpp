@@ -18,27 +18,27 @@ VivePoseConverterNode::VivePoseConverterNode()
 	vive_sub = nh.subscribe("/vive/pose1", 1000, &VivePoseConverterNode::vive_pose_callback, this);
 	
 	if (nh.getParam("/vive_pose_converter/x_min", x_min)) {
-		ROS_INFO_STREAM("X min received: " << x_min);
+		ROS_INFO_STREAM("X min set to " << x_min);
 		x_bounded = true;
 	}
 	if (nh.getParam("/vive_pose_converter/x_max", x_max)) {
-		ROS_INFO_STREAM("X max received: " << x_max);
+		ROS_INFO_STREAM("X max set to " << x_max);
 		x_bounded = true;
 	}
 	if (nh.getParam("/vive_pose_converter/y_min", y_min)) {
-		ROS_INFO_STREAM("Y min received: " << y_min);
+		ROS_INFO_STREAM("Y min set to " << y_min);
 		y_bounded = true;
 	}
 	if (nh.getParam("/vive_pose_converter/y_max", y_max)) {
-		ROS_INFO_STREAM("Y max received: " << y_max);
+		ROS_INFO_STREAM("Y max set to " << y_max);
 		y_bounded = true;
 	}
 	if (nh.getParam("/vive_pose_converter/z_min", z_min)) {
-		ROS_INFO_STREAM("Z min received: " << z_min);
+		ROS_INFO_STREAM("Z min set to " << z_min);
 		z_bounded = true;
 	}
 	if (nh.getParam("/vive_pose_converter/z_max", z_max)) {
-		ROS_INFO_STREAM("Z max received: " << z_max);
+		ROS_INFO_STREAM("Z max set to " << z_max);
 		z_bounded = true;
 	}
 }
