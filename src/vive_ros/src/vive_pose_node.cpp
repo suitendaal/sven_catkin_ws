@@ -694,7 +694,7 @@ void VIVEPoseNode::Run()
         // std::cout<<"HMD:";
         // std::cout<<twist_msg_stamped;
     }
-    if (vr_.GetDeviceVel(1, position, quaternion))
+    if (vr_.GetDevicePose(1, position, quaternion))
     {
         geometry_msgs::Pose pose_msg;
         pose_msg.position.x = position[0];
@@ -715,7 +715,7 @@ void VIVEPoseNode::Run()
         // std::cout<<"Controller 1:";
         // std::cout<<twist_msg_stamped;
     }
-    if (vr_.GetDeviceVel(2, position, quaternion))
+    if (vr_.GetDevicePose(2, position, quaternion))
     {
         geometry_msgs::Pose pose_msg;
         pose_msg.position.x = position[0];
@@ -736,7 +736,7 @@ void VIVEPoseNode::Run()
         // std::cout<<"Controller 2:";
         // std::cout<<twist_msg_stamped;
     }
-    if (vr_.GetDeviceVel(3, position, quaternion))
+    if (vr_.GetDevicePose(3, position, quaternion))
     {
         geometry_msgs::Pose pose_msg;
         pose_msg.position.x = position[0];
@@ -757,7 +757,7 @@ void VIVEPoseNode::Run()
         // std::cout<<"Controller 3:";
         // std::cout<<twist_msg_stamped;
     }
-    if (vr_.GetDeviceVel(4, position, quaternion))
+    if (vr_.GetDevicePose(4, position, quaternion))
     {
         geometry_msgs::Pose pose_msg;
         pose_msg.position.x = position[0];
@@ -841,7 +841,7 @@ int main(int argc, char** argv){
 #ifdef USE_IMAGE
   VIVEPoseNode nodeApp(90); // VIVE display max fps
 #else
-  VIVEPoseNode nodeApp(30);
+  VIVEPoseNode nodeApp(90);
 #endif
   if (!nodeApp.Init()){
     nodeApp.Shutdown();

@@ -7,10 +7,11 @@
   <rosparam param="/vive_pose_converter/y_max">1</rosparam>
   <rosparam param="/vive_pose_converter/z_min">-1</rosparam>
   <rosparam param="/vive_pose_converter/z_max">1</rosparam>
+  <rosparam param="/vive_pose_converter/max_vel">2</rosparam>
 
   <node name="vive_pose_converter_node" pkg="sven_ros" type="vive_pose_converter_node" output="screen" required="true">
   	<remap from="/vive_pose_converter/pose" to="/equilibrium_pose"/>
-  	<remap from="/vive/pose1" to="/vive/pose1"/>
+  	<remap from="/vive/pose1" to="/vive/pose3"/>
   </node>
 
 </launch>
