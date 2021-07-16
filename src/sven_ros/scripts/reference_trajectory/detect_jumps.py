@@ -188,7 +188,7 @@ if config.plot_cartesian_pos or config.plot_cartesian_vel:
 				elif k == 2:
 					plt.title('Cartesian z, data ' + str(j+1) + ': Position',fontsize=fontsize1)
 				plt.xlabel('Time [s]',fontsize=fontsize2)
-				plt.ylabel('Position [rad]',fontsize=fontsize2)
+				plt.ylabel('Position [m]',fontsize=fontsize2)
 				plt.legend(legend,fontsize=fontsize2)
 				plt.xlim(config.jumps_x_lim[j])
 				
@@ -234,7 +234,7 @@ if config.plot_cartesian_pos or config.plot_cartesian_vel:
 				elif k == 2:
 					plt.title('Cartesian z, data ' + str(j+1) + ': Velocity',fontsize=fontsize1)
 				plt.xlabel('Time [s]',fontsize=fontsize2)
-				plt.ylabel('Velocity [rad/s]',fontsize=fontsize2)
+				plt.ylabel('Velocity [m/s]',fontsize=fontsize2)
 				plt.legend(legend,fontsize=fontsize2)
 				plt.xlim(config.jumps_x_lim[j])
 				

@@ -841,7 +841,7 @@ int main(int argc, char** argv){
 #ifdef USE_IMAGE
   VIVEPoseNode nodeApp(90); // VIVE display max fps
 #else
-  VIVEPoseNode nodeApp(90);
+  VIVEPoseNode nodeApp(30);
 #endif
   if (!nodeApp.Init()){
     nodeApp.Shutdown();

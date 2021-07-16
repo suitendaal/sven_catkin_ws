@@ -24,7 +24,7 @@ class LeastSquaresFilter(Filter):
 			start = max(0, i - window_length)
 			end = i + 1
 			order = min(end - start - 1, self.order)
-			if order == 0:
+			if order < self.order:
 				result.append(data[i].copy())
 				continue
 			subset = data[start:end]

@@ -1,0 +1,56 @@
+Demo 1:
+-Taak: Robot botst tegen rubberen vloer
+-Stiffness in x, y en z zijn op 0 gezet
+-Kinestethic demonstratie gegeven
+-Stiffnesses weer op 400 gezet
+-Rosbag gereplayed op snelheid 1, 1.5 en 2
+
+Demo 2:
+-Replay op 2 was te snel voor de limieten
+-Video gemaakt bij 1.5
+
+Demo 3:
+-Alleen stiffness in z op 0 gezet voor demonstraties
+-Bij 1.5a werd de rubberen tafel niet geraakt, daarom extra rubber erop gelegd en nog een keer 1.5b gemeten
+-1.5a en 1.5b zijn beide gefilmd
+
+Demo 4:
+-Alleen stiffness in z op 0 gezet voor demonstraties
+-Bij herhalen 1.0 extra (klein) rubbertje erop gelegd om zeker contact te maken
+-Gefilmd bij 1.0
+-Bij herhalen 1.5a gefilmd. Maakte geen contact met kleine rubbertje
+-Bij 1.5b gefilmd. Groter rubber gebruikt
+
+Demo 5:
+-Stiffness x, y, z op 2000 (max) gezet en rotational stiffness op 50 (was 30) gezet.
+-Bij demonstratie z stiffness naar 0
+-Bij 1.0 replay was er geen rubber meer nodig. Gefilmd.
+-1.5 ging te hard
+-1.3 ging goed, zonder rubber. Gefilmd
+
+Demo 6:
+-Stiffness x, y, z op 2000 (max) gezet en rotational stiffness op 50 (was 30) gezet.
+-Bij demonstratie z stiffness naar 0
+-1.0 Gefilmd
+-1.3 Gefilmd
+-1.5 gefilmd
+
+
+
+
+
+
+
+Filmpjes:
+1. 2.1_5
+2. 3.1_5a
+3. 3.1_5b
+4. 4.1_0
+5. 4.1_5a
+6. 4.1_5b
+7. 5.1_0
+8. 5.1_3
+9. 6.1_0
+10. 6.1_3
+11. 6.1_5
+
