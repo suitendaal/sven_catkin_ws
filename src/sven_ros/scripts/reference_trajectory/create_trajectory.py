@@ -141,3 +141,4 @@ plt.show()
 # Write promps
 if config.write_mps:
 	write_promps(config.output_file, end_effector.to_dict())
+	

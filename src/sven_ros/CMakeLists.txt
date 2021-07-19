@@ -12,6 +12,8 @@ find_package(catkin REQUIRED COMPONENTS
 
 find_package(Eigen3 REQUIRED)
 
+catkin_python_setup()
+
 ## Generate added messages and services
 add_message_files(DIRECTORY msg
 	FILES BoolStamped.msg
