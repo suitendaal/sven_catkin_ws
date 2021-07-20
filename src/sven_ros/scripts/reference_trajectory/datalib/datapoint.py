@@ -52,7 +52,7 @@ class DataPoint(object):
 
 	def __le__(self, x):
 		if self < x:
-			return true
+			return True
 		return self == x
 
 	def __gt__(self, x):

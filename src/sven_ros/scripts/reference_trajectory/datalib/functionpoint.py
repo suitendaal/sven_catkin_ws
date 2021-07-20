@@ -5,10 +5,13 @@ from .datapoint import *
 class FunctionPoint(DataPoint):
 	"""docstring for DataPoint."""
 
-	def evaluate(self):
+	def evaluate(self, time=None):
+		if time is None:
+			time = self.time
+		
 		result = self.copy()
 		if self.value is not None:
-			result.value = self.value(self.time)
+			result.value = self.value(time)
 		else:
 			result.value = (None, [])
 		return result

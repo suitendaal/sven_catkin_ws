@@ -29,6 +29,8 @@ class JumpAwareFilter(object):
 		
 		prediction_functions = DataSet(timefactor=data.timefactor)
 		bound_functions = DataSet(timefactor=data.timefactor)
+		
+		window_lengths = []
 
 		window_length = 0
 		prediction = None
@@ -80,6 +82,8 @@ class JumpAwareFilter(object):
 				prediction_fun = None
 				bound_fun = None
 
+			window_lengths.append(window_length)
+
 			window_length = min(window_length + 1, self.max_window_length)
 		
 		
@@ -90,5 +94,5 @@ class JumpAwareFilter(object):
 		prediction_functions.align_time()
 		bound_functions.align_time()
 
-		return filtered_data, vel_data, jumping_indexes, [predictions, bounds, prediction_functions, bound_functions]
+		return filtered_data, vel_data, jumping_indexes, [predictions, bounds, prediction_functions, bound_functions, window_lengths]
 
