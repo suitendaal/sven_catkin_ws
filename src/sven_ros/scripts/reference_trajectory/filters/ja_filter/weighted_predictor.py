@@ -14,7 +14,7 @@ class WeightedPredictor(BasePredictor):
 		return WeightedPredictor(order=self.order,frequency=self.frequency)
 
 	def predict(self, data, window_length, time, **kwargs):
-		order = min(int(window_length / self.frequency), self.order)
+		order = min(int(window_length / self.frequency - 1), self.order)
 		if order < self.order:
 			return None, []
 
@@ -22,12 +22,14 @@ class WeightedPredictor(BasePredictor):
 		y = []
 		w = []
 		j = 1
+		
 		for i in range(len(data)):
 			if i % self.frequency == 0:
 				x.append(data[i].time)
 				y.append(data[i].value)
 				w.append(1/j)
 				j += 1
+				
 		coefs = np.polyfit(x, y, order, w=w)
 		value = 0
 		for j in range(len(coefs)):

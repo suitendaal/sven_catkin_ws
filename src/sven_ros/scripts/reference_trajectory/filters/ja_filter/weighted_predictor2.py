@@ -18,7 +18,7 @@ class WeightedPredictor2(BasePredictor):
 		order = min(min(window_length, self.order), len(data) - self.remove_indices)
 		if order < self.order:
 			return None, []
-
+		
 		x = []
 		y = []
 		w = []

@@ -32,15 +32,15 @@ for i in range(config.n_joints):
 
 			# Position data
 			x0,y0 = (pos_data - filtered_data[0]).get_xy()
-			plt.plot(x0,y0,'C0-',linewidth=2)
+			plt.plot(x0,y0,'C0-*',linewidth=2,markersize=8)
 
 			# Filtered data
 			x1,y1 = (filtered_data - filtered_data[0]).get_xy()
-			plt.plot(x1,y1,'C1-',linewidth=2)
+			plt.plot(x1,y1,'C1-*',linewidth=2,markersize=8)
 
 			# Predicted data
 			x2,y2 = (predictions - filtered_data[0]).get_xy()
-			plt.plot(x2,y2,'C2-',linewidth=2)
+			plt.plot(x2,y2,'C2-*',linewidth=2,markersize=8)
 			
 			# Jump times
 			x3,y3 = (pos_jump - filtered_data[0]).get_xy()
@@ -68,11 +68,11 @@ for i in range(config.n_joints):
 			
 			# Difference between prediction and encoder data
 			x4,y4 = (abs(pos_data - predictions)).get_xy()
-			plt.plot(x4,y4,'C0-',linewidth=2)
+			plt.plot(x4,y4,'C0-*',linewidth=2,markersize=8)
 			
 			# Bound
 			x5,y5 = bounds.get_xy()
-			plt.plot(x5,y5,'C1-',linewidth=2)
+			plt.plot(x5,y5,'C1-*',linewidth=2,markersize=8)
 			
 			# Jump times
 			x6,y6 = DataSet([abs(pos_data - predictions)[index] for index in jumping_indexes],timefactor=1000000).align_time(starting_time).get_xy()
@@ -100,11 +100,11 @@ for i in range(config.n_joints):
 			
 			# Velocity data
 			x7,y7 = pos_data.diff().get_xy()
-			plt.plot(x7,y7,'C0-',linewidth=2)
+			plt.plot(x7,y7,'C0-*',linewidth=2,markersize=8)
 			
 			# Estimated velocity
 			x8,y8 = vel_estimation.get_xy()
-			plt.plot(x8,y8,'C1-',linewidth=2)
+			plt.plot(x8,y8,'C1-*',linewidth=2,markersize=8)
 			
 			# Jumping times
 			x9,y9 = DataSet([vel_estimation[index-1] for index in jumping_indexes],timefactor=1000000).align_time(starting_time2).get_xy()
@@ -158,11 +158,11 @@ if config.plot_cartesian_pos or config.plot_cartesian_vel:
 				
 				# Position data
 				x0,y0 = (pos_data - filtered_data[0]).get_xy()
-				plt.plot(x0,y0,'C0-',linewidth=2)
+				plt.plot(x0,y0,'C0-*',linewidth=2,markersize=8)
 
 				# Filtered data
 				x1,y1 = (filtered_data - filtered_data[0]).get_xy()
-				plt.plot(x1,y1,'C1-',linewidth=2)
+				plt.plot(x1,y1,'C1-*',linewidth=2,markersize=8)
 				
 				# Legend
 				legend = ['Position data','Filtered data']
@@ -203,11 +203,11 @@ if config.plot_cartesian_pos or config.plot_cartesian_vel:
 				
 				# Velocity data
 				x3,y3 = vel_diff.get_xy()
-				plt.plot(x3,y3,'C0-',linewidth=2)
+				plt.plot(x3,y3,'C0-*',linewidth=2,markersize=8)
 				
 				# Estimated velocity
 				x4,y4 = vel_estimation.get_xy()
-				plt.plot(x4,y4,'C1-',linewidth=2)
+				plt.plot(x4,y4,'C1-*',linewidth=2,markersize=8)
 				
 				# Legend
 				legend = ['Euler differentiation','Estimation']

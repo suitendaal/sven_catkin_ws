@@ -31,7 +31,7 @@ for i in range(len(config.demos)):
 			jumping_indexes = joint_data.jumping_indexes
 			joint_jumping_indexes.extend(jumping_indexes)
 			
-		if k >= min(joint_jumping_indexes) - 10 and k <= max(joint_jumping_indexes) + 10:	
+		if k >= min(joint_jumping_indexes) - 1 and k <= max(joint_jumping_indexes) + 1:	
 	
 			for j in range(config.n_joints):
 				joint_data = config.joints[j].joint_data[i]
@@ -41,7 +41,7 @@ for i in range(len(config.demos)):
 				
 				pred_fun = prediction_functions[k]
 				bound_fun = bound_functions[k]
-				window_length = window_lengths[k]
+				window_length = window_lengths[k].value
 				start = max(0, k - window_length)
 				end = k + 1
 				data = pos_data[start:end]

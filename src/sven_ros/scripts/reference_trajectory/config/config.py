@@ -69,12 +69,12 @@ joints[6].jump_detector.bounder.bound = 0.007
 
 plot_pos = True
 plot_pred = True
-plot_vel = True
+plot_vel = False
 filter_cartesian_with_jump = False
-plot_cartesian_pos = True
-plot_cartesian_vel = True
+plot_cartesian_pos = False
+plot_cartesian_vel = False
 show_jumping_indexes = True
-save_figs = True
+save_figs = False
 save_figs_location = 'figures/detect_jumps'
 show_figs = False
 #jumps_x_lim = [(3.6,4.2),(4.3,4.9),(4.6,5.2)]
