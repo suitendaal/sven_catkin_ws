@@ -12,9 +12,9 @@ class BasePredictor(object):
 		return BasePredictor(order=self.order)
 
 	def predict(self, data, window_length, time, **kwargs):
-		order = min(len(data) - 1, self.order)
-		if order == 0:
-			return data[-1].value
+		order = min(window_length-1, self.order)
+		if order < self.order:
+			return None, []
 
 		x = []
 		y = []

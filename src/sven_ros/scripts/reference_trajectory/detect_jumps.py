@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import sys
+import pickle
 import matplotlib.pyplot as plt
 import config
 from datalib import *
@@ -55,6 +56,9 @@ for i in range(config.n_joints):
 			
 			if config.save_figs:
 				plt.savefig(config.save_figs_location + '/' + fig.axes[0].get_title() + '.png')
+
+			if config.pickle_figs:
+				pickle.dump(fig,open(config.save_figs_location + '/pickle/' + fig.axes[0].get_title() + '.pickle','wb'))
 				
 			if not config.show_figs:
 				plt.close()
@@ -88,6 +92,9 @@ for i in range(config.n_joints):
 			if config.save_figs:
 				plt.savefig(config.save_figs_location + '/' + fig.axes[0].get_title() + '.png')
 				
+			if config.pickle_figs:
+				pickle.dump(fig,open(config.save_figs_location + '/pickle/' + fig.axes[0].get_title() + '.pickle','wb'))
+				
 			if not config.show_figs:
 				plt.close()
 		
@@ -119,6 +126,9 @@ for i in range(config.n_joints):
 			
 			if config.save_figs:
 				plt.savefig(config.save_figs_location + '/' + fig.axes[0].get_title() + '.png')
+				
+			if config.pickle_figs:
+				pickle.dump(fig,open(config.save_figs_location + '/pickle/' + fig.axes[0].get_title() + '.pickle','wb'))
 				
 			if not config.show_figs:
 				plt.close()
@@ -194,6 +204,9 @@ if config.plot_cartesian_pos or config.plot_cartesian_vel:
 				
 				if config.save_figs:
 					plt.savefig(config.save_figs_location + '/' + fig.axes[0].get_title() + '.png')
+					
+				if config.pickle_figs:
+					pickle.dump(fig,open(config.save_figs_location + '/pickle/' + fig.axes[0].get_title() + '.pickle','wb'))
 				
 				if not config.show_figs:
 					plt.close()
@@ -240,6 +253,9 @@ if config.plot_cartesian_pos or config.plot_cartesian_vel:
 				
 				if config.save_figs:
 					plt.savefig(config.save_figs_location + '/' + fig.axes[0].get_title() + '.png')
+					
+				if config.pickle_figs:
+					pickle.dump(fig,open(config.save_figs_location + '/pickle/' + fig.axes[0].get_title() + '.pickle','wb'))
 				
 				if not config.show_figs:
 					plt.close()
