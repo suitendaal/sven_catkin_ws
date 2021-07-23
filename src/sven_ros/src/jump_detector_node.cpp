@@ -9,7 +9,7 @@ detector_(&detector),
 nh()
 {
   jump_detector_pub = nh.advertise<sven_ros::BoolStamped>("/sven_ros/jump_detector", 1000);
-	joint_data_sub = nh.subscribe("/franka_state_controller/franka_states", 1000, &JumpDetectorNode::joint_state_received, this);
+	joint_data_sub = nh.subscribe("/franka_state_controller/joint_states", 1000, &JumpDetectorNode::joint_state_received, this);
 }
 
 JumpDetectorNode::JumpDetectorNode(ros::NodeHandle nh, int joint, JumpDetector &detector)
@@ -18,7 +18,7 @@ joint_(joint),
 detector_(&detector)
 {
   jump_detector_pub = nh.advertise<sven_ros::BoolStamped>("/sven_ros/jump_detector", 1000);
-	joint_data_sub = nh.subscribe("/franka_state_controller/franka_states", 1000, &JumpDetectorNode::joint_state_received, this);
+	joint_data_sub = nh.subscribe("/franka_state_controller/joint_states", 1000, &JumpDetectorNode::joint_state_received, this);
 }
 
 JumpDetectorNode::~JumpDetectorNode() {
