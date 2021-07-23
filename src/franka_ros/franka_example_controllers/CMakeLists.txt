@@ -113,6 +113,25 @@ add_dependencies(teleop_gripper_node
   ${PROJECT_NAME}_gencfg
 )
 
+# Add executables
+add_executable(read_position
+  src/read_position.cpp
+)
+
+add_executable(read_cartesian_pose
+  src/read_cartesian_pose.cpp
+)
+
+target_link_libraries(read_position
+   ${catkin_LIBRARIES}
+   franka_example_controllers
+)
+
+target_link_libraries(read_cartesian_pose
+   ${catkin_LIBRARIES}
+   franka_example_controllers
+)
+
 ## Installation
 install(TARGETS franka_example_controllers
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
