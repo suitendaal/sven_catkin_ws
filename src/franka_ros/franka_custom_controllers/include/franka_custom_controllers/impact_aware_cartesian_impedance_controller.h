@@ -61,6 +61,10 @@ class ImpactAwareCartesianImpedanceController : public controller_interface::Mul
   Eigen::Quaterniond orientation_d_;
   Eigen::Vector3d position_d_target_;
   Eigen::Quaterniond orientation_d_target_;
+  
+  // Impact state publisher
+  ros::Publisher pub_state_;
+  unsigned int sequence_{0};
 
   // Dynamic stiffness reconfigure
   std::unique_ptr<dynamic_reconfigure::Server<franka_example_controllers::compliance_paramConfig>> dynamic_server_compliance_param_;

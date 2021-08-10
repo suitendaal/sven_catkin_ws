@@ -2,52 +2,137 @@
 
 from readers import *
 import matplotlib.pyplot as plt
+from datalib import *
+from filters import *
 
 bagfile = 'data/replay7.2.bag'
-topic = '/franka_state_controller/franka_states'
-reader = RosbagReader(bagfile, topic=topic)
-
-franka_states = reader.read()
-franka_states.align_time(starting_time=0)
-ts = []
+#topic = '/franka_state_controller/franka_states'
+franka_reader = FrankaStateReader(bagfile)
+pose_reader = CartesianPoseReader(bagfile)
+joint_readers = []
+for i in range(7):
+	joint_readers.append(JointReader(bagfile, joint=i+1))
+	
+x = DataSet(timefactor = 1000000)
+y = DataSet(timefactor = 1000000)
+z = DataSet(timefactor = 1000000)
+x_d = DataSet(timefactor = 1000000)
+y_d = DataSet(timefactor = 1000000)
+z_d = DataSet(timefactor = 1000000)
+dx = DataSet(timefactor = 1000000)
+dy = DataSet(timefactor = 1000000)
+dz = DataSet(timefactor = 1000000)
+Fx = DataSet(timefactor = 1000000)
+Fy = DataSet(timefactor = 1000000)
+Fz = DataSet(timefactor = 1000000)
+Fx_d = DataSet(timefactor = 1000000)
+Fy_d = DataSet(timefactor = 1000000)
+Fz_d = DataSet(timefactor = 1000000)
 qs = []
-diffs = []
-thetas = []
-tau_Js = []
-tau_J_ds = []
-tau_J_diffs = []
-
+dqs = []
+qds = []
+taus = []
+tauds = []
 for i in range(7):
-	qs.append([])
-	thetas.append([])
-	diffs.append([])
-	tau_Js.append([])
-	tau_J_ds.append([])
-	tau_J_diffs.append([])
+	qs.append(DataSet(timefactor=1000000))
+	dqs.append(DataSet(timefactor=1000000))
+	qds.append(DataSet(timefactor=1000000))
+	taus.append(DataSet(timefactor=1000000))
+	tauds.append(DataSet(timefactor=1000000))
 
-for state in franka_states:
-	ts.append(state.time / 1000000)
-	for i in range(7):
-		qs[i].append(state.value.q[i])
-		thetas[i].append(state.value.tau_ext_hat_filtered[i])
-		diffs[i].append(state.value.q[i] - state.value.theta[i])
-		tau_Js[i].append(state.value.tau_J[i])
-		tau_J_ds[i].append(state.value.tau_J_d[i])
-		tau_J_diffs[i].append(state.value.tau_J[i] - state.value.tau_J_d[i])
+for i in range(len(franka_reader.msgs)):
+	dp = franka_reader.next_datapoint()
+	timestamp = dp.timestamp
+	time = dp.time
+	dp = dp.value
 	
-fontsize = 16
-
-for i in range(7):
-	plt.figure(figsize=(16, 12), dpi=80)
-	plt.rcParams['xtick.labelsize']=fontsize
-	plt.rcParams['ytick.labelsize']=fontsize
-
-	plt.plot(ts,tau_J_diffs[i])
+	x.append(DataPoint(timestamp, dp.x, time=time))
+	y.append(DataPoint(timestamp, dp.y, time=time))
+	z.append(DataPoint(timestamp, dp.z, time=time))
 	
+	x_d.append(DataPoint(timestamp, dp.x_desired, time=time))
+	y_d.append(DataPoint(timestamp, dp.y_desired, time=time))
+	z_d.append(DataPoint(timestamp, dp.z_desired, time=time))
+	
+	jacobian = dp.robot.jacob0(q=dp.q, T=dp.robot.fkine(dp.q))
+	vel = jacobian.dot(dp.dq)
+	dx.append(DataPoint(timestamp, vel[0], time=time))
+	dy.append(DataPoint(timestamp, vel[1], time=time))
+	dz.append(DataPoint(timestamp, vel[2], time=time))
+	
+	force = np.linalg.pinv(jacobian.T).dot(dp.tau)
+	Fx.append(DataPoint(timestamp, force[0], time=time))
+	Fy.append(DataPoint(timestamp, force[1], time=time))
+	Fz.append(DataPoint(timestamp, force[2], time=time))
+	
+	force_d = np.linalg.pinv(jacobian.T).dot(dp.tau_desired)
+	Fx_d.append(DataPoint(timestamp, force_d[0], time=time))
+	Fy_d.append(DataPoint(timestamp, force_d[1], time=time))
+	Fz_d.append(DataPoint(timestamp, force_d[2], time=time))
+	
+	for j in range(7):
+		qs[j].append(DataPoint(timestamp, dp.q[j], time=time))
+		dqs[j].append(DataPoint(timestamp, dp.dq[j], time=time))
+		qds[j].append(DataPoint(timestamp, dp.q_desired[j], time=time))
+		taus[j].append(DataPoint(timestamp, dp.tau[j], time=time))
+		tauds[j].append(DataPoint(timestamp, dp.tau_desired[j], time=time))
+		
+# End effector position
+plt.figure()
+#plt.plot(x.time(),(x-x[0]).values())
+#plt.plot(y.time(),(y-y[0]).values())
+plt.plot(z.time(),(z-z[0]).values())
 
-	plt.title('Joint ' + str(i+1),fontsize=fontsize)
-	plt.xlabel('Time [s]',fontsize=fontsize)
-	plt.ylabel('Position [rad]',fontsize=fontsize)
-	plt.legend(['Joint','Motor'],fontsize=fontsize)
+## End effector velocity
+#x1,y1 = z.diff().get_xy()
+x2,y2 = dy.get_xy()
+plt.figure()
+#plt.plot(x1,y1)
+plt.plot(x2,y2,'-*')
+
+## Joint positions
+#plt.figure()
+#for i in range(7):
+#	plt.plot(qs[i].time(),(qs[i] - qs[i][0]).values())
+#	
+## Joint velocities
+#plt.figure()
+#for i in range(7):
+#	plt.plot(dqs[i].time(),dqs[i].values())
+	
+# Joint torque
+#plt.figure()
+#plt.plot(taus[4].time(),(taus[4]-tauds[4]).values())
+
+# End effector force
+#plt.figure()
+#plt.plot(Fx.time(), Fx.values())
+#plt.plot(Fx.time(), Fx_d.values())
+
+#plt.show()
+
+## Jump aware filter
+
+# Default jump detector
+diff_torque = dy
+filter = LeastSquaresFilter(window_length=200, order=4)
+vel_est = LeastSquaresVelocityEstimator(window_length=20, order=3)
+predictor = BasePredictor(order=4)
+bounder = BaseBounder(bound=0.3)
+ja_filter = JumpAwareFilter(filter, vel_est, predictor, bounder, max_window_length=50)
+
+filtered_data, vel_data, jumping_indexes, info = ja_filter.filter(diff_torque)
+predictions = info[0]
+bounds = info[1]
+plt.figure()
+plt.plot(diff_torque.time(), abs(diff_torque - predictions).values(),'-*')
+plt.plot(bounds.time(), bounds.values())
+
+#plt.figure()
+#plt.plot(Fx.time(), (filtered_data - Fx_d).values())
+#plt.plot(Fx.time(), Fx_d.values())
 
 plt.show()
+
+
+

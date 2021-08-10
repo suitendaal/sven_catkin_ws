@@ -26,11 +26,11 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(Eigen3 REQUIRED)
 find_package(Franka 0.7.0 REQUIRED)
 
-#add_message_files(FILES
-#  JointTorqueComparison.msg
-#)
+add_message_files(FILES
+  ImpactControlState.msg
+)
 
-#generate_messages(DEPENDENCIES std_msgs)
+generate_messages(DEPENDENCIES std_msgs)
 
 #generate_dynamic_reconfigure_options(
 #  cfg/compliance_param.cfg
@@ -65,13 +65,13 @@ add_library(franka_custom_controllers
   src/impact_aware_cartesian_impedance_controller.cpp
 )
 
-#add_dependencies(franka_custom_controllers
-#  ${${PROJECT_NAME}_EXPORTED_TARGETS}
-#  ${catkin_EXPORTED_TARGETS}
-#  ${PROJECT_NAME}_generate_messages_cpp
-#  ${PROJECT_NAME}_gencpp
+add_dependencies(franka_custom_controllers
+  ${${PROJECT_NAME}_EXPORTED_TARGETS}
+  ${catkin_EXPORTED_TARGETS}
+  ${PROJECT_NAME}_generate_messages_cpp
+  ${PROJECT_NAME}_gencpp
 #  ${PROJECT_NAME}_gencfg
-#)
+)
 
 target_link_libraries(franka_custom_controllers PUBLIC
   ${Franka_LIBRARIES}

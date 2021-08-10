@@ -11,6 +11,7 @@
 #include <ros/ros.h>
 
 #include <franka_example_controllers/pseudo_inversion.h>
+#include <franka_custom_controllers/ImpactControlState.h>
 
 namespace franka_custom_controllers {
 
@@ -25,6 +26,9 @@ bool ImpactAwareCartesianImpedanceController::init(hardware_interface::RobotHW* 
   // Control mode
   sub_mode_ = node_handle.subscribe("/impedance_control_mode", 20, &ImpactAwareCartesianImpedanceController::modeCallback, this, ros::TransportHints().reliable().tcpNoDelay());
 
+  // Impact state publisher
+  pub_state_ = node_handle.advertise<franka_custom_controllers::ImpactControlState>("impact_control_state", 20);
+  
   std::string arm_id;
   if (!node_handle.getParam("arm_id", arm_id)) {
     ROS_ERROR_STREAM("ImpactAwareCartesianImpedanceController: Could not read parameter arm_id");
@@ -118,7 +122,7 @@ void ImpactAwareCartesianImpedanceController::starting(const ros::Time& /*time*/
   q_d_nullspace_ = q_initial;
 }
 
-void ImpactAwareCartesianImpedanceController::update(const ros::Time& /*time*/,
+void ImpactAwareCartesianImpedanceController::update(const ros::Time& time,
                                                  const ros::Duration& /*period*/) {
   // get state variables
   franka::RobotState robot_state = state_handle_->getRobotState();
@@ -191,6 +195,44 @@ void ImpactAwareCartesianImpedanceController::update(const ros::Time& /*time*/,
   nullspace_stiffness_ = filter_params_ * nullspace_stiffness_target_ + (1.0 - filter_params_) * nullspace_stiffness_;
   position_d_ = filter_params_ * position_d_target_ + (1.0 - filter_params_) * position_d_;
   orientation_d_ = orientation_d_.slerp(filter_params_, orientation_d_target_);
+  
+  // Send control state message
+  ImpactControlState msg;
+  msg.header.seq = sequence_;
+  msg.header.stamp = time;
+  msg.header.frame_id = "ImpactAwareCartesianImpedanceController";
+  
+  for (int i = 0; i < 7; i++) {
+    msg.coriolis[i] = coriolis_array[i];
+    msg.q[i] = q.data()[i];
+    msg.dq[i] = dq.data()[i];
+    msg.tau_J_d[i] = tau_J_d.data()[i];
+    msg.tau_task[i] = tau_task[i];
+    msg.tau_nullspace[i] = tau_nullspace[i];
+    msg.tau_d[i] = tau_d[i];
+  }
+  
+  for (int i = 0; i < 42; i++) {
+    msg.jacobian[i] = jacobian_array[i];
+  }
+  
+  for (int i = 0; i < 16; i++) {
+    msg.O_T_EE[i] = transform.data()[i];
+  }
+  
+  for (int i = 0; i < 3; i++) {
+    msg.position_d[i] = position_d_[i];
+  }
+  
+  msg.orientation_d[0] = orientation_d_.x();
+  msg.orientation_d[1] = orientation_d_.y();
+  msg.orientation_d[2] = orientation_d_.z();
+  msg.orientation_d[3] = orientation_d_.w();
+  
+  msg.impedance_control_mode = (int)control_mode;
+  
+  pub_state_.publish(msg);
+  sequence_++;
 }
 
 Eigen::Matrix<double, 7, 1> ImpactAwareCartesianImpedanceController::saturateTorqueRate(const Eigen::Matrix<double, 7, 1>& tau_d_calculated, const Eigen::Matrix<double, 7, 1>& tau_J_d) {  // NOLINT (readability-identifier-naming)

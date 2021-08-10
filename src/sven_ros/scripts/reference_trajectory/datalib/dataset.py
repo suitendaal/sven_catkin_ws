@@ -26,7 +26,7 @@ class DataSet():
 		return len(self.data)
 
 	def __add__(self, x):
-		result = DataSet()
+		result = DataSet(timefactor=self.timefactor)
 		if isinstance (x, DataSet):
 			if len(x) == len(self):
 				for i in range(len(self)):

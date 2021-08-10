@@ -7,8 +7,8 @@ class JointReader(RosbagReader):
 	"""docstring for JointReader."""
 
 	def __init__(self, bagfile, joint=1, **kwargs):
-		super(JointReader, self).__init__(bagfile, topic="/franka_state_controller/franka_states", **kwargs)
 		self.joint = joint
+		super(JointReader, self).__init__(bagfile, topic="/franka_state_controller/franka_states", **kwargs)
 
 	def read(self):
 		data = DataSet()

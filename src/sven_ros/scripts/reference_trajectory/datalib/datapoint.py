@@ -3,10 +3,13 @@
 class DataPoint(object):
 	"""docstring for DataPoint."""
 
-	def __init__(self, timestamp, value, timefactor=1):
+	def __init__(self, timestamp, value, time=None, timefactor=1):
 		super(DataPoint, self).__init__()
 		self.timestamp = timestamp
-		self.time = timestamp / timefactor
+		if time is None:
+			self.time = timestamp / timefactor
+		else:
+			self.time = time
 		self.value = value
 
 	def __neg__(self):
