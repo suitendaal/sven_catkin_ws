@@ -1,0 +1,128 @@
+#!/usr/bin/python3
+
+import sys
+import matplotlib.pyplot as plt
+from readers import *
+from datalib import *
+from filters import *
+	
+	
+if __name__ == '__main__':
+	if len(sys.argv) != 3:
+		print("Usage: ja_filter.py <bagfile> <joint>")
+		exit(1)
+	bagfile = sys.argv[1]
+	joint = int(sys.argv[2])
+	pos_data, vel_data, eff_data = get_joint_data(bagfile,joint)
+	
+	filter = LeastSquaresFilter(window_length=20, order=3)
+	vel_estimator = LeastSquaresVelocityEstimator(window_length=20, order=3)
+	predictor = WeightedPredictor(order=3)
+	bounder = BaseBounder(bound=0.02)
+	jafilter = JumpAwareFilter(filter, vel_estimator, predictor, bounder, max_window_length=20)
+
+	filtered_data, vel_estimation, jumping_indexes, info = jafilter.filter(pos_data)
+	predictions = info[0]
+	bounds = info[1]
+	
+	starting_time = 0
+	starting_time2 = 0
+	if len(jumping_indexes) > 0:
+		starting_time = -filtered_data[jumping_indexes[0]].time
+		starting_time2 = -filtered_data[jumping_indexes[0]-1].time
+		print(starting_time)
+		
+	#xlim = [4.9, 5.7]
+	xlim = [pos_data[0].time, pos_data[-1].time]
+	fontsize1 = 20
+	fontsize2 = 16
+	
+	## Plot position data, filtered data and predictions
+	fig1 = plt.figure(1,figsize=(16, 12), dpi=80)
+	plt.rcParams['xtick.labelsize']=fontsize2
+	plt.rcParams['ytick.labelsize']=fontsize2
+	
+	# Position data
+	x0,y0 = (pos_data - filtered_data[0]).get_xy()
+	plt.plot(x0,y0,'C0-',linewidth=2)
+	
+	# Filtered data
+	x1,y1 = (filtered_data - filtered_data[0]).get_xy()
+	plt.plot(x1,y1,'C1-',linewidth=2)
+	
+	# Predicted data
+	x11,y11 = (predictions - filtered_data[0]).get_xy()
+	plt.plot(x11,y11,'C2-',linewidth=2)
+	
+	# Jump times
+	pos_jump = DataSet([filtered_data[index] for index in jumping_indexes],timefactor=1000000).align_time(starting_time)
+	x2,y2 = (pos_jump - filtered_data[0]).get_xy()
+	plt.plot(x2,y2,'C3*',markersize=10)
+	
+	# Adding title and labels
+	plt.title('Joint ' + str(joint) + ': Position',fontsize=fontsize1)
+	plt.xlabel('Time [s]',fontsize=fontsize2)
+	plt.ylabel('Position [rad]',fontsize=fontsize2)
+	plt.legend(['Encoder','Filtered','Predicted','Jumps'],fontsize=fontsize2)
+	plt.xlim(xlim)
+	
+	## Plot difference between prediction and encoder data
+	plt.figure(2,figsize=(16, 12), dpi=80)
+	plt.rcParams['xtick.labelsize']=fontsize2
+	plt.rcParams['ytick.labelsize']=fontsize2
+	
+	# Difference between prediction and encoder data
+	x3,y3 = (abs(pos_data - predictions)).get_xy()
+	plt.plot(x3,y3,'C0-',linewidth=2)
+	
+	# Bound
+	x4,y4 = bounds.get_xy()
+	plt.plot(x4,y4,'C1-',linewidth=2)
+	
+	# Jump times
+	x5,y5 = DataSet([abs(pos_data - predictions)[index] for index in jumping_indexes],timefactor=1000000).align_time(starting_time).get_xy()
+	plt.plot(x5,y5,'C3*',markersize=10)
+	
+	# Adding title and labels
+	plt.title('Joint ' + str(joint) + ': Absolute difference between measurement and prediction',fontsize=fontsize1)
+	plt.xlabel('Time [s]',fontsize=fontsize2)
+	plt.ylabel('Difference [rad]',fontsize=fontsize2)
+	plt.legend(['Difference','Bound','Jumps'],fontsize=fontsize2)
+	plt.xlim(xlim)
+	
+	## Plot velocity data
+	plt.figure(3,figsize=(16, 12), dpi=80)
+	plt.rcParams['xtick.labelsize']=fontsize2
+	plt.rcParams['ytick.labelsize']=fontsize2
+	
+	# Velocity data
+	x6,y6 = pos_data.diff().get_xy()
+	plt.plot(x6,y6,'C0-',linewidth=2)
+	
+	# Estimated velocity
+	x7,y7 = vel_estimation.get_xy()
+	plt.plot(x7,y7,'C1-',linewidth=2)
+	
+	# Jumping times
+	x8,y8 = DataSet([vel_estimation[index-1] for index in jumping_indexes],timefactor=1000000).align_time(starting_time2).get_xy()
+	plt.plot(x8,y8,'C3*',markersize=10)
+	
+	# Adding title and labels
+	plt.title('Joint ' + str(joint) + ': Velocity',fontsize=fontsize1)
+	plt.xlabel('Time [s]',fontsize=fontsize2)
+	plt.ylabel('Velocity [rad/s]',fontsize=fontsize2)
+	plt.legend(['Euler differentiation','Estimation','Jumps'],fontsize=fontsize2)
+	plt.xlim(xlim)
+	
+#	plt.figure(3)
+#	
+#	x5,y5 = eff_data.get_xy()
+#	plt.plot(x5,y5)
+#	
+#	eff_jump = DataSet([eff_data[index] for index in jumping_indexes],timefactor=1000000)
+#	eff_jump.align_time(starting_time)
+#	x6,y6 = eff_jump.get_xy()
+#	plt.plot(x6,y6,'*')
+	
+	plt.show()
+	

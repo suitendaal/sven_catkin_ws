@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from datalib import *
 from filters import *
 
-bagfile = 'data/replay7.2.bag'
+bagfile = 'data/replay1.1.bag'
 #topic = '/franka_state_controller/franka_states'
 franka_reader = FrankaStateReader(bagfile)
 pose_reader = CartesianPoseReader(bagfile)
@@ -85,7 +85,7 @@ plt.plot(z.time(),(z-z[0]).values())
 
 ## End effector velocity
 #x1,y1 = z.diff().get_xy()
-x2,y2 = dy.get_xy()
+x2,y2 = dz.get_xy()
 plt.figure()
 #plt.plot(x1,y1)
 plt.plot(x2,y2,'-*')
@@ -105,16 +105,16 @@ plt.plot(x2,y2,'-*')
 #plt.plot(taus[4].time(),(taus[4]-tauds[4]).values())
 
 # End effector force
-#plt.figure()
-#plt.plot(Fx.time(), Fx.values())
-#plt.plot(Fx.time(), Fx_d.values())
+plt.figure()
+plt.plot(Fx.time(), Fx.values())
+plt.plot(Fx.time(), Fx_d.values())
 
 #plt.show()
 
 ## Jump aware filter
 
 # Default jump detector
-diff_torque = dy
+diff_torque = dz
 filter = LeastSquaresFilter(window_length=200, order=4)
 vel_est = LeastSquaresVelocityEstimator(window_length=20, order=3)
 predictor = BasePredictor(order=4)
