@@ -3,10 +3,11 @@ float64[7] coriolis
 float64[42] jacobian
 float64[7] q
 float64[7] dq
-float64[7] tau_J_d
 float64[16] O_T_EE
 float64[3] position_d
 float64[4] orientation_d
+float64[7] tau_external
+float64[7] tau_measured
 float64[7] tau_task
 float64[7] tau_nullspace
 float64[7] tau_d

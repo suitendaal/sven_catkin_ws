@@ -108,7 +108,7 @@ for i in range(7):
 		vel_est, coefs = vel_estimator.update(qs[i][j])
 		dq_est[i].append(vel_est)
 		
-ja_filter = JumpAwareVelocityFilter(LeastSquaresVelocityEstimator(window_length=20, order=2), BaseBounder(bound=0.1))
+ja_filter = JumpAwareVelocityFilter(LeastSquaresVelocityEstimator(window_length=20, order=2), ConstantBounder(bound=0.1))
 jump_indices = []
 predictions = []
 for i in range(7):
@@ -169,19 +169,21 @@ print(jump_indices)
 #		q_estimation, coefs = ls_filter.update(qs[i][j])
 #		q_est[i].append(q_estimation)
 		
-#ja_filter = JumpAwareFilter(ls_filter.copy(), BaseBounder(bound=0.1))
-#jump_indices = []
-#predictions = []
-#for i in range(7):
-#	jump_indices.append([])
-#	predictions.append(DataSet())
-#for i in range(7):
-#	ja_filter.reset()
-#	for j in range(len(qs[i])):
-#		jump_detected, info = ja_filter.update(qs[i][j])
-#		if jump_detected:
-#			jump_indices[i].append(j)
-#		predictions[i].append(info[0])
+ja_filter2 = JumpAwareFilter(LeastSquaresFilter(window_length=20, order=2), ConstantBounder(bound=0.1))
+jump_indices2 = []
+predictions2 = []
+for i in range(7):
+	jump_indices2.append([])
+	predictions2.append(DataSet())
+for i in range(7):
+	ja_filter2.reset()
+	for j in range(len(dqs[i])):
+		jump_detected, info = ja_filter2.update(dqs[i][j])
+		if jump_detected:
+			jump_indices2[i].append(j)
+		predictions2[i].append(info[0])
+		
+print(jump_indices2)
 		
 #plt.figure()
 #for i in range(7):
@@ -206,6 +208,10 @@ for i in range(7):
 plt.figure()
 for i in range(7):
 	plt.plot(predictions[i].time, abs(predictions[i]-dqs[i]).value,'C' + str(i) + '-*',linewidth=2)
+	
+plt.figure()
+for i in range(7):
+	plt.plot(predictions2[i].time, abs(predictions2[i]-dqs[i]).value,'C' + str(i) + '-*',linewidth=2)
 	
 plt.figure()
 plt.plot(dx.time, dx.value,'C0-*',linewidth=2)

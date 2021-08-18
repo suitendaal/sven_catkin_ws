@@ -139,6 +139,10 @@ void ImpactAwareCartesianImpedanceController::update(const ros::Time& time,
   Eigen::Affine3d transform(Eigen::Matrix4d::Map(robot_state.O_T_EE.data()));
   Eigen::Vector3d position(transform.translation());
   Eigen::Quaterniond orientation(transform.linear());
+  
+  // Get other variables to record
+  Eigen::Map<Eigen::Matrix<double, 7, 1>> tau_external(robot_state.tau_ext_hat_filtered.data());
+  Eigen::Map<Eigen::Matrix<double, 7, 1>> tau_measured(robot_state.tau_J.data());
 
   // compute error to desired pose
   // position error
@@ -206,7 +210,8 @@ void ImpactAwareCartesianImpedanceController::update(const ros::Time& time,
     msg.coriolis[i] = coriolis_array[i];
     msg.q[i] = q.data()[i];
     msg.dq[i] = dq.data()[i];
-    msg.tau_J_d[i] = tau_J_d.data()[i];
+    msg.tau_external[i] = tau_external.data()[i];
+    msg.tau_measured[i] = tau_measured.data()[i];
     msg.tau_task[i] = tau_task[i];
     msg.tau_nullspace[i] = tau_nullspace[i];
     msg.tau_d[i] = tau_d[i];

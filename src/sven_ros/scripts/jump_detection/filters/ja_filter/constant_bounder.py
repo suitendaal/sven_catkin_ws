@@ -2,7 +2,7 @@
 
 from datalib import *
 
-class BaseBounder(object):
+class ConstantBounder(object):
 	"""docstring for Bounder."""
 
 	def __init__(self, **kwargs):
