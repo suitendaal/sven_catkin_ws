@@ -53,30 +53,6 @@ class FrankaState(object):
 		return result
 		
 	@property
-	def x(self):
-		return self.position[0]
-		
-	@property
-	def x_desired(self):
-		return self.position_desired[0]
-	
-	@property
-	def y(self):
-		return self.position[1]
-		
-	@property
-	def y_desired(self):
-		return self.position_desired[1]
-		
-	@property
-	def z(self):
-		return self.position[2]
-		
-	@property
-	def z_desired(self):
-		return self.position_desired[2]
-		
-	@property
 	def rot_matrix(self):
 		return self.pose_matrix[0:3,0:3]
 		
@@ -85,7 +61,7 @@ class FrankaState(object):
 		return Rotation.from_matrix(self.rot_matrix)
 		
 	@property
-	def tau(self):
+	def tau_measured(self):
 		return self.franka_state_.tau_J
 		
 	@property
@@ -93,10 +69,34 @@ class FrankaState(object):
 		return self.franka_state_.tau_J_d
 		
 	@property
-	def external_torque(self):
+	def tau_external(self):
 		return self.franka_state_.tau_ext_hat_filtered
 		
 	@property
 	def robot(self):
 		return self.robot_
+		
+	@property
+	def jacobian(self):
+		return self.robot.jacob0(q=self.q, T=self.robot.fkine(self.q))
+		
+	@property
+	def velocity(self):
+		return self.jacobian.dot(np.array(self.dq)).tolist()[0:3]
+	
+	@property
+	def force_measured(self):
+		return self.calc_force(self.tau_measured)
+		
+	@property
+	def force_desired(self):
+		return self.calc_force(self.tau_desired)
+		
+	@property
+	def force_external(self):
+		return self.calc_force(self.tau_external)
+		
+	def calc_force(self, torque):
+		return np.linalg.pinv(self.jacobian.T).dot(torque).tolist()[0:3]
+	
 		

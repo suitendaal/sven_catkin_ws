@@ -34,6 +34,7 @@ qds = []
 taus = []
 tauds = []
 tau_ext = []
+F_ext = DataSet(timefactor = 1000000)
 
 for i in range(7):
 	qs.append(DataSet(timefactor=1000000))
@@ -72,6 +73,9 @@ for i in range(len(franka_reader.msgs)):
 	Fx_d.append(DataPoint(timestamp, force_d[0], time=time))
 	Fy_d.append(DataPoint(timestamp, force_d[1], time=time))
 	Fz_d.append(DataPoint(timestamp, force_d[2], time=time))
+	
+	force_ext = np.linalg.pinv(jacobian.T).dot(dp.external_torque)
+	F_ext.append(DataPoint(timestamp, np.linalg.norm(force_ext[0:3]), time=time))
 	
 	for j in range(7):
 		qs[j].append(DataPoint(timestamp, dp.q[j], time=time))
@@ -139,6 +143,9 @@ for i in range(len(franka_reader.msgs)):
 plt.figure()
 for i in range(7):
 	plt.plot(tau_ext[i].time(), tau_ext[i].values())
+	
+plt.figure()
+plt.plot(F_ext.time(), F_ext.values())
 
 plt.show()
 

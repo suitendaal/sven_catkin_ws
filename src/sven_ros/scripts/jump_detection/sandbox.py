@@ -28,6 +28,7 @@ Fz = DataSet()
 Fx_d = DataSet()
 Fy_d = DataSet()
 Fz_d = DataSet()
+F_ext = DataSet()
 qs = []
 dqs = []
 qds = []
@@ -45,35 +46,37 @@ for i in range(len(franka_reader.msgs)):
 	time = dp.time
 	dp = dp.value
 	
-	x.append(DataPoint(time, dp.x))
-	y.append(DataPoint(time, dp.y))
-	z.append(DataPoint(time, dp.z))
+	x.append(DataPoint(time, dp.position[0]))
+	y.append(DataPoint(time, dp.position[1]))
+	z.append(DataPoint(time, dp.position[2]))
 	
-	x_d.append(DataPoint(time, dp.x_desired))
-	y_d.append(DataPoint(time, dp.y_desired))
-	z_d.append(DataPoint(time, dp.z_desired))
+	x_d.append(DataPoint(time, dp.position_desired[0]))
+	y_d.append(DataPoint(time, dp.position_desired[0]))
+	z_d.append(DataPoint(time, dp.position_desired[0]))
 	
-	jacobian = dp.robot.jacob0(q=dp.q, T=dp.robot.fkine(dp.q))
-	vel = jacobian.dot(dp.dq)
-	dx.append(DataPoint(time, vel[0]))
-	dy.append(DataPoint(time, vel[1]))
-	dz.append(DataPoint(time, vel[2]))
+#	jacobian = dp.robot.jacob0(q=dp.q, T=dp.robot.fkine(dp.q))
+#	vel = jacobian.dot(dp.dq)
+	dx.append(DataPoint(time, dp.velocity[0]))
+	dy.append(DataPoint(time, dp.velocity[1]))
+	dz.append(DataPoint(time, dp.velocity[2]))
 	
-	force = np.linalg.pinv(jacobian.T).dot(dp.tau)
-	Fx.append(DataPoint(time, force[0]))
-	Fy.append(DataPoint(time, force[1]))
-	Fz.append(DataPoint(time, force[2]))
+#	force = np.linalg.pinv(jacobian.T).dot(dp.tau)
+	Fx.append(DataPoint(time, dp.force_measured[0]))
+	Fy.append(DataPoint(time, dp.force_measured[1]))
+	Fz.append(DataPoint(time, dp.force_measured[2]))
 	
-	force_d = np.linalg.pinv(jacobian.T).dot(dp.tau_desired)
-	Fx_d.append(DataPoint(time, force_d[0]))
-	Fy_d.append(DataPoint(time, force_d[1]))
-	Fz_d.append(DataPoint(time, force_d[2]))
+#	force_d = np.linalg.pinv(jacobian.T).dot(dp.tau_desired)
+	Fx_d.append(DataPoint(time, dp.force_desired[0]))
+	Fy_d.append(DataPoint(time, dp.force_desired[1]))
+	Fz_d.append(DataPoint(time, dp.force_desired[2]))
+	
+	F_ext.append(DataPoint(time, np.linalg.norm(dp.force_external)))
 	
 	for j in range(7):
 		qs[j].append(DataPoint(time, dp.q[j]))
 		dqs[j].append(DataPoint(time, dp.dq[j]))
 		qds[j].append(DataPoint(time, dp.q_desired[j]))
-		taus[j].append(DataPoint(time, dp.tau[j]))
+		taus[j].append(DataPoint(time, dp.tau_measured[j]))
 		tauds[j].append(DataPoint(time, dp.tau_desired[j]))
 		
 x.align_time()
@@ -91,6 +94,7 @@ Fz.align_time()
 Fx_d.align_time()
 Fy_d.align_time()
 Fz_d.align_time()
+F_ext.align_time()
 for i in range(7):
 	qs[i].align_time()
 	dqs[i].align_time()
@@ -184,6 +188,17 @@ for i in range(7):
 		predictions2[i].append(info[0])
 		
 print(jump_indices2)
+
+ja_filter3 = JumpAwareFilter(LeastSquaresFilter(window_length=20, order=0), ConstantBounder(bound=20))
+jump_indices3 = []
+predictions3 = DataSet()
+for j in range(len(F_ext)):
+	jump_detected, info = ja_filter3.update(F_ext[j])
+	if jump_detected:
+		jump_indices3.append(j)
+	predictions3.append(info[0])
+
+print(jump_indices3)
 		
 #plt.figure()
 #for i in range(7):
@@ -201,27 +216,33 @@ print(jump_indices2)
 #for i in range(7):
 #	plt.plot(predictions[i].time, abs(predictions[i]-qs[i]).value,'C' + str(i) + '-*',linewidth=2)
 
+#plt.figure()
+#for i in range(7):
+#	plt.plot(dqs[i].time, dqs[i].value,'C' + str(i) + '-*',linewidth=2)
+#	
+#plt.figure()
+#for i in range(7):
+#	plt.plot(predictions[i].time, abs(predictions[i]-dqs[i]).value,'C' + str(i) + '-*',linewidth=2)
+#	
+#plt.figure()
+#for i in range(7):
+#	plt.plot(predictions2[i].time, abs(predictions2[i]-dqs[i]).value,'C' + str(i) + '-*',linewidth=2)
+#	
+#plt.figure()
+#plt.plot(dx.time, dx.value,'C0-*',linewidth=2)
+#plt.plot(dy.time, dy.value,'C1-*',linewidth=2)
+#plt.plot(dz.time, dz.value,'C2-*',linewidth=2)
+#	
+#plt.figure()
+#plt.plot(predictions_x.time, abs(predictions_x-dx).value,'C0-*',linewidth=2)
+#plt.plot(predictions_y.time, abs(predictions_y-dy).value,'C1-*',linewidth=2)
+#plt.plot(predictions_z.time, abs(predictions_z-dz).value,'C2-*',linewidth=2)
+
 plt.figure()
-for i in range(7):
-	plt.plot(dqs[i].time, dqs[i].value,'C' + str(i) + '-*',linewidth=2)
-	
+plt.plot(F_ext.time, F_ext.value)
+
 plt.figure()
-for i in range(7):
-	plt.plot(predictions[i].time, abs(predictions[i]-dqs[i]).value,'C' + str(i) + '-*',linewidth=2)
-	
-plt.figure()
-for i in range(7):
-	plt.plot(predictions2[i].time, abs(predictions2[i]-dqs[i]).value,'C' + str(i) + '-*',linewidth=2)
-	
-plt.figure()
-plt.plot(dx.time, dx.value,'C0-*',linewidth=2)
-plt.plot(dy.time, dy.value,'C1-*',linewidth=2)
-plt.plot(dz.time, dz.value,'C2-*',linewidth=2)
-	
-plt.figure()
-plt.plot(predictions_x.time, abs(predictions_x-dx).value,'C0-*',linewidth=2)
-plt.plot(predictions_y.time, abs(predictions_y-dy).value,'C1-*',linewidth=2)
-plt.plot(predictions_z.time, abs(predictions_z-dz).value,'C2-*',linewidth=2)
+plt.plot(predictions3.time, abs(predictions3 - F_ext).value)
 	
 #i = 5
 #plt.figure()
