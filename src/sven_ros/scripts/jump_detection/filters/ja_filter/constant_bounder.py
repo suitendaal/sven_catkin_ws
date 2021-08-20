@@ -14,6 +14,9 @@ class ConstantBounder(object):
 	def bound(self, datapoint):
 		return DataPoint(datapoint.time, self.bound_), []
 		
+	def set_bound(self, bound):
+		self.bound_ = bound
+		
 	def update(self, datapoint):
 		return None, []
 		
