@@ -6,7 +6,7 @@ from datalib import *
 from filters import *
 
 # Define datafile
-bagfile = 'data/replay4.4.bag'
+bagfile = 'data/replay4.1.bag'
 franka_reader = FrankaStateReader(bagfile)
 
 # Figure settings
@@ -18,7 +18,8 @@ markersize2 = 10
 fontsize1 = 20
 fontsize2 = 16
 #xlim = None
-xlim = [4.5, 5.5]
+#xlim = [8.6, 8.8]
+xlim = [8.5, 11]
 labels = ['X','Y','Z']
 save_figs = True
 show_figs = False
@@ -357,6 +358,8 @@ for j in q[0]:
 	q_bounds.append(DataPoint(j.time, q_bound))
 		
 fig = plt.figure(figsize=figsize, dpi=dpi)
+plt.rcParams['xtick.labelsize']=fontsize2
+plt.rcParams['ytick.labelsize']=fontsize2
 for i in range(7):
 	plt.plot(q[i].time, (q[i]-q[i][0]).value, 'C' + str(i) + '-*', linewidth=linewidth, markersize=markersize1,label='Joint ' + str(i+1))
 	plt.plot(q_j[i].time, (q_j[i]-q[i][0]).value, 'C' + str(i) + '*', markersize=markersize2)
@@ -378,6 +381,8 @@ if not show_figs:
 	plt.close()
 
 fig = plt.figure(figsize=figsize, dpi=dpi)
+plt.rcParams['xtick.labelsize']=fontsize2
+plt.rcParams['ytick.labelsize']=fontsize2
 for i in range(7):
 	plt.plot(q[i].time, abs(q[i]-q_pred[i]).value, 'C' + str(i) + '-*', linewidth=linewidth, markersize=markersize1,label='Joint ' + str(i+1))
 	plt.plot(q_j[i].time, abs(q_j[i]-q_pred_j[i]).value, 'C' + str(i) + '*', markersize=markersize2)
@@ -421,6 +426,8 @@ for j in dq[0]:
 	dq_bounds.append(DataPoint(j.time, dq_bound))
 		
 fig = plt.figure(figsize=figsize, dpi=dpi)
+plt.rcParams['xtick.labelsize']=fontsize2
+plt.rcParams['ytick.labelsize']=fontsize2
 for i in range(7):
 	plt.plot(dq[i].time, dq[i].value, 'C' + str(i) + '-*', linewidth=linewidth, markersize=markersize1,label='Joint ' + str(i+1))
 	plt.plot(dq_j[i].time, dq_j[i].value, 'C' + str(i) + '*', markersize=markersize2)
@@ -442,6 +449,8 @@ if not show_figs:
 	plt.close()
 
 fig = plt.figure(figsize=figsize, dpi=dpi)
+plt.rcParams['xtick.labelsize']=fontsize2
+plt.rcParams['ytick.labelsize']=fontsize2
 for i in range(7):
 	plt.plot(dq[i].time, abs(dq[i]-dq_pred[i]).value, 'C' + str(i) + '-*', linewidth=linewidth, markersize=markersize1,label='Joint ' + str(i+1))
 	plt.plot(dq_j[i].time, abs(dq_j[i]-dq_pred_j[i]).value, 'C' + str(i) + '*', markersize=markersize2)
@@ -485,6 +494,8 @@ for j in q[0]:
 	tau_bounds.append(DataPoint(j.time, tau_bound))
 		
 fig = plt.figure(figsize=figsize, dpi=dpi)
+plt.rcParams['xtick.labelsize']=fontsize2
+plt.rcParams['ytick.labelsize']=fontsize2
 for i in range(7):
 	plt.plot(tau[i].time, tau[i].value, 'C' + str(i) + '-*', linewidth=linewidth, markersize=markersize1,label='Joint ' + str(i+1))
 	plt.plot(tau_j[i].time, tau_j[i].value, 'C' + str(i) + '*', markersize=markersize2)
@@ -506,6 +517,8 @@ if not show_figs:
 	plt.close()
 
 fig = plt.figure(figsize=figsize, dpi=dpi)
+plt.rcParams['xtick.labelsize']=fontsize2
+plt.rcParams['ytick.labelsize']=fontsize2
 for i in range(7):
 	plt.plot(tau[i].time, abs(tau[i]-tau_pred[i]).value, 'C' + str(i) + '-*', linewidth=linewidth, markersize=markersize1,label='Joint ' + str(i+1))
 	plt.plot(tau_j[i].time, abs(tau_j[i]-tau_pred_j[i]).value, 'C' + str(i) + '*', markersize=markersize2)
@@ -549,6 +562,8 @@ for j in q[0]:
 	tau_ext_bounds.append(DataPoint(j.time, tau_ext_bound))
 		
 fig = plt.figure(figsize=figsize, dpi=dpi)
+plt.rcParams['xtick.labelsize']=fontsize2
+plt.rcParams['ytick.labelsize']=fontsize2
 for i in range(7):
 	plt.plot(tau_ext[i].time, tau_ext[i].value, 'C' + str(i) + '-*', linewidth=linewidth, markersize=markersize1,label='Joint ' + str(i+1))
 	plt.plot(tau_ext_j[i].time, tau_ext_j[i].value, 'C' + str(i) + '*', markersize=markersize2)
@@ -570,6 +585,8 @@ if not show_figs:
 	plt.close()
 
 fig = plt.figure(figsize=figsize, dpi=dpi)
+plt.rcParams['xtick.labelsize']=fontsize2
+plt.rcParams['ytick.labelsize']=fontsize2
 for i in range(7):
 	plt.plot(tau_ext[i].time, abs(tau_ext[i]-tau_ext_pred[i]).value, 'C' + str(i) + '-*', linewidth=linewidth, markersize=markersize1,label='Joint ' + str(i+1))
 	plt.plot(tau_ext_j[i].time, abs(tau_ext_j[i]-tau_ext_pred_j[i]).value, 'C' + str(i) + '*', markersize=markersize2)
@@ -613,6 +630,8 @@ for j in q[0]:
 	position_bounds.append(DataPoint(j.time, position_bound))
 		
 fig = plt.figure(figsize=figsize, dpi=dpi)
+plt.rcParams['xtick.labelsize']=fontsize2
+plt.rcParams['ytick.labelsize']=fontsize2
 for i in range(3):
 	plt.plot(position[i].time, (position[i]-position[i][0]).value, 'C' + str(i) + '-*', linewidth=linewidth, markersize=markersize1,label=labels[i])
 	plt.plot(position_j[i].time, (position_j[i]-position[i][0]).value, 'C' + str(i) + '*', markersize=markersize2)
@@ -634,6 +653,8 @@ if not show_figs:
 	plt.close()
 
 fig = plt.figure(figsize=figsize, dpi=dpi)
+plt.rcParams['xtick.labelsize']=fontsize2
+plt.rcParams['ytick.labelsize']=fontsize2
 for i in range(3):
 	plt.plot(position[i].time, abs(position[i]-position_pred[i]).value, 'C' + str(i) + '-*', linewidth=linewidth, markersize=markersize1,label=labels[i])
 	plt.plot(position_j[i].time, abs(position_j[i]-position_pred_j[i]).value, 'C' + str(i) + '*', markersize=markersize2)
@@ -677,6 +698,8 @@ for j in q[0]:
 	velocity_bounds.append(DataPoint(j.time, velocity_bound))
 		
 fig = plt.figure(figsize=figsize, dpi=dpi)
+plt.rcParams['xtick.labelsize']=fontsize2
+plt.rcParams['ytick.labelsize']=fontsize2
 for i in range(3):
 	plt.plot(velocity[i].time, velocity[i].value, 'C' + str(i) + '-*', linewidth=linewidth, markersize=markersize1,label=labels[i])
 	plt.plot(velocity_j[i].time, velocity_j[i].value, 'C' + str(i) + '*', markersize=markersize2)
@@ -698,6 +721,8 @@ if not show_figs:
 	plt.close()
 
 fig = plt.figure(figsize=figsize, dpi=dpi)
+plt.rcParams['xtick.labelsize']=fontsize2
+plt.rcParams['ytick.labelsize']=fontsize2
 for i in range(3):
 	plt.plot(velocity[i].time, abs(velocity[i]-velocity_pred[i]).value, 'C' + str(i) + '-*', linewidth=linewidth, markersize=markersize1,label=labels[i])
 	plt.plot(velocity_j[i].time, abs(velocity_j[i]-velocity_pred_j[i]).value, 'C' + str(i) + '*', markersize=markersize2)
@@ -741,6 +766,8 @@ for j in q[0]:
 	force_bounds.append(DataPoint(j.time, force_bound))
 		
 fig = plt.figure(figsize=figsize, dpi=dpi)
+plt.rcParams['xtick.labelsize']=fontsize2
+plt.rcParams['ytick.labelsize']=fontsize2
 for i in range(3):
 	plt.plot(force[i].time, force[i].value, 'C' + str(i) + '-*', linewidth=linewidth, markersize=markersize1,label=labels[i])
 	plt.plot(force_j[i].time, force_j[i].value, 'C' + str(i) + '*', markersize=markersize2)
@@ -762,6 +789,8 @@ if not show_figs:
 	plt.close()
 
 fig = plt.figure(figsize=figsize, dpi=dpi)
+plt.rcParams['xtick.labelsize']=fontsize2
+plt.rcParams['ytick.labelsize']=fontsize2
 for i in range(3):
 	plt.plot(force[i].time, abs(force[i]-force_pred[i]).value, 'C' + str(i) + '-*', linewidth=linewidth, markersize=markersize1,label=labels[i])
 	plt.plot(force_j[i].time, abs(force_j[i]-force_pred_j[i]).value, 'C' + str(i) + '*', markersize=markersize2)
@@ -805,6 +834,8 @@ for j in q[0]:
 	force_ext_bounds.append(DataPoint(j.time, force_ext_bound))
 		
 fig = plt.figure(figsize=figsize, dpi=dpi)
+plt.rcParams['xtick.labelsize']=fontsize2
+plt.rcParams['ytick.labelsize']=fontsize2
 for i in range(3):
 	plt.plot(force_ext[i].time, force_ext[i].value, 'C' + str(i) + '-*', linewidth=linewidth, markersize=markersize1,label=labels[i])
 	plt.plot(force_ext_j[i].time, force_ext_j[i].value, 'C' + str(i) + '*', markersize=markersize2)
@@ -826,6 +857,8 @@ if not show_figs:
 	plt.close()
 
 fig = plt.figure(figsize=figsize, dpi=dpi)
+plt.rcParams['xtick.labelsize']=fontsize2
+plt.rcParams['ytick.labelsize']=fontsize2
 for i in range(3):
 	plt.plot(force_ext[i].time, abs(force_ext[i]-force_ext_pred[i]).value, 'C' + str(i) + '-*', linewidth=linewidth, markersize=markersize1,label=labels[i])
 	plt.plot(force_ext_j[i].time, abs(force_ext_j[i]-force_ext_pred_j[i]).value, 'C' + str(i) + '*', markersize=markersize2)
@@ -866,6 +899,8 @@ for j in q[0]:
 	abs_velocity_bounds.append(DataPoint(j.time, abs_velocity_bound))
 		
 fig = plt.figure(figsize=figsize, dpi=dpi)
+plt.rcParams['xtick.labelsize']=fontsize2
+plt.rcParams['ytick.labelsize']=fontsize2
 plt.plot(abs_velocity.time, abs_velocity.value, 'C1-*', linewidth=linewidth, markersize=markersize1,label='Magnitude')
 plt.plot(abs_velocity_j.time, abs_velocity_j.value, 'C1*', markersize=markersize2)
 
@@ -886,6 +921,8 @@ if not show_figs:
 	plt.close()
 
 fig = plt.figure(figsize=figsize, dpi=dpi)
+plt.rcParams['xtick.labelsize']=fontsize2
+plt.rcParams['ytick.labelsize']=fontsize2
 plt.plot(abs_velocity.time, abs(abs_velocity-abs_velocity_pred).value, 'C1-*', linewidth=linewidth, markersize=markersize1,label='Magnitude')
 plt.plot(abs_velocity_j.time, abs(abs_velocity_j-abs_velocity_pred_j).value, 'C1*', markersize=markersize2)
 plt.plot(abs_velocity_bounds.time, abs_velocity_bounds.value,'C7-',linewidth=linewidth,label='Bound')
@@ -925,6 +962,8 @@ for j in q[0]:
 	abs_force_ext_bounds.append(DataPoint(j.time, abs_force_ext_bound))
 
 fig = plt.figure(figsize=figsize, dpi=dpi)
+plt.rcParams['xtick.labelsize']=fontsize2
+plt.rcParams['ytick.labelsize']=fontsize2
 plt.plot(abs_force_ext.time, abs_force_ext.value, 'C1-*', linewidth=linewidth, markersize=markersize1,label='Magnitude')
 plt.plot(abs_force_ext_j.time, abs_force_ext_j.value, 'C1*', markersize=markersize2)
 
@@ -945,6 +984,8 @@ if not show_figs:
 	plt.close()
 
 fig = plt.figure(figsize=figsize, dpi=dpi)
+plt.rcParams['xtick.labelsize']=fontsize2
+plt.rcParams['ytick.labelsize']=fontsize2
 plt.plot(abs_force_ext.time, abs(abs_force_ext-abs_force_ext_pred).value, 'C1-*', linewidth=linewidth, markersize=markersize1,label='Magnitude')
 plt.plot(abs_force_ext_j.time, abs(abs_force_ext_j-abs_force_ext_pred_j).value, 'C1*', markersize=markersize2)
 plt.plot(abs_force_ext_bounds.time, abs_force_ext_bounds.value,'C7-',linewidth=linewidth,label='Bound')
@@ -979,6 +1020,8 @@ for j in q[0]:
 	force_ext_zero_bounds.append(DataPoint(j.time, force_ext_zero_bound))
 		
 fig = plt.figure(figsize=figsize, dpi=dpi)
+plt.rcParams['xtick.labelsize']=fontsize2
+plt.rcParams['ytick.labelsize']=fontsize2
 for i in range(3):
 	plt.plot(force_ext[i].time, force_ext[i].value, 'C' + str(i) + '-*', linewidth=linewidth, markersize=markersize1,label=labels[i])
 	plt.plot(force_ext_zero_j[i].time, force_ext_zero_j[i].value, 'C' + str(i) + '*', markersize=markersize2)
@@ -1014,6 +1057,8 @@ for j in q[0]:
 	abs_force_ext_zero_bounds.append(DataPoint(j.time, abs_force_ext_zero_bound))
 		
 fig = plt.figure(figsize=figsize, dpi=dpi)
+plt.rcParams['xtick.labelsize']=fontsize2
+plt.rcParams['ytick.labelsize']=fontsize2
 plt.plot(abs_force_ext.time, abs_force_ext.value, 'C1-*', linewidth=linewidth, markersize=markersize1,label='Magnitude')
 plt.plot(abs_force_ext_zero_j.time, abs_force_ext_zero_j.value, 'C1*', markersize=markersize2)
 plt.plot(abs_force_ext_bounds.time, abs_force_ext_zero_bounds.value,'C7-',linewidth=linewidth,label='Bound')
