@@ -17,12 +17,17 @@ markersize1 = 3
 markersize2 = 10
 fontsize1 = 20
 fontsize2 = 16
+# Full trajectory
 #xlim = None
+# Zoomed in on first impact
 #xlim = [8.6, 8.8]
-xlim = [8.5, 11]
+# Zoomed in on impact interval
+xlim = [8.6, 9.4]
+# Zoomed in on high force
+#xlim = [8.5, 11]
 labels = ['X','Y','Z']
-save_figs = True
-show_figs = False
+save_figs = False
+show_figs = True
 figure_dir = 'figures/different_plots'
 
 # Initialize datasets
@@ -79,7 +84,7 @@ for i in range(len(franka_reader.msgs)):
 		position[j].append(DataPoint(time, value.position[j]))
 		velocity[j].append(DataPoint(time, value.velocity[j]))
 		force[j].append(DataPoint(time, value.force_measured[j]))
-		force_ext[j].append(DataPoint(time, value.force_desired[j]))
+		force_ext[j].append(DataPoint(time, value.force_external[j]))
 	
 	abs_velocity.append(DataPoint(time, np.linalg.norm(value.velocity)))
 	abs_force_ext.append(DataPoint(time, np.linalg.norm(value.force_external)))
