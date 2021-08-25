@@ -1,6 +1,7 @@
 #ifndef JUMP_AWARE_FILTER_H
 #define JUMP_AWARE_FILTER_H
 
+#include <iostream>
 #include <vector>
 
 #include "jump_detector/jump_detector.h"
@@ -21,6 +22,12 @@ private:
     predictor_(&predictor),
     bounder_(&bounder)
     {}
+    
+    double latest_value;
+    double latest_prediction;
+    double latest_bound;
+    bool latest_jump_detection_check;
+    bool latest_jump_detection;
     
     // Processed an incoming datapoint. Returns true if a jump is detected.
     bool update(DataPoint datapoint) {
@@ -50,7 +57,7 @@ private:
   		return jump_detected;
   	}
     	
-    bool detect_jump(DataPoint datapoint) const {
+    bool detect_jump(DataPoint datapoint) {
     	
     	// Initialize variables
     	double predicted_value; 
@@ -60,6 +67,15 @@ private:
       // Detect the jump
       if (predictor_->predict(datapoint, predicted_value) && bounder_->bound(datapoint, bounded_value)) {
       	jump_detected = abs(predicted_value - datapoint.value) > bounded_value;
+      	
+      	this->latest_value = datapoint.value;
+      	this->latest_prediction = predicted_value;
+				this->latest_bound = bounded_value;
+				this->latest_jump_detection_check = true;
+				this->latest_jump_detection = jump_detected;
+      }
+      else {
+      	latest_jump_detection_check = false;
       }
       
       return jump_detected;

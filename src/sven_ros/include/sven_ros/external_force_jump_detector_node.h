@@ -4,13 +4,17 @@
 #include <ros/ros.h>
 #include <sven_ros/franka_state_jump_detector_node.h>
 
+// For debugging
+#include <jump_detector/jump_aware_filter.h>
+#include <memory>
+
 namespace external_force_functions {
 	double magnitude(std::vector<double> force_vector) {
 		double result = 0;
 		for (int i = 0; i < force_vector.size(); i++) {
 			result += force_vector[i] * force_vector[i];
 		}
-		return result;
+		return sqrt(result);
 	}
 };
 
@@ -29,6 +33,11 @@ class ExternalForceJumpDetectorNode : public FrankaStateJumpDetectorNode {
 			
 			if (jump_detected) {
 				ROS_INFO_STREAM("Jump detected at time " << time);
+			}
+			
+			JumpAwareFilter* jafilter = dynamic_cast<JumpAwareFilter*>(this->detector_);
+			if (jafilter->latest_jump_detection_check) {
+				// Send message
 			}
 			
 			this->send_jump_detected_msg(jump_detected);

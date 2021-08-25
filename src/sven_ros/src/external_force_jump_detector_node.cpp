@@ -2,6 +2,7 @@
 #include <jump_detector/jump_aware_filter.h>
 #include <jump_detector/constant_bounder.h>
 #include <jump_detector/least_squares_predictor.h>
+#include <string>
 
 int main(int argc, char **argv)
 {
@@ -10,15 +11,15 @@ int main(int argc, char **argv)
 	
 	// Predictor settings
 	int order;
-	nh.param<int>("predictor_config/order", order, 2);
+	nh.param<int>("/external_force_jump_detector/predictor_config/order", order, 2);
 	
 	// Bounder settings
 	double bound;
-	nh.param<double>("bound_config/bound", bound, 1);
+	nh.param<double>("bounder_config/bound", bound, 6);
 	
 	// Ja filter settings
 	int max_window_length;
-	nh.param<int>("ja_filter_config/max_window_length", max_window_length, 20);
+	nh.param<int>("/external_force_jump_detector/ja_filter_config/max_window_length", max_window_length, 20);
 	
 	// Initialize jump detector
 	LeastSquaresPredictor predictor(order);

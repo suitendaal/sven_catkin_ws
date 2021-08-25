@@ -23,7 +23,7 @@ class JumpDetector : public DataContainer {
     // Processed an incoming datapoint. Returns true if a jump is detected.
     virtual bool update(DataPoint datapoint) = 0;
     	
-    virtual bool detect_jump(DataPoint datapoint) const = 0;
+    virtual bool detect_jump(DataPoint datapoint) = 0;
 };
 
 #endif // JUMP_DETECTOR_FILTER_H

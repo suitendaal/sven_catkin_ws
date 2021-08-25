@@ -18,11 +18,11 @@ markersize2 = 10
 fontsize1 = 20
 fontsize2 = 16
 # Full trajectory
-#xlim = None
+xlim = None
 # Zoomed in on first impact
 #xlim = [8.6, 8.8]
 # Zoomed in on impact interval
-xlim = [8.6, 9.4]
+#xlim = [8.6, 9.4]
 # Zoomed in on high force
 #xlim = [8.5, 11]
 labels = ['X','Y','Z']

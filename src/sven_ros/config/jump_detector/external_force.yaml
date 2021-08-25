@@ -1,0 +1,7 @@
+ja_filter_config:
+  max_window_length: 20
+predictor_config:
+  order: 2
+bounder_config:
+  bound: 6
+
