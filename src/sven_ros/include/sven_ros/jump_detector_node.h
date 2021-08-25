@@ -5,26 +5,58 @@
 
 #include "jump_detector/jump_detector.h"
 
-#include <sensor_msgs/JointState.h>
 #include <sven_ros/BoolStamped.h>
 
 class JumpDetectorNode {
 
-  private:
+  protected:
     JumpDetector* detector_;
-    int joint_;
-    ros::Publisher jump_detector_pub;
-	ros::Subscriber joint_data_sub;
-    
-    void joint_state_received(const sensor_msgs::JointStateConstPtr &msg);
+    ros::Publisher jump_detector_pub_;
+		unsigned int sequence_;
+	
+		void send_jump_detected_msg(bool jump_detected) {
+			sven_ros::BoolStamped msg_out;
+			
+			// Define header
+			std_msgs::Header header;
+			header.seq = this->sequence_;
+			header.stamp = ros::Time::now();
+			header.frame_id = "Jump Detector";
+			msg_out.header = header;
+			
+			// Define data
+			msg_out.data = jump_detected;
+			
+			// Send message
+			jump_detector_pub_.publish(msg_out);
+			
+			// Update sequence
+			this->sequence_++;
+		}
+	
     
   public:
     ros::NodeHandle nh;
     
-    JumpDetectorNode(int joint, JumpDetector &detector);
-    JumpDetectorNode(ros::NodeHandle nh, int joint, JumpDetector &detector);
-    ~JumpDetectorNode();
-    void run();
+    JumpDetectorNode(JumpDetector &detector)
+    : detector_(&detector),
+    nh()
+    {
+    	jump_detector_pub_ = nh.advertise<sven_ros::BoolStamped>("/sven_ros/jump_detector", 1000);
+    }
+    
+    JumpDetectorNode(ros::NodeHandle nh, JumpDetector &detector)
+    : detector_(&detector),
+    nh(nh)
+    {
+    	jump_detector_pub_ = nh.advertise<sven_ros::BoolStamped>("/sven_ros/jump_detector", 1000);
+    }
+    
+    ~JumpDetectorNode(){
+    	return;
+    }
+    
+    virtual void run() = 0;
 
 };
 

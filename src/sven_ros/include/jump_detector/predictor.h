@@ -3,16 +3,24 @@
 
 #include <vector>
 
-#include "jump_detector/datapoint.h"
+#include "jump_detector/data_container.h"
 
-class Predictor {
+class Predictor : public DataContainer {
 
   private:
+  unsigned int order_;
   
   public:
-  virtual bool predict(std::vector<DataPoint> data, double time, double &value) = 0;
-
+  Predictor(unsigned int max_window_length)
+  : DataContainer(max_window_length)
+  {}
+  
+  Predictor()
+  : DataContainer(0)
+  {}
+  
+  virtual bool predict(DataPoint datapoint, double &value) const = 0;
 };
 
-#endif // PREDICTOR_H
+#endif // LEAST_SQUARES_PREDICTOR_H
 

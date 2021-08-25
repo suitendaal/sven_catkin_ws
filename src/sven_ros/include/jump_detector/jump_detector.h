@@ -1,32 +1,30 @@
-#ifndef JUMP_DETECTOR_H
-#define JUMP_DETECTOR_H
+#ifndef JUMP_DETECTOR_FILTER_H
+#define JUMP_DETECTOR_FILTER_H
 
-#include <queue>
+#include <vector>
 
-#include "jump_detector/datapoint.h"
+#include "jump_detector/data_container.h"
 
-class JumpDetector {
+class JumpDetector : public DataContainer {
 
-  protected:
-  	std::queue<DataPoint> data_;
-  	int max_window_length_;
-  
-  
+	private:
+    
   public:
-    JumpDetector(int max_window_length)
-    : max_window_length_(max_window_length),
-    data_()
+    JumpDetector(unsigned int max_window_length)
+    : DataContainer(max_window_length)
     {}
-  
-  	virtual bool datapoint_arrived(double time, double value) {
-  	  DataPoint datapoint(time,value);
-  	  data_.push(datapoint);
-  	  if (data_.size() > max_window_length_ + 1) {
-  	    data_.pop();
-  	  }
-  	  return false;
-  	}
-
+    
+    // Processed an incoming datapoint. Returns true if a jump is detected.
+    virtual bool update(double time, double value) {
+    	DataPoint datapoint(time, value);
+    	return this->update(datapoint);
+    }
+    
+    // Processed an incoming datapoint. Returns true if a jump is detected.
+    virtual bool update(DataPoint datapoint) = 0;
+    	
+    virtual bool detect_jump(DataPoint datapoint) const = 0;
 };
 
-#endif // JUMP_DETECTOR_H
+#endif // JUMP_DETECTOR_FILTER_H
+

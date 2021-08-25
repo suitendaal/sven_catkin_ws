@@ -94,7 +94,7 @@ class FrankaState(object):
 		
 	@property
 	def force_external(self):
-		return self.calc_force(self.tau_external)
+		return self.franka_state_.O_F_ext_hat_K
 		
 	def calc_force(self, torque):
 		return np.linalg.pinv(self.jacobian.T).dot(torque).tolist()[0:3]

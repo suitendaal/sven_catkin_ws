@@ -3,7 +3,7 @@
 #include "sensor_msgs/Joy.h"
 #include <queue>
 
-#include "jump_detector/filter.h"
+/*#include "jump_detector/filter.h"*/
 
 class VivePoseConverterNode {
 public:
@@ -37,7 +37,7 @@ private:
 	double max_vel;
 	bool max_vel_passed;
 	std::queue<geometry_msgs::PoseStamped> vive_poses;
-	Filter filter;
+/*	Filter filter;*/
 	int max_window_length;
 	bool stop_button_pressed;
 	

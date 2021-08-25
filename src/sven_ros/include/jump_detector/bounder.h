@@ -1,17 +1,23 @@
 #ifndef BOUNDER_H
 #define BOUNDER_H
 
-#include <vector>
+#include "jump_detector/data_container.h"
 
-#include "jump_detector/datapoint.h"
-
-class Bounder {
-
-  private:
+class Bounder : public DataContainer {
   
+  private:
+    double bound_;
+    
   public:
-  virtual bool bound(std::vector<DataPoint> data, double time, double &value) = 0;
-
+  	Bounder()
+  	: DataContainer(0)
+  	{}
+  
+    Bounder(unsigned int max_window_length)
+    : DataContainer(max_window_length)
+    {}
+    
+    virtual bool bound(DataPoint datapoint, double &value) const = 0;
 };
 
 #endif // BOUNDER_H

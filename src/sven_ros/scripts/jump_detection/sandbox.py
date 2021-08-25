@@ -29,6 +29,7 @@ Fx_d = DataSet()
 Fy_d = DataSet()
 Fz_d = DataSet()
 F_ext = DataSet()
+F_ext2 = DataSet()
 qs = []
 dqs = []
 qds = []
@@ -71,6 +72,7 @@ for i in range(len(franka_reader.msgs)):
 	Fz_d.append(DataPoint(time, dp.force_desired[2]))
 	
 	F_ext.append(DataPoint(time, np.linalg.norm(dp.force_external)))
+	F_ext2.append(DataPoint(time, np.linalg.norm(dp.franka_state_.O_F_ext_hat_K[0:3])))
 	
 	for j in range(7):
 		qs[j].append(DataPoint(time, dp.q[j]))
@@ -95,6 +97,7 @@ Fx_d.align_time()
 Fy_d.align_time()
 Fz_d.align_time()
 F_ext.align_time()
+F_ext2.align_time()
 for i in range(7):
 	qs[i].align_time()
 	dqs[i].align_time()
@@ -239,7 +242,8 @@ print(jump_indices3)
 #plt.plot(predictions_z.time, abs(predictions_z-dz).value,'C2-*',linewidth=2)
 
 plt.figure()
-plt.plot(F_ext.time, F_ext.value)
+plt.plot(F_ext.time, F_ext.value,label="fext")
+plt.plot(F_ext2.time, F_ext2.value,label="fext2")
 
 plt.figure()
 plt.plot(predictions3.time, abs(predictions3 - F_ext).value)

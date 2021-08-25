@@ -39,10 +39,15 @@ include_directories(
 add_executable(vive_pose_converter_node src/vive_pose_converter_node.cpp)
 target_link_libraries(vive_pose_converter_node ${catkin_LIBRARIES})
 
-# Build jump detector node
-add_executable(jump_detector_node src/jump_detector_node.cpp)
-target_link_libraries(jump_detector_node ${catkin_LIBRARIES})
-add_dependencies(jump_detector_node sven_ros_generate_messages_cpp)
+# Build joint jump detector node
+add_executable(joint_jump_detector_node src/joint_jump_detector_node.cpp)
+target_link_libraries(joint_jump_detector_node ${catkin_LIBRARIES})
+add_dependencies(joint_jump_detector_node sven_ros_generate_messages_cpp)
+
+# Build external force jump detector node
+add_executable(external_force_jump_detector_node src/external_force_jump_detector_node.cpp)
+target_link_libraries(external_force_jump_detector_node ${catkin_LIBRARIES})
+add_dependencies(external_force_jump_detector_node sven_ros_generate_messages_cpp)
 
 # Build sven ros controller node
 catkin_install_python(PROGRAMS scripts/sven_ros_controller_node.py

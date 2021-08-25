@@ -6,14 +6,13 @@
 #include "jump_detector/jump_detector.h"
 #include "jump_detector/bounder.h"
 #include "jump_detector/predictor.h"
-#include "jump_detector/datapoint.h"
 
 class JumpAwareFilter : public JumpDetector {
 
 private:
     Predictor* predictor_;
     Bounder* bounder_;
-    int window_length_;
+    unsigned int window_length_;
     
   public:
     JumpAwareFilter(int max_window_length, Predictor &predictor, Bounder &bounder)
@@ -24,37 +23,49 @@ private:
     {}
     
     // Processed an incoming datapoint. Returns true if a jump is detected.
-    bool datapoint_arrived(double time, double value) {
-      
-      std::queue<DataPoint> q = data_;
-      std::vector<DataPoint> v;
-      while (!q.empty())
-      {
-        if (q.size() <= window_length_ + 1) {
-          v.push_back(q.front());
-        }
-        q.pop();
-      }
-      double predicted_value; 
+    bool update(DataPoint datapoint) {
+    	// Detect jump
+    	bool jump_detected = this->detect_jump(datapoint);
+    	
+    	// Update window length
+    	if (jump_detected) {
+    		this->window_length_ = 0;
+    	}
+    	else {
+    		if (this->window_length_ < this->max_window_length_) {
+    			this->window_length_++;
+    		}
+    	}
+    	this->predictor_->set_window_length(this->window_length_);
+    	this->bounder_->set_window_length(this->window_length_);
+    	
+    	// Update data
+  		unsigned int tmp = this->max_window_length_;
+  		this->max_window_length_ = this->window_length_;
+  		DataContainer::update(datapoint);
+  		this->predictor_->update(datapoint);
+  		this->bounder_->update(datapoint);
+  		this->max_window_length_ = tmp;
+  		
+  		return jump_detected;
+  	}
+    	
+    bool detect_jump(DataPoint datapoint) const {
+    	
+    	// Initialize variables
+    	double predicted_value; 
       double bounded_value;
       bool jump_detected = false;
       
-      if (predictor_->predict(v, time, predicted_value) && bounder_->bound(v, time, bounded_value)) {
-      	jump_detected = abs(predicted_value - value) > bounded_value;
+      // Detect the jump
+      if (predictor_->predict(datapoint, predicted_value) && bounder_->bound(datapoint, bounded_value)) {
+      	jump_detected = abs(predicted_value - datapoint.value) > bounded_value;
       }
       
-      if (jump_detected) {
-        window_length_ = 0;
-      }
-      else if (window_length_ < max_window_length_) {
-        window_length_++;
-      }
-      
-      JumpDetector::datapoint_arrived(time, value);
       return jump_detected;
     }
     
-    double get_current_window_length() const {
+    double get_window_length() const {
       return window_length_;
     }
 

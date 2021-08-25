@@ -20,7 +20,7 @@ VivePoseConverterNode::VivePoseConverterNode()
 	robot_offset_set(false),
 	max_vel_passed(false),
 	max_window_length(30),
-	filter(3, 0, 20),
+//	filter(3, 0, 20),
 	stop_button_pressed(true)
 {
 	pose_pub = nh.advertise<geometry_msgs::PoseStamped>("/vive_pose_converter/pose", 40);
@@ -242,48 +242,48 @@ bool VivePoseConverterNode::vive_pose_received(const geometry_msgs::PoseStamped:
 	double qz;
 	double qw;
 	
-	if (filter.filter(xs, x)) {
-		vive_pose.pose.position.x = x;
-	}
-	else {
+//	if (filter.filter(xs, x)) {
+//		vive_pose.pose.position.x = x;
+//	}
+//	else {
 		vive_pose.pose.position.x = msg->pose.position.x;
-	}
-	if (filter.filter(ys, y)) {
-		vive_pose.pose.position.y = y;
-	}
-	else {
+//	}
+//	if (filter.filter(ys, y)) {
+//		vive_pose.pose.position.y = y;
+//	}
+//	else {
 		vive_pose.pose.position.y = msg->pose.position.y;
-	}
-	if (filter.filter(zs, z)) {
-		vive_pose.pose.position.z = z;
-	}
-	else {
+//	}
+//	if (filter.filter(zs, z)) {
+//		vive_pose.pose.position.z = z;
+//	}
+//	else {
 		vive_pose.pose.position.z = msg->pose.position.z;
-	}
-	if (filter.filter(qxs, qx)) {
-		vive_pose.pose.orientation.x = qx;
-	}
-	else {
+//	}
+//	if (filter.filter(qxs, qx)) {
+//		vive_pose.pose.orientation.x = qx;
+//	}
+//	else {
 		vive_pose.pose.orientation.x = msg->pose.orientation.x;
-	}
-	if (filter.filter(qys, qy)) {
-		vive_pose.pose.orientation.y = qy;
-	}
-	else {
+//	}
+//	if (filter.filter(qys, qy)) {
+//		vive_pose.pose.orientation.y = qy;
+//	}
+//	else {
 		vive_pose.pose.orientation.y = msg->pose.orientation.y;
-	}
-	if (filter.filter(qzs, qz)) {
-		vive_pose.pose.orientation.z = qz;
-	}
-	else {
+//	}
+//	if (filter.filter(qzs, qz)) {
+//		vive_pose.pose.orientation.z = qz;
+//	}
+//	else {
 		vive_pose.pose.orientation.z = msg->pose.orientation.z;
-	}
-	if (filter.filter(qws, qw)) {
-		vive_pose.pose.orientation.w = qw;
-	}
-	else {
+//	}
+//	if (filter.filter(qws, qw)) {
+//		vive_pose.pose.orientation.w = qw;
+//	}
+//	else {
 		vive_pose.pose.orientation.w = msg->pose.orientation.w;
-	}
+//	}
 	
 	return true;
 }
