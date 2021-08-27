@@ -19,12 +19,9 @@ class ConstantBounder : public Bounder {
     bound_(bound_value)
     {}
     
-    virtual bool bound(DataPoint datapoint, double &value) const {
-      if (this->max_window_length_ > 0) {
-        value = bound_;
-        return true;
-      }
-      return false;
+    virtual bool bound(const DataPoint &datapoint, double &value) const {
+      value = bound_;
+      return true;
     }
 };
 

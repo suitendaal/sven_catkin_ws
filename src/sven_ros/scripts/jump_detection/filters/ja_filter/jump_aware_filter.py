@@ -35,7 +35,9 @@ class JumpAwareFilter(object):
 		else:
 			self.window_length = min(self.window_length + 1, self.max_window_length)
 			self.predictor.window_length = self.window_length
+			self.predictor.update(datapoint)
 			self.bounder.window_length = self.window_length
+			self.bounder.update(datapoint)
 			self.data.append(datapoint)
 			
 		# Return result
@@ -43,9 +45,7 @@ class JumpAwareFilter(object):
 	
 	def detect_jump(self, datapoint):
 		prediction, prediction_info = self.predictor.predict(datapoint)
-		self.predictor.update(datapoint)
 		bound, bound_info = self.bounder.bound(datapoint)
-		self.bounder.update(datapoint)
 		
 		jump_detected = False
 		if prediction.value is not None and bound.value is not None:

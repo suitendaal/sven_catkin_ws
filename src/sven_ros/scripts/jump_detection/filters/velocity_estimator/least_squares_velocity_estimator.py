@@ -23,30 +23,43 @@ class LeastSquaresVelocityEstimator(VelocityEstimator):
 			return DataPoint(datapoint.time, None), []
 		
 		x = subset.time
+		time_shift = x[0]
+		time = datapoint.time - time_shift
+		for i in range(len(x)):
+			x[i] = x[i] - time_shift
 		y = subset.value
 		coefs = np.polyfit(x,y,self.order)
-		value = 0
-		time = datapoint.time
-		for i in range(len(coefs) - 1):
-			power = len(coefs) - 1 - i
-			coef = coefs[i]
-			value = value + coef * power * (time ** (power - 1))
+		value = np.polyval(np.polyder(coefs), time)
+#		value = 0
+#		for i in range(len(coefs) - 1):
+#			power = len(coefs) - 1 - i
+#			coef = coefs[i]
+#			value = value + coef * power * (time ** (power - 1))
 		return DataPoint(datapoint.time, value), coefs
 		
 	def predict(self, datapoint):
 		subset = self.data[-self.window_length:]
 		if not self.enough_data(len(subset)):
 			return DataPoint(datapoint.time, None), []
-		
+			
 		x = subset.time
+		time_shift = x[0]
+		time = datapoint.time - time_shift
+		for i in range(len(x)):
+			x[i] = x[i] - time_shift
 		y = subset.value
 		coefs = np.polyfit(x,y,self.order)
-		value = 0
-		time = datapoint.time
-		for i in range(len(coefs) - 1):
-			power = len(coefs) - 1 - i
-			coef = coefs[i]
-			value = value + coef * power * (time ** (power - 1))
+		value = np.polyval(np.polyder(coefs), time)
+		
+#		x = subset.time
+#		y = subset.value
+#		coefs = np.polyfit(x,y,self.order)
+#		value = 0
+#		time = datapoint.time
+#		for i in range(len(coefs) - 1):
+#			power = len(coefs) - 1 - i
+#			coef = coefs[i]
+#			value = value + coef * power * (time ** (power - 1))
 		return DataPoint(datapoint.time, value), coefs
 		
 	# Returns if there is enough data to fit a polynomial

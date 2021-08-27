@@ -23,6 +23,8 @@ class Filter(object):
 		
 		# Update data
 		self.data.append(datapoint)
+		while len(self.data) > self.window_length:
+			self.data.pop(0)
 		
 		# Return result
 		return filtered_datapoint, info

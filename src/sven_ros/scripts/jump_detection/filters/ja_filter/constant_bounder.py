@@ -7,9 +7,10 @@ class ConstantBounder(object):
 
 	def __init__(self, **kwargs):
 		self.bound_ = kwargs.get('bound',0.01)
+		self.window_length = 0
 		
 	def copy(self):
-		return BaseBounder(bound=self.bound_)
+		return ConstantBounder(bound=self.bound_)
 
 	def bound(self, datapoint):
 		return DataPoint(datapoint.time, self.bound_), []

@@ -203,21 +203,21 @@ for j in range(len(F_ext)):
 
 print(jump_indices3)
 		
-#plt.figure()
-#for i in range(7):
-#	plt.plot(dq_est[i].time, dq_est[i].value,'C' + str(i) + '-*',linewidth=4)
-#for i in range(7):
-#	plt.plot(dqs[i].time, dqs[i].value,'C' + str(i+1) + '-*',linewidth=3)
+plt.figure()
+for i in range(1):
+	plt.plot(dq_est[i].time, dq_est[i].value,'C' + str(i) + '-*',linewidth=4)
+for i in range(1):
+	plt.plot(dqs[i].time, dqs[i].value,'C' + str(i+1) + '-*',linewidth=3)
 #for i in range(7):
 #	plt.plot(qs[i].diff().time, qs[i].diff().value,'C' + str(i+2) + '-*',linewidth=2)
 
-#plt.figure()
-#for i in range(7):
-#	plt.plot(qs[i].time, (qs[i]-qs[i][0]).value,'C' + str(i) + '-*',linewidth=2)
-#	
-#plt.figure()
-#for i in range(7):
-#	plt.plot(predictions[i].time, abs(predictions[i]-qs[i]).value,'C' + str(i) + '-*',linewidth=2)
+plt.figure()
+for i in range(7):
+	plt.plot(qs[i].time, (qs[i]-qs[i][0]).value,'C' + str(i) + '-*',linewidth=2)
+	
+plt.figure()
+for i in range(7):
+	plt.plot(predictions[i].time, abs(predictions[i]-dqs[i]).value,'C' + str(i) + '-*',linewidth=2)
 
 #plt.figure()
 #for i in range(7):
@@ -241,12 +241,12 @@ print(jump_indices3)
 #plt.plot(predictions_y.time, abs(predictions_y-dy).value,'C1-*',linewidth=2)
 #plt.plot(predictions_z.time, abs(predictions_z-dz).value,'C2-*',linewidth=2)
 
-plt.figure()
-plt.plot(F_ext.time, F_ext.value,label="fext")
-plt.plot(F_ext2.time, F_ext2.value,label="fext2")
+#plt.figure()
+#plt.plot(F_ext.time, F_ext.value,label="fext")
+#plt.plot(F_ext2.time, F_ext2.value,label="fext2")
 
-plt.figure()
-plt.plot(predictions3.time, abs(predictions3 - F_ext).value)
+#plt.figure()
+#plt.plot(predictions3.time, abs(predictions3 - F_ext).value)
 	
 #i = 5
 #plt.figure()

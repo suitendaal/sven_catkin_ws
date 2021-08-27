@@ -19,7 +19,7 @@ class Predictor : public DataContainer {
   : DataContainer(0)
   {}
   
-  virtual bool predict(DataPoint datapoint, double &value) const = 0;
+  virtual bool predict(const DataPoint &datapoint, double &value) const = 0;
 };
 
 #endif // LEAST_SQUARES_PREDICTOR_H

@@ -17,7 +17,7 @@ class Bounder : public DataContainer {
     : DataContainer(max_window_length)
     {}
     
-    virtual bool bound(DataPoint datapoint, double &value) const = 0;
+    virtual bool bound(const DataPoint &datapoint, double &value) const = 0;
 };
 
 #endif // BOUNDER_H

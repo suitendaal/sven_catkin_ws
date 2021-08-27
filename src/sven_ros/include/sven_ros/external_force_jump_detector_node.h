@@ -7,6 +7,8 @@
 // For debugging
 #include <jump_detector/jump_aware_filter.h>
 #include <memory>
+#include <iostream>
+#include <iomanip>
 
 namespace external_force_functions {
 	double magnitude(std::vector<double> force_vector) {
@@ -32,12 +34,7 @@ class ExternalForceJumpDetectorNode : public FrankaStateJumpDetectorNode {
 			bool jump_detected = this->detector_->update(time, force);
 			
 			if (jump_detected) {
-				ROS_INFO_STREAM("Jump detected at time " << time);
-			}
-			
-			JumpAwareFilter* jafilter = dynamic_cast<JumpAwareFilter*>(this->detector_);
-			if (jafilter->latest_jump_detection_check) {
-				// Send message
+				ROS_INFO_STREAM(std::fixed << std::setprecision(4) << "Jump detected at time " << time << " with force value: ||[" << force_vector[0] << ", " << force_vector[1] << ", " << force_vector[2] << "]||, = " << force);
 			}
 			
 			this->send_jump_detected_msg(jump_detected);
