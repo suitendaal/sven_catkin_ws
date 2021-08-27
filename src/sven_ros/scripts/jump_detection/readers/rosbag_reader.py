@@ -36,6 +36,9 @@ class RosbagReader(object):
 		
 	def align_time(self):
 		return self.msgs.align_time
+		
+	def end(self):
+		return self.msgs_index_ >= len(self.msgs)
 
 def main():
 	reader = RosbagReader("demo2.bag")

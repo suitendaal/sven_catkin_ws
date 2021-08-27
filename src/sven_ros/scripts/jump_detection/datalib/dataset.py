@@ -49,6 +49,12 @@ class DataSet():
 		return result
 		
 	def __getitem__(self, index):
+		if isinstance(index, list):
+			result = DataSet()
+			for i in index:
+				result.append(self[i])
+			return result
+		
 		result = self.data[index]
 		if isinstance(result, list):
 			res = DataSet()

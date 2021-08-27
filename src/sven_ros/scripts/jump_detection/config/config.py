@@ -4,43 +4,12 @@ from filters import *
 from readers import *
 from models import *
 
-# Joints
-n_joints = 7
-
-# Impacts
-n_phases = 2
-
 ### Load data
 
 # Files with demonstrations
 demos = [
-	'data/replay6.2.bag',
-	'data/replay7.2.bag'
+	'data/replay4.1.bag'
 ]
-
-# Jump intervals
-jump_intervals = [
-	[(538,560)],
-	[(609,627)]
-]
-
-# Load data files
-joints = []
-for i in range(n_joints):
-	joints.append(Joint(i+1))
-end_effector = EndEffector(n_phases)
-
-for i in range(len(demos)):
-	filename = demos[i]
-
-	# Read joint data
-	for j in range(n_joints):
-		joints[j].append_data(get_joint_data(filename,j+1)[0])
-		
-	# Read cartesian data
-	x, y, z, q = get_cartesian_data(filename)
-	jump_intervals_set = jump_intervals[i]
-	end_effector.append_data(x, y, z, q, jump_intervals_set)
 	
 ### Movement primitives
 

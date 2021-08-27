@@ -1,2 +1,2 @@
-from .config import *
+from .config_jump_detection import *
 

@@ -52,7 +52,7 @@ class JumpAwareFilter(object):
 			if abs(prediction - datapoint) > bound:
 				jump_detected = True
 		
-		return jump_detected, [prediction, prediction_info, bound, bound_info]
+		return jump_detected, [prediction, bound, prediction_info, bound_info]
 	
 	def reset(self):
 		self.data.clear()
