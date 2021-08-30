@@ -1,11 +1,144 @@
 #!/usr/bin/python3
 
-import json
-import numpy as np
+import sys
+#import json
+#import numpy as np
 import matplotlib.pyplot as plt
-import config
+import config.config_create_trajectory as config
+#from readers import *
+#from datalib import *
 from writers import *
-from config import end_effector
+from models import *
+
+robot = Robot(config)
+
+sys.exit()
+
+
+# Initialize filtered data
+position_phases = []
+orientation_phases = []
+velocity_phases = []
+rotational_velocity_phases = []
+position_filtered_phases = []
+orientation_filtered_phases = []
+velocity_filtered_phases = []
+rotational_velocity_filtered_phases = []
+
+for i in range(len(config.demos)):
+	
+	position_phases.append([])
+	orientation_phases.append([])
+	velocity_phases.append([])
+	rotational_velocity_phases.append([])
+	position_filtered_phases.append([])
+	orientation_filtered_phases.append([])
+	velocity_filtered_phases.append([])
+	rotational_velocity_filtered_phases.append([])
+	
+	# Initialize data
+	position_data = []
+	orientation_data = []
+	velocity_data = []
+	rotational_velocity_data = []
+	
+	for j in range(3):
+		position_data.append(DataSet())
+		orientation_data.append(DataSet())
+		velocity_data.append(DataSet())
+		rotational_velocity_data.append(DataSet())
+	
+	# Read data
+	demo = config.demos[i]
+	franka_reader = FrankaStateReader(demo)
+	while not franka_reader.end():
+		dp = franka_reader.next_datapoint()
+		time = dp.time
+		franka_state = dp.value
+		
+		for j in range(3):
+			position_data[j].append(DataPoint(time, franka_state.position[j]))
+			orientation_data[j].append(DataPoint(time, franka_state.euler_angles[j]))
+			velocity_data[j].append(DataPoint(time, franka_state.velocity[j]))
+			rotational_velocity_data[j].append(DataPoint(time, franka_state.rotational_velocity[j]))
+
+	# Loop through phases
+	for j in range(len(config.impact_intervals[i]) + 1):
+		
+		# Initialize data of phase
+		start = 0
+		if j > 0:
+			start = config.impact_intervals[i][j-1][-1] + 1
+		end = len(position_data[0])
+		if j < len(config.impact_intervals[i]):
+			end = config.impact_intervals[i][j][0]
+		
+		position_phase = []
+		orientation_phase = []
+		velocity_phase = []
+		rotational_velocity_phase = []
+		position_filtered_phase = []
+		orientation_filtered_phase = []
+		velocity_filtered_phase = []
+		rotational_velocity_filtered_phase = []
+	
+		for k in range(3):
+			position_phase.append(position_data[k][start:end])
+			orientation_phase.append(orientation_data[k][start:end])
+			velocity_phase.append(velocity_data[k][start:end])
+			rotational_velocity_phase.append(rotational_velocity_data[k][start:end])
+			
+		for k in range(3):
+			position_filtered_phase.append(DataSet())
+			orientation_filtered_phase.append(DataSet())
+			velocity_filtered_phase.append(DataSet())
+			rotational_velocity_filtered_phase.append(DataSet())
+			
+		## Filter data
+		
+		# Position data
+		for k in range(3):
+			data = position_phase[k]
+			data_filter = config.position_filter
+			data_filter.reset()
+			for l in range(len(data)):
+				filtered_data, coefs = data_filter.update(data[l])
+				position_filtered_phase[k].append(filtered_data)
+				
+		# Orientation data
+		for k in range(3):
+			data = orientation_phase[k]
+			data_filter = config.orientation_filter
+			data_filter.reset()
+			for l in range(len(data)):
+				filtered_data, coefs = data_filter.update(data[l])
+				orientation_filtered_phase[k].append(filtered_data)
+				
+		# Velocity data
+		for k in range(3):
+			data = velocity_phase[k]
+			data_filter = config.velocity_filter
+			data_filter.reset()
+			for l in range(len(data)):
+				filtered_data, coefs = data_filter.update(data[l])
+				velocity_filtered_phase[k].append(filtered_data)
+				
+		# Rotational velocity data
+		for k in range(3):
+			data = rotational_velocity_phase[k]
+			data_filter = config.rotational_velocity_filter
+			data_filter.reset()
+			for l in range(len(data)):
+				filtered_data, coefs = data_filter.update(data[l])
+				rotational_velocity_filtered_phase[k].append(filtered_data)
+				
+		
+
+
+
+
+
+sys.exit(0)
 
 end_effector.filter()
 

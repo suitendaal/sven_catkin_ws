@@ -61,6 +61,10 @@ class FrankaState(object):
 		return Rotation.from_matrix(self.rot_matrix)
 		
 	@property
+	def euler_angles(self):
+		return self.rotation.as_euler('xyz')
+		
+	@property
 	def tau_measured(self):
 		return self.franka_state_.tau_J
 		
@@ -83,6 +87,10 @@ class FrankaState(object):
 	@property
 	def velocity(self):
 		return self.jacobian.dot(np.array(self.dq)).tolist()[0:3]
+		
+	@property
+	def rotational_velocity(self):
+		return self.jacobian.dot(np.array(self.dq)).tolist()[3:6]
 	
 	@property
 	def force_measured(self):

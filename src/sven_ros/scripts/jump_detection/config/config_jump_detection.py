@@ -13,11 +13,6 @@ demos = [
 predictor = LeastSquaresFilter(order=2)
 bounder = ConstantBounder(bound=6)
 jump_detector = JumpAwareFilter(predictor, bounder, max_window_length=20)
-
-#### Filtering
-#position_filter = LeastSquaresFilter(order=2, window_length=20)
-#velocity_filter = LeastSquaresFilter(order=2, window_length=20)
-#velocity_estimator = LeastSquaresVelocityEstimator(order=2, window_length=20)
 	
 ### Detect Jumps output settings
 
@@ -40,11 +35,11 @@ markersize2 = 3
 fontsize1 = 20
 fontsize2 = 16
 # Full trajectory
-#xlim = [None]
+xlim = [None]
 # Zoomed in on first impact
 #xlim = [(8.6, 8.8)]
 # Zoomed in on impact interval
-xlim = [(8.6, 11)]
+#xlim = [(8.6, 11)]
 # Zoomed in on high force
 #xlim = [(8.5, 11)]
 labels = ['X','Y','Z']
