@@ -8,6 +8,9 @@ class TrajectoryExtender(object):
 	def __init__(self, **kwargs):
 		self.timesteps = kwargs.get('timesteps', 10)
 		self.delta_time = kwargs.get('delta_time', 0.01)
+		
+	def copy(self):
+		return TrajectoryExtender(timesteps=self.timesteps, delta_time=self.delta_time)
 
 	def extend(self, trajectory, velocity_data, extend_before=True, extend_after=True):
 		return trajectory.copy()

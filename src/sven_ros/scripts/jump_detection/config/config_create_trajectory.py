@@ -34,6 +34,24 @@ orientation_extender = ConstantVelocityExtender(timesteps=100, delta_time=0.01)
 
 ### Create reference output settings
 
+# Figure settings
+figsize = (16, 12)
+dpi = 80
+linewidth = 1
+markersize1 = 10
+markersize2 = 3
+fontsize1 = 20
+fontsize2 = 16
+# Full trajectory
+xlim = [None]
+# Zoomed in on first impact
+#xlim = [(8.6, 8.8)]
+# Zoomed in on impact interval
+#xlim = [(8.6, 11)]
+# Zoomed in on high force
+#xlim = [(8.5, 11)]
+labels = ['X','Y','Z']
+
 # Plotting settings
 plot_pos_mp = True
 plot_pos_data = True
