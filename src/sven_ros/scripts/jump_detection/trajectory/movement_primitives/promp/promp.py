@@ -22,7 +22,7 @@ class ProMP(object):
 			dataset = datasets[i]
 	
 			# Calculate outcome of basis functions
-			time_vector = np.array(dataset.time())
+			time_vector = np.array(dataset.time)
 			psi = np.zeros((len(self.basis_functions),len(time_vector) * (self.derivatives + 1)))
 			
 			for k in range(self.derivatives + 1):
@@ -31,7 +31,7 @@ class ProMP(object):
 					psi[:,index] = self.calc_phi(time_vector[j], derivative=k)[:,0]
 					
 			# Calculate weights for each demonstration
-			values = dataset.values()
+			values = dataset.value
 			
 			if self.derivatives > 0:
 				values = [item for sublist in values for item in sublist[0:(self.derivatives+1)]]
@@ -83,7 +83,7 @@ class ProMP(object):
 			time = time.copy()
 		
 		index = len(time)
-		time.extend(via_points.time())
+		time.extend(via_points.time)
 		
 		Mu_w = self.mu_w()
 		Sigma_w = self.sigma_w()
@@ -107,7 +107,7 @@ class ProMP(object):
 			Sigma_out_in = Sigma[:index,index:]
 			Sigma_in = Sigma[index:,index:]
 			Sigma_out = Sigma[:index,:index]
-			Mu_in = np.transpose(np.array(via_points.values())) - Mu[index:]
+			Mu_in = np.transpose(np.array(via_points.value)) - Mu[index:]
 			Mu = Mu_out + Sigma_out_in.dot(np.linalg.inv(Sigma_in)).dot(Mu_in)
 			
 			# TODO: Sigma

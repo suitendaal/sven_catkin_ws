@@ -9,8 +9,18 @@ class DemoVariable(object):
 		self.filtered_derivative_ = None
 		self.extended_data_ = None
 		self.extended_derivative_ = None
+		
+		# Real usable data for creating trajectory
+		self.real_times_ = []
+		
+		# Times of the entire phase, including data with None values
+		self.phase_times_ = []
+		
+		# Times included extended trajectories
 		self.extended_times_ = []
 		for phase in range(self.n_phases):
+			self.real_times_.append([])
+			self.phase_times_.append([])
 			self.extended_times_.append([])
 		
 	@property
@@ -18,15 +28,16 @@ class DemoVariable(object):
 		return len(self.impact_intervals_) + 1
 		
 	def time_shift(self, phase):
+		data = self.get_data(phase)
 		if len(self.impact_intervals_) > 0:
 			if phase == 0:
 				# Align to impact at end of phase
-				return self.data_[0].time - self.data_[-1].time
+				return -data[-1].time
 			elif phase == len(self.impact_intervals_):
 				# Align to impact at start of phase
-				return 0
+				return -data[0].time
 		# Align to center
-		return (self.data_[0].time - self.data_[-1].time) / 2
+		return -(data[0].time + data[-1].time) / 2
 		
 	def get_starting_time(self, phase):
 		return self.get_data(phase)[0].time
@@ -34,8 +45,44 @@ class DemoVariable(object):
 	def get_ending_time(self, phase):
 		return self.get_data(phase)[-1].time
 		
+	def set_real_time(self, phase, t_start, t_end):
+		self.real_times_[phase] = [t_start, t_end]
+		
+	def set_phase_time(self, phase, t_start, t_end):
+		self.phase_times_[phase] = [t_start, t_end]
+		
 	def set_extended_time(self, phase, t_start, t_end):
 		self.extended_times_[phase] = [t_start, t_end]
+		
+	def get_real_starting_time(self, phase):
+		if len(self.real_times_[phase]) > 0:
+			return self.real_times_[phase][0] - self.time_shift(phase)
+		return self.get_starting_time(phase)
+		
+	def get_real_ending_time(self, phase):
+		if len(self.real_times_[phase]) > 0:
+			return self.real_times_[phase][-1] - self.time_shift(phase)
+		return self.get_ending_time(phase)
+		
+	def get_phase_starting_time(self, phase):
+		if len(self.phase_times_[phase]) > 0:
+			return self.phase_times_[phase][0] - self.time_shift(phase)
+		return self.get_starting_time(phase)
+		
+	def get_phase_ending_time(self, phase):
+		if len(self.phase_times_[phase]) > 0:
+			return self.phase_times_[phase][-1] - self.time_shift(phase)
+		return self.get_ending_time(phase)
+		
+	def get_extended_starting_time(self, phase):
+		if len(self.extended_times_[phase]) > 0:
+			return self.extended_times_[phase][0] - self.time_shift(phase)
+		return self.get_starting_time(phase)
+		
+	def get_extended_ending_time(self, phase):
+		if len(self.extended_times_[phase]) > 0:
+			return self.extended_times_[phase][-1] - self.time_shift(phase)
+		return self.get_ending_time(phase)
 			
 	def filter_data(self, data_filter):
 		self.filtered_data_ = self.filter(self.data_, data_filter)
@@ -69,8 +116,8 @@ class DemoVariable(object):
 		# Loop through the phases
 		for phase in range(self.n_phases):
 			t_start, t_end = None, None
-			if len(self.extended_times_[phase]) > 0:
-				t_start, t_end = self.extended_times_[phase]
+			if len(self.phase_times_[phase]) > 0:
+				t_start, t_end = self.phase_times_[phase]
 			extended_data, extended_derivative_data = self.extend_phase_data(extender, phase, t_start, t_end)
 			self.extended_data_.append(extended_data)
 			self.extended_derivative_.append(extended_derivative_data)			
@@ -78,9 +125,9 @@ class DemoVariable(object):
 	def extend_phase_data(self, extender, phase, t_start=None, t_end=None):
 		
 		if t_start is None:
-			t_start = self.get_starting_time(phase)
+			t_start = self.get_phase_starting_time(phase)
 		if t_end is None:
-			t_end = self.get_ending_time(phase)
+			t_end = self.get_phase_ending_time(phase)
 	
 		# Get the data of the phase
 		data = self.get_filtered_data(phase).copy()
@@ -110,7 +157,13 @@ class DemoVariable(object):
 					deleted_before.append(data[i].time)
 				else:
 					deleted_after.append(data[i].time)
-					
+		for i in indices_to_remove:
+			data.pop(i)
+			derivative_data.pop(i)
+				
+		# Update real times
+		self.real_times_[phase] = [data[0].time + self.time_shift(phase), data[-1].time + self.time_shift(phase)]	
+		
 		extend_before, extend_after = True, True
 		if phase == 0:
 			extend_before = False
@@ -120,6 +173,9 @@ class DemoVariable(object):
 		# Extend data
 		extended_data = extender.extend(data, derivative_data, extend_before=extend_before, extend_after=extend_after, extended_times_before=deleted_before, extended_times_after=deleted_after)
 		extended_derivative_data = extender.extend_velocity(derivative_data, extend_before=extend_before, extend_after=extend_after, extended_times_before=deleted_before, extended_times_after=deleted_after)
+		
+		self.extended_times_[phase] = [extended_data[0].time + self.time_shift(phase), extended_data[-1].time + self.time_shift(phase)]
+		
 		return extended_data, extended_derivative_data
 		
 	def get_starting_index(self, phase):
