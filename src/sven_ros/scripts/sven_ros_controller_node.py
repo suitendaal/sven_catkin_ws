@@ -2,38 +2,90 @@
 
 import rospy
 import sys
+import json
+from scipy.spatial.transform import Rotation
 from std_msgs.msg import Int32
 from geometry_msgs.msg import PoseStamped
 from sven_ros.msg import BoolStamped
 from sven_ros import ImpedanceControlMode
-from sven_ros import EndEffectorHandler
 
 class SvenRosControllerNode(object):
-	def __init__(self, end_effector, impact_interval_threshold=0.1):
-		rospy.init_node('sven_ros_controller', anonymous=True)
-		self.end_effector = end_effector
+	def __init__(self, reference_trajectory_file, impact_interval_threshold=0.1, initialized=False):
+		if not initialized:
+			rospy.init_node('sven_ros_controller', anonymous=True)
+		self.reference_trajectory_file = reference_trajectory_file
+		self.phases = self.read_reference_trajectory()
 		
 		# Publishers
 		self.pose_pub = rospy.Publisher('/equilibrium_pose', PoseStamped, queue_size=40)
 		self.mode_pub = rospy.Publisher('/impedance_control_mode', Int32, queue_size=40)
 		
 		# Subscribers
-		self.jump_detector_subs = []
-		for i in range(7):
-			self.jump_detector_subs.append(rospy.Subscriber("/sven_ros/jump_detector" + str(i+1), BoolStamped, self.jump_detector_callback))
-			
+		self.jump_detector_sub = rospy.Subscriber("/sven_ros/jump_detector", BoolStamped, self.jump_detector_callback)
 		
 		# Time
-		self.rate = rospy.Rate(30)
+		self.rate = rospy.Rate(100)
 		self.starting_time = 0
 		
 		# Phase
 		self.impact_interval_threshold = impact_interval_threshold
 		self.last_jump_time = None
+		self.current_phase = 0
+		
+	@property
+	def impact_interval(self):
+		if self.current_phase + 1 < len(self.phases):
+			return [self.phases[self.current_phase + 1]['time'][0], self.phases[self.current_phase]['time'][-1]]
+		return None
+		
+	@property
+	def time_interval(self):
+		return [self.phases[0]['time'][0], self.phases[-1]['time'][-1]]
+		
+	def read_reference_trajectory(self):
+		result = []
+		with open(self.reference_trajectory_file) as f:
+			data = json.load(f)
+		for i in range(len(data['datasets'])):
+			phase = dict()
+			phase['time'] = data['datasets'][i][0]['time']
+			phase['values'] = []
+			phase['derivative_values'] = []
+			for j in range(len(data['datasets'][i])):
+				phase['values'].append(data['datasets'][i][j]['value'])
+				phase['derivative_values'].append(data['datasets_derivative'][i][j]['value'])
+			result.append(phase)
+		return result
+		
+	def evaluate(self, time):
+		phase_data = self.phases[self.current_phase]
+		index = 0
+		for i in range(len(phase_data['time'])):
+			if i == len(phase_data['time']) - 1:
+				if time >= phase_data['time'][i]:
+					index = i
+			else:
+				if time >= phase_data['time'][i] and time < phase_data['time'][i+1]:
+					index = i
+		
+		pos_data = []
+		vel_data = []
+		or_data = []
+		for i in range(3):
+			pos_data.append(phase_data['values'][i][index])
+			vel_data.append(phase_data['derivative_values'][i][index])
+			or_data.append(phase_data['values'][i+3][index])
+			
+		rot = Rotation.from_euler('xyz', or_data)
+		
+		result = []
+		result.extend(pos_data)
+		result.extend(rot.as_quat())
+		result.extend(vel_data)
+		
+		return result
 		
 	def run(self):
-		time_interval = self.end_effector.get_time_interval()
-	
 		self.starting_time = rospy.get_time()
 		while not rospy.is_shutdown():
 			time = rospy.get_time() - self.starting_time
@@ -41,14 +93,14 @@ class SvenRosControllerNode(object):
 			
 			self.mode_pub.publish(self.get_mode_msg(time))
 			
-			if time >= time_interval[0] and time <= time_interval[1]:
+			if time >= self.time_interval[0] and time <= self.time_interval[-1]:
 				self.pose_pub.publish(self.get_pose_msg(time))
 			
 			self.rate.sleep()
 			
 	def get_pose_msg(self, time):
 		msg = PoseStamped()
-		[x, y, z, qx, qy, qz, qw, xd, yd, zd] = self.end_effector.evaluate(time)
+		x, y, z, qx, qy, qz, qw, xd, yd, zd = self.evaluate(time)
 		msg.header.stamp = rospy.Time.from_sec(time + self.starting_time)
 		msg.pose.position.x = x
 		msg.pose.position.y = y
@@ -63,27 +115,24 @@ class SvenRosControllerNode(object):
 		msg = Int32()
 		msg.data = ImpedanceControlMode.Default
 		
-		if self.end_effector.phase + 1 != self.end_effector.n_phases:
-			impact_interval = self.end_effector.get_impact_intervals()[self.end_effector.phase]
-			if time >= impact_interval[0]:
-				if self.last_jump_time is not None and self.last_jump_time >= impact_interval[0] and time - self.last_jump_time <= self.impact_interval_threshold:
+		if self.impact_interval is not None:
+			if time >= self.impact_interval[0]:
+				if self.last_jump_time is not None and self.last_jump_time >= self.impact_interval[0] and time - self.last_jump_time <= self.impact_interval_threshold:
 					msg.data = ImpedanceControlMode.PositionFeedback
-		
+
 		return msg
 		
 	def update_phase(self, time):
-		if self.end_effector.phase + 1 != self.end_effector.n_phases:
-			impact_interval = self.end_effector.get_impact_intervals()[self.end_effector.phase]
-			
+		if self.impact_interval is not None:
+					
 			# Time has past impact interval
-			if time > impact_interval[1]:
+			if time > self.impact_interval[-1]:
 				rospy.logwarn("Time of impact interval reached.")
-				self.end_effector.update_phase()
-			elif time >= impact_interval[0]:
-				if self.last_jump_time is not None and self.last_jump_time >= impact_interval[0] and time - self.last_jump_time > self.impact_interval_threshold:
+				self.current_phase += 1
+			elif time >= self.impact_interval[0]:
+				if self.last_jump_time is not None and self.last_jump_time >= self.impact_interval[0] and time - self.last_jump_time > self.impact_interval_threshold:
 					rospy.loginfo("Last impact of simultaneous impact interval detected.")
-					self.end_effector.update_phase()
-		
+					self.current_phase += 1
 		
 	def jump_detector_callback(self, msg):
 		if msg.data:
@@ -93,12 +142,12 @@ class SvenRosControllerNode(object):
 
 
 if __name__ == '__main__':
-	if len(sys.argv) > 3:
-		filename = sys.argv[1]
-		ee = EndEffectorHandler(filename)
-		
-		try:
-			node = SvenRosControllerNode(ee)
-			node.run()
-		except rospy.ROSInterruptException:
-			pass
+
+	rospy.init_node('sven_ros_controller', anonymous=True)
+	filename = rospy.get_param('~trajectory_file')
+	
+	try:
+		node = SvenRosControllerNode(filename)
+		node.run()
+	except rospy.ROSInterruptException:
+		pass
