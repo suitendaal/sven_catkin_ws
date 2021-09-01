@@ -7,12 +7,16 @@ from trajectory import *
 
 # Files with demonstrations
 demos = [
-	'data/replay4.1.bag'
+	'data/replay4.1.bag',
+	'data/replay4.2.bag',
+	'data/replay4.3.bag'
 ]
 
 # Impact interval indices
 impact_intervals = [
-	[(1559,)]
+	[(1559,)],
+	[(1573,)],
+	[(1497,)]
 ]
 	
 ### Trajectory settings

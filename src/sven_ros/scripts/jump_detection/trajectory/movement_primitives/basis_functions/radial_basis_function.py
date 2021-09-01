@@ -29,4 +29,8 @@ class RadialBasisFunction(BasisFunction):
 		json_object['center'] = self.center
 		json_object['width'] = self.width
 		return json_object
+		
+	def from_dict(self, json_object):
+		self.center = json_object['center']
+		self.width = json_object['width']
 

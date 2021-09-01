@@ -12,6 +12,8 @@ orientation_data = []
 velocity_data = []
 rotational_velocity_data = []
 
+print("Reading demonstration data")
+
 # Read data of each demo
 for demo in config.demos:
 	franka_reader = FrankaStateReader(demo)
@@ -48,6 +50,8 @@ for demo in config.demos:
 	velocity_data.append(velocity)
 	rotational_velocity_data.append(rotational_velocity)
 
+print("Filtering and extending demonstration data")
+
 # Initialize robot variables
 position_variables = []
 orientation_variables = []
@@ -77,6 +81,8 @@ for i in range(3):
 	orientation_variable.extend_data(config.orientation_extender)
 	orientation_variables.append(orientation_variable)
 	
+print("Creating ProMPs")
+	
 # Create promps
 position_promps = []
 orientation_promps = []
@@ -92,6 +98,8 @@ for or_var in orientation_variables:
 	promps = or_var.create_promps(config.rbf_width, config.n_rbfs_per_second)
 	for phase in range(len(promps)):
 		orientation_promps[phase].append(promps[phase])
+		
+print("Saving ProMPs to file")
 		
 # Save promps to file
 if config.write_mps:
@@ -110,28 +118,7 @@ if config.write_mps:
 	
 	with open(config.output_file, 'w', encoding='utf-8') as f:
 		json.dump(json_object, f, ensure_ascii=False, indent=4)
-	
-	
-#z = position_variables[2]
-#z.filter_data(config.position_filter)
-#z.filter_derivative(config.velocity_filter)
-#z.extend_data(config.position_extender)
-#promps = z.create_promps(config.rbf_width, config.n_rbfs_per_second)
-#z_pos = []
-#z_promps = []
-#for phase in range(z.n_phases):
-#	z_pos.append(z.demo_variables[0].get_extended_data(phase))
-#	mu, sigma = promps[phase].evaluate(z_pos[phase].time)
-#	z_promps.append(mu)
-#	
-#plt.figure()
-#for i in range(len(z_pos)):
-#	phase_data = z_pos[i]
-#	plt.rcParams['xtick.labelsize'] = config.fontsize2
-#	plt.rcParams['ytick.labelsize'] = config.fontsize2
-#	plt.plot(phase_data.time, phase_data.value,'C' + str(i) + '-*',linewidth=config.linewidth, markersize=config.markersize2,label='data')
-#	plt.plot(phase_data.time, z_promps[i],'C' + str(i+1) + '-*',linewidth=config.linewidth, markersize=config.markersize2,label='promp')
-#plt.legend()
-#	
-#plt.show()
+		
+print("Done")
+
 

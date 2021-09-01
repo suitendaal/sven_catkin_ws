@@ -6,7 +6,9 @@ from filters import *
 
 # Files with demonstrations
 demos = [
-	'data/replay4.1.bag'
+	'data/replay4.1.bag',
+	'data/replay4.2.bag',
+	'data/replay4.3.bag'
 ]
 
 ### Jump detector
@@ -35,7 +37,11 @@ markersize2 = 3
 fontsize1 = 20
 fontsize2 = 16
 # Full trajectory
-xlim = [None]
+xlim = [
+	None,
+	None,
+	None
+]
 # Zoomed in on first impact
 #xlim = [(8.6, 8.8)]
 # Zoomed in on impact interval

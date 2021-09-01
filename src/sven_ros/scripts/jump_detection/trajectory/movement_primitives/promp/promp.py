@@ -10,7 +10,7 @@ class ProMP(object):
 		self.basis_functions = basis_functions
 		self.weights = kwargs.get('weights',np.zeros((len(self.basis_functions),1)))
 		self.weights_covariance = kwargs.get('weights_covariance',1E0 * np.eye(len(self.basis_functions)))
-		if isinstance(self.weights_covariance, int):
+		if isinstance(self.weights_covariance, (int, float, complex)):
 			self.weights_covariance = self.weights_covariance * np.eye(len(self.basis_functions))
 		self.derivatives = kwargs.get('derivatives',0)
 		
@@ -75,6 +75,11 @@ class ProMP(object):
 		
 		return Sigma_w
 		
+	def set_weights_covariance(self, weights_covariance):
+		self.weights_covariance = weights_covariance
+		if isinstance(self.weights_covariance, (int, float, complex)):
+			self.weights_covariance = self.weights_covariance * np.eye(len(self.basis_functions))
+		
 	def evaluate(self, time, derivative=0, **kwargs):
 		via_points = kwargs.get('via_points',DataSet())
 		if not isinstance(time, list):
@@ -87,6 +92,9 @@ class ProMP(object):
 		
 		Mu_w = self.mu_w()
 		Sigma_w = self.sigma_w()
+		
+#		print(self.weights_covariance)
+#		print(Sigma_w)
 		
 		phi = np.zeros((len(self.basis_functions),len(time)))
 			
@@ -128,4 +136,11 @@ class ProMP(object):
 		json_object['weights_covariance'] = self.weights_covariance.tolist()
 			
 		return json_object
+		
+	def from_dict(self, json_object):
+		self.derivatives = json_object['derivatives']
+			
+		# Weights
+		self.weights = np.array(json_object['weights'])
+		self.weights_covariance = np.array(json_object['weights_covariance'])
 		

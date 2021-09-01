@@ -17,6 +17,8 @@ velocity = []
 
 for i in range(len(config.demos)):
 
+	print("Analyzing " + config.demos[i])
+
 	#### Analyze the data
 	
 	# Initialize results
@@ -48,6 +50,8 @@ for i in range(len(config.demos)):
 	for j in range(3):
 		position[i][j].align_time()
 		velocity[i][j].align_time()
+		
+	print("Detecting jumps")
 	
 	# Detect jumps
 	jump_detector = config.jump_detector
@@ -105,7 +109,7 @@ for i in range(len(config.demos)):
 		plt.rcParams['ytick.labelsize'] = config.fontsize2
 
 		# Difference between data and prediction
-		pred_diff = force_ext[i] - predictions[i]
+		pred_diff = abs(force_ext[i] - predictions[i])
 		plt.plot(pred_diff.time, pred_diff.value, 'C2-*', linewidth=config.linewidth, markersize=config.markersize2, label='Difference')
 		pred_diff_jumps = pred_diff[jump_indices[i]]
 		plt.plot(pred_diff_jumps.time, pred_diff_jumps.value, 'C1*', linewidth=config.linewidth, markersize=config.markersize1)
@@ -190,6 +194,8 @@ for i in range(len(config.demos)):
 			
 		if not config.show_figs:
 			plt.close()
+			
+print("Done")
 	
 if config.show_figs:
 	plt.show()
