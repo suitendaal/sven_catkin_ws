@@ -18,9 +18,6 @@ via_points = [
 	DataSet([
 	]),
 	DataSet([
-		ViaPoint(0, 0.16),
-		ViaPoint(0, 0, derivative=1),
-		ViaPoint(9, 0.075)
 	]),
 	DataSet([
 	]),
@@ -41,7 +38,7 @@ output_file = 'output/evaluated_promps.json'
 variable_labels = ['X','Y','Z',r'$\phi$',r'$\theta$',r'$\psi$']
 
 # Figure settings
-figsize = (16, 12)
+figsize = (12, 9)
 dpi = 80
 linewidth = 1
 markersize1 = 10
