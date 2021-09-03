@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <launch>
   <node name="sven_ros_controller" pkg="sven_ros" type="sven_ros_controller_node.py" output="screen" required="true">
-  	<rosparam param="trajectory_file">"$(find sven_ros)/scripts/reference_trajectory/output/evaluated_promps.json"</rosparam>
+  	<rosparam param="trajectory_file">"scripts/jump_detection/output/evaluated_promps.json"</rosparam>
   </node>
 </launch>

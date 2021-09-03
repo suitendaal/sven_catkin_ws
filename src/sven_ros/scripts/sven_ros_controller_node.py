@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import rospy
+import rospkg
 import sys
 import json
 from scipy.spatial.transform import Rotation
@@ -144,7 +145,12 @@ class SvenRosControllerNode(object):
 if __name__ == '__main__':
 
 	rospy.init_node('sven_ros_controller', anonymous=True)
-	filename = rospy.get_param('~trajectory_file')
+	trajectory_file = rospy.get_param('~trajectory_file')
+	
+	rospack = rospkg.RosPack()
+	filename = rospack.get_path('sven_ros') + "/" + trajectory_file
+	
+	print("Filename:",filename)
 	
 	try:
 		node = SvenRosControllerNode(filename)
