@@ -29,7 +29,7 @@ via_points = [
 
 ### Output settings
 
-step_size = 0.1
+step_size = 0.01
 plot_figs = True
 
 # Output filename

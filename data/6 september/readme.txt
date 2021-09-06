@@ -125,6 +125,54 @@ demo15
 demo16
 -zelfde als demo13
 
+demo17
+-replay demo13
+-stiffness hetzelfde
+
+demo18
+-zelfde als demo17
+-impact control mode op 1: position only
+
+demo19
+-promps gemaakt met demo2, demo4 en demo5
+-jump detector getest: doet het
+-sven_ros_controller getest: orientation lijkt nog niet helemaal te kloppen
+-stiffness x,y,z naar 400
+-rotational stiffness naar 30
+-tijdens impact wordt impact mode 1 gebruikt: position only
+
+demo20
+-zelfde als demo19
+
+demo21
+-zelfde als demo19
+-stiffness x,y,z naar 1000
+-er is zelfs een jump gedetecteerd na het switchen van phases
+
+demo22
+-zelfde als demo21
+-zelfs 2 jumps gedetecteerd na switchen van phases
+
+demo23
+-zelfde als demo21
+-ook 2 jumps na switchen
+
+demo24
+-zelfde als demo19
+-impact mode is feedforward (2)
+
+demo25
+-zelfde als demo24
+
+demo26
+-zelfde als demo24
+-stiffness x,y,z naar 1000
+-1 jump detected na wisselen van phase
+
+demo27
+-zelfde als demo26
+-ook een jump gedetecteerd
+
 
 Filmpjes
 1: replay1.1
@@ -165,4 +213,16 @@ Filmpjes
 35: demo14
 36: demo15
 37: demo16
+38: mislukt
+39: demo17
+40: demo18
+41: demo19
+42: demo20
+43: demo21
+44: demo22
+45: demo23
+46: demo24
+47: demo25
+48: demo26
+49: demo27
 

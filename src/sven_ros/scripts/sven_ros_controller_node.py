@@ -6,7 +6,7 @@ import sys
 import json
 from scipy.spatial.transform import Rotation
 from std_msgs.msg import Int32
-from geometry_msgs.msg import PoseStamped
+from geometry_msgs.msg import PoseStamped, Point
 from sven_ros.msg import BoolStamped
 from sven_ros import ImpedanceControlMode
 
@@ -20,6 +20,9 @@ class SvenRosControllerNode(object):
 		# Publishers
 		self.pose_pub = rospy.Publisher('/equilibrium_pose', PoseStamped, queue_size=40)
 		self.mode_pub = rospy.Publisher('/impedance_control_mode', Int32, queue_size=40)
+		## For debugging
+		self.orientation_pub = rospy.Publisher('/orientation', Point, queue_size=40)
+		##
 		
 		# Subscribers
 		self.jump_detector_sub = rospy.Subscriber("/sven_ros/jump_detector", BoolStamped, self.jump_detector_callback)
@@ -75,9 +78,18 @@ class SvenRosControllerNode(object):
 		for i in range(3):
 			pos_data.append(phase_data['values'][i][index])
 			vel_data.append(phase_data['derivative_values'][i][index])
-			or_data.append(phase_data['values'][i+3][index])
+#			or_data.append(phase_data['values'][i+3][index])
+		or_data.extend([ 3.12394258, -0.06351829, -0.07978305])
 			
 		rot = Rotation.from_euler('xyz', or_data)
+		
+		## For debugging
+		msg = Point()
+		msg.x = or_data[0]
+		msg.y = or_data[1]
+		msg.z = or_data[2]
+		self.orientation_pub.publish(msg)
+		##
 		
 		result = []
 		result.extend(pos_data)
@@ -119,7 +131,8 @@ class SvenRosControllerNode(object):
 		if self.impact_interval is not None:
 			if time >= self.impact_interval[0]:
 				if self.last_jump_time is not None and self.last_jump_time >= self.impact_interval[0] and time - self.last_jump_time <= self.impact_interval_threshold:
-					msg.data = ImpedanceControlMode.PositionFeedback
+#					msg.data = ImpedanceControlMode.PositionFeedback
+					msg.data = ImpedanceControlMode.FeedForward
 
 		return msg
 		
@@ -137,8 +150,9 @@ class SvenRosControllerNode(object):
 		
 	def jump_detector_callback(self, msg):
 		if msg.data:
-			time = msg.header.stamp.to_sec()
-			if time > self.last_jump_time:
+			rospy.loginfo("Jump detected")
+			time = msg.header.stamp.to_sec() - self.starting_time
+			if self.last_jump_time is None or time > self.last_jump_time:
 				self.last_jump_time = time
 
 
