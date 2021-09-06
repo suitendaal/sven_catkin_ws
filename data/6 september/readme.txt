@@ -1,3 +1,5 @@
+Alle files zijn opgenomen met een frequentie van 200Hz
+
 demo1
 -stiffness x en y naar 100
 -rotational stiffness naar 5
@@ -104,6 +106,25 @@ demo11
 -stiffness z naar 6000
 -mislukt: tau_J_range_violation
 
+demo12
+-zelfde als demo11
+-mislukt: joint_velocity_violation
+
+demo13
+-zelfde als demo2
+-stiffness x,y,z naar 400
+-rotational stiffness naar 30
+
+demo14
+-zelfde als demo13
+-niet duidelijk of er een dubbele impact was
+
+demo15
+-zelfde als demo13
+
+demo16
+-zelfde als demo13
+
 
 Filmpjes
 1: replay1.1
@@ -137,4 +158,11 @@ Filmpjes
 29: demo9
 30: demo10
 31: demo11
+32: demo12
+33: demo13
+33: mislukt
+34: demo13
+35: demo14
+36: demo15
+37: demo16
 
