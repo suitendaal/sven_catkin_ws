@@ -460,6 +460,8 @@ class VIVEPoseNode
     ros::Publisher pose2_pub_;
     ros::Publisher pose3_pub_;
     ros::Publisher pose4_pub_;
+    ros::Publisher pose5_pub_;
+    ros::Publisher pose6_pub_;
     std::map<std::string, ros::Publisher> button_states_pubs_map;
     ros::Subscriber feedback_sub_;
 
@@ -483,6 +485,8 @@ VIVEPoseNode::VIVEPoseNode(int rate)
   pose2_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("/vive/pose2", 10);
   pose3_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("/vive/pose3", 10);
   pose4_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("/vive/pose4", 10);
+  pose5_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("/vive/pose5", 10);
+  pose6_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("/vive/pose6", 10);
   feedback_sub_ = nh_.subscribe("/vive/set_feedback", 10, &VIVEPoseNode::set_feedback, this);
 
 #ifdef USE_IMAGE
@@ -778,6 +782,48 @@ void VIVEPoseNode::Run()
         // std::cout<<"Controller 4:";
         // std::cout<<twist_msg_stamped;
     }
+    if (vr_.GetDevicePose(5, position, quaternion))
+    {
+        geometry_msgs::Pose pose_msg;
+        pose_msg.position.x = position[0];
+        pose_msg.position.y = position[1];
+        pose_msg.position.z = position[2];
+        pose_msg.orientation.w = quaternion[0];
+        pose_msg.orientation.x = quaternion[1];
+        pose_msg.orientation.y = quaternion[2];
+        pose_msg.orientation.z = quaternion[3];
+
+        geometry_msgs::PoseStamped pose_msg_stamped;
+        pose_msg_stamped.header.stamp = ros::Time::now();
+        pose_msg_stamped.header.frame_id = "world_vive";
+        pose_msg_stamped.pose = pose_msg;
+
+        pose5_pub_.publish(pose_msg_stamped);
+     
+        // std::cout<<"Controller 4:";
+        // std::cout<<twist_msg_stamped;
+    }
+    if (vr_.GetDevicePose(6, position, quaternion))
+    {
+        geometry_msgs::Pose pose_msg;
+        pose_msg.position.x = position[0];
+        pose_msg.position.y = position[1];
+        pose_msg.position.z = position[2];
+        pose_msg.orientation.w = quaternion[0];
+        pose_msg.orientation.x = quaternion[1];
+        pose_msg.orientation.y = quaternion[2];
+        pose_msg.orientation.z = quaternion[3];
+
+        geometry_msgs::PoseStamped pose_msg_stamped;
+        pose_msg_stamped.header.stamp = ros::Time::now();
+        pose_msg_stamped.header.frame_id = "world_vive";
+        pose_msg_stamped.pose = pose_msg;
+
+        pose6_pub_.publish(pose_msg_stamped);
+     
+        // std::cout<<"Controller 4:";
+        // std::cout<<twist_msg_stamped;
+    }
    
 #ifdef USE_IMAGE
     pMainApplication->HandleInput();
@@ -841,7 +887,7 @@ int main(int argc, char** argv){
 #ifdef USE_IMAGE
   VIVEPoseNode nodeApp(90); // VIVE display max fps
 #else
-  VIVEPoseNode nodeApp(30);
+  VIVEPoseNode nodeApp(100);
 #endif
   if (!nodeApp.Init()){
     nodeApp.Shutdown();

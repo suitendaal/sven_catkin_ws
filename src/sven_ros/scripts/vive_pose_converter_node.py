@@ -40,14 +40,15 @@ class VivePoseConverterNode(object):
 		rospy.spin()
 			
 	def vive_pose_callback(self, msg):
+	
 		if self.robot_offset is None or self.button_pressed:
 			return
 			
 		vive_pose = []
 		
 		# Position
-		vive_pose.append(msg.pose.position.z * math.cos(math.pi / 4) - msg.pose.position.x * math.sin(math.pi / 4))
-		vive_pose.append(msg.pose.position.x * math.cos(math.pi / 4) + msg.pose.position.z * math.sin(math.pi / 4))
+		vive_pose.append(msg.pose.position.z)# * math.cos(math.pi / 4) - msg.pose.position.x * math.sin(math.pi / 4))
+		vive_pose.append(msg.pose.position.x)# * math.cos(math.pi / 4) + msg.pose.position.z * math.sin(math.pi / 4))
 		vive_pose.append(msg.pose.position.y)
 		
 		# Orientation
@@ -68,16 +69,22 @@ class VivePoseConverterNode(object):
 				self.vive_offset.append(-i)
 		else:
 			pose = []
-			for i in range(3):
-				pose.append((vive_pose[i] + self.vive_offset[i]) * self.vive_scale_factor + self.robot_offset[i])
-			for i in range(3,6):
-				pose.append(vive_pose[i] + self.vive_offset[i] + self.robot_offset[i])
 			
-			if pose[0] < xlim[0] or pose[0] > xlim[-1]
+			vive_diff_pose = []	
+			for i in range(3):
+				vive_diff_pose.append((vive_pose[i] + self.vive_offset[i]) * self.vive_scale_factor)
+			for i in range(3,6):
+				vive_diff_pose.append(vive_pose[i] + self.vive_offset[i])
+			
+			if vive_diff_pose[0] < self.xlim[0] or vive_diff_pose[0] > self.xlim[-1]:
 				return
-			if pose[1] < ylim[0] or pose[1] > ylim[-1]
+			if vive_diff_pose[1] < self.ylim[0] or vive_diff_pose[1] > self.ylim[-1]:
 				return
-			if pose[2] < zlim[0] or pose[2] > zlim[-1]
+			if vive_diff_pose[2] < self.zlim[0] or vive_diff_pose[2] > self.zlim[-1]:
+				return
+				
+			for i in range(6):
+				pose.append(vive_diff_pose[i] + self.robot_offset[i])
 				
 			msg_out = PoseStamped()
 			msg_out.header = msg.header
@@ -132,16 +139,17 @@ if __name__ == '__main__':
 
 	rospy.init_node('vive_pose_converter', anonymous=True)
 	
-	scale_factor = rospy.get_param('~scale_factor')
-	x_min = rospy.get_param('~x_min')
-	x_max = rospy.get_param('~x_max')
-	y_min = rospy.get_param('~y_min')
-	y_max = rospy.get_param('~y_max')
-	z_min = rospy.get_param('~z_min')
-	z_max = rospy.get_param('~z_max')
+#	scale_factor = rospy.get_param('~/scale_factor')
+#	x_min = rospy.get_param('~/x_min')
+#	x_max = rospy.get_param('~/x_max')
+#	y_min = rospy.get_param('~/y_min')
+#	y_max = rospy.get_param('~y_max')
+#	z_min = rospy.get_param('~z_min')
+#	z_max = rospy.get_param('~z_max')
 	
 	try:
-		node = VivePoseConverterNode(vive_scale_factor=scale_factor, xlim=(x_min,x_max), ylim=(y_min,y_max), zlim=(z_min,z_max), initialized=True)
+		node = VivePoseConverterNode()
+#		node = VivePoseConverterNode(vive_scale_factor=scale_factor, xlim=(x_min,x_max), ylim=(y_min,y_max), zlim=(z_min,z_max), initialized=True)
 		node.run()
 	except rospy.ROSInterruptException:
 		pass
