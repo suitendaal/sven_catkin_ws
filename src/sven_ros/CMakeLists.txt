@@ -54,3 +54,8 @@ catkin_install_python(PROGRAMS scripts/sven_ros_controller_node.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
+# Build vive pose converter node
+catkin_install_python(PROGRAMS scripts/vive_pose_converter_node.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+

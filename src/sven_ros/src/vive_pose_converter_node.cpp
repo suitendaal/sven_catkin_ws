@@ -69,6 +69,7 @@ VivePoseConverterNode::~VivePoseConverterNode() {
 }
 
 void VivePoseConverterNode::run() {
+
 	ros::spin();
 }
 
@@ -103,8 +104,8 @@ void VivePoseConverterNode::vive_pose_callback(const geometry_msgs::PoseStamped:
 	}
 	else {
 		vive_offset.position.x = -vive_pose.pose.position.x;
-		vive_offset.position.z = -vive_pose.pose.position.y;
-		vive_offset.position.y = -vive_pose.pose.position.z;
+		vive_offset.position.y = -vive_pose.pose.position.y;
+		vive_offset.position.z = -vive_pose.pose.position.z;
 		
 		vive_offset.orientation.x = -vive_pose.pose.orientation.x;
 		vive_offset.orientation.y = -vive_pose.pose.orientation.y;
