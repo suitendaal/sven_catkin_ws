@@ -39,7 +39,7 @@ for i in range(len(datasets)):
 	phase_data = datasets[i]
 	plt.rcParams['xtick.labelsize'] = config.fontsize2
 	plt.rcParams['ytick.labelsize'] = config.fontsize2
-	plt.plot(phase_data.time, phase_data.value,'C' + str(i) + '-*',linewidth=config.linewidth, markersize=config.markersize2,label='Phase ' + str(i))
+	plt.plot(phase_data.time, phase_data.value,'C' + str(i) + '-*',linewidth=config.linewidth, markersize=config.markersize2,label='ProMP phase ' + str(i))
 plt.legend(fontsize=config.fontsize2)
 plt.xlabel('Time [s]',fontsize=config.fontsize2)
 plt.ylabel('Position [m]',fontsize=config.fontsize2)
@@ -50,7 +50,7 @@ for i in range(len(datasets_der)):
 	phase_data = datasets_der[i]
 	plt.rcParams['xtick.labelsize'] = config.fontsize2
 	plt.rcParams['ytick.labelsize'] = config.fontsize2
-	plt.plot(phase_data.time, phase_data.value,'C' + str(i) + '-*',linewidth=config.linewidth, markersize=config.markersize2,label='Phase ' + str(i))
+	plt.plot(phase_data.time, phase_data.value,'C' + str(i) + '-*',linewidth=config.linewidth, markersize=config.markersize2,label='ProMP phase ' + str(i))
 plt.legend(fontsize=config.fontsize2)
 plt.xlabel('Time [s]',fontsize=config.fontsize2)
 plt.ylabel('Velocity [m/s]',fontsize=config.fontsize2)

@@ -6,9 +6,9 @@ from filters import *
 
 # Files with demonstrations
 demos = [
-	'data/demo2.bag',
-	'data/demo4.bag',
-	'data/demo5.bag'
+	'data/replay4.1.bag',
+	'data/replay4.2.bag',
+	'data/replay4.3.bag'
 ]
 
 ### Jump detector
