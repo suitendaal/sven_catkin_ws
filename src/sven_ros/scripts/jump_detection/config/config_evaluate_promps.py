@@ -40,9 +40,10 @@ variable_labels = ['X','Y','Z',r'$\phi$',r'$\theta$',r'$\psi$']
 # Figure settings
 figsize = (12, 9)
 dpi = 80
-linewidth = 1
+linewidth = 2
 markersize1 = 10
-markersize2 = 3
+markersize2 = 8
+markersize3 = 2.5
 fontsize1 = 20
 fontsize2 = 16
 # Full trajectory

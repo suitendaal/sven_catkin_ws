@@ -149,7 +149,7 @@ for i in range(len(datasets)):
 	plt.rcParams['ytick.labelsize'] = config.fontsize2
 	for j in range(len(z_phases[i])):
 		extended_data = z_phases[i][j]
-		plt.plot(extended_data.time, extended_data.value,'C' + str(j+2) + '-*',linewidth=config.linewidth, markersize=config.markersize2,label='Data ' + str(j))
+		plt.plot(extended_data.time, extended_data.value,'C' + str(j+2) + '-*',linewidth=config.linewidth, markersize=config.markersize3,label='Data ' + str(j))
 	plt.plot(phase_data.time, phase_data.value,'C1-*',linewidth=config.linewidth, markersize=config.markersize2,label='ProMP')
 	plt.legend(fontsize=config.fontsize2)
 	plt.xlabel('Time [s]',fontsize=config.fontsize2)
@@ -163,7 +163,7 @@ for i in range(len(datasets_der)):
 	plt.rcParams['ytick.labelsize'] = config.fontsize2
 	for j in range(len(zd_phases[i])):
 		extended_data = zd_phases[i][j]
-		plt.plot(extended_data.time, extended_data.value,'C' + str(j+2) + '-*',linewidth=config.linewidth, markersize=config.markersize2,label='Data ' + str(j))
+		plt.plot(extended_data.time, extended_data.value,'C' + str(j+2) + '-*',linewidth=config.linewidth, markersize=config.markersize3,label='Data ' + str(j))
 	plt.plot(phase_data.time, phase_data.value,'C1-*',linewidth=config.linewidth, markersize=config.markersize2,label='ProMP')
 	plt.legend(fontsize=config.fontsize2)
 	plt.xlabel('Time [s]',fontsize=config.fontsize2)
