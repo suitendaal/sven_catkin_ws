@@ -11,28 +11,44 @@ promp_reader = ProMPReader(config.promp_file)
 
 datasets = []
 datasets_der = []
+phase_se = []
+phase_der_se = []
 
 for phase in range(len(promp_reader.promp_handles)):
 	dataset = DataSet()
 	dataset_der = DataSet()
+	dataset_se = DataSet()
+	dataset_der_se = DataSet()
+	
 	z = promp_reader.promp_handles[phase][2]
 	t_start, t_end = z.get_extended_start_end()
+	t_start_phase, t_end_phase = z.get_phase_start_end()
 	t_start = float(Decimal(t_start).quantize(Decimal(str(0.1)), ROUND_UP))
 	t_end = float(Decimal(t_end).quantize(Decimal(str(0.1)), ROUND_DOWN))
-	timerange = np.arange(t_start, t_end, 0.1).tolist()
+	timerange = np.arange(t_start, t_end, config.step_size).tolist()
 	via_points = DataSet()
 	for via_point in config.via_points[2]:
 		if via_point.time >= t_start and via_point.time <= t_end:
 			via_points.append(via_point)
 	z.movement_primitive.set_weights_covariance(0.00001)
 	data, sigma = z.evaluate(timerange, via_points=via_points)
+	data_se, sigma_se = z.evaluate([t_start_phase, t_end_phase], via_points=via_points)
 	data_der, sigma_der = z.evaluate(timerange, derivative=1, via_points=via_points)
+	data_der_se, sigma_der_se = z.evaluate([t_start_phase, t_end_phase], derivative=1, via_points=via_points)
 	
 	for i in range(len(timerange)):
 		dataset.append(DataPoint(timerange[i], data[i]))
 		dataset_der.append(DataPoint(timerange[i], data_der[i]))
+	
+	dataset_se.append(DataPoint(t_start_phase, data_se[0]))
+	dataset_der_se.append(DataPoint(t_start_phase, data_der_se[0]))
+	dataset_se.append(DataPoint(t_end_phase, data_se[1]))
+	dataset_der_se.append(DataPoint(t_end_phase, data_der_se[1]))
+	
 	datasets.append(dataset)
 	datasets_der.append(dataset_der)
+	phase_se.append(dataset_se)
+	phase_der_se.append(dataset_der_se)
 
 plt.figure(figsize=config.figsize,dpi=config.dpi)
 for i in range(len(datasets)):
@@ -40,10 +56,13 @@ for i in range(len(datasets)):
 	plt.rcParams['xtick.labelsize'] = config.fontsize2
 	plt.rcParams['ytick.labelsize'] = config.fontsize2
 	plt.plot(phase_data.time, phase_data.value,'C' + str(i) + '-*',linewidth=config.linewidth, markersize=config.markersize2,label='ProMP phase ' + str(i))
+	plt.plot(phase_se[i].time, phase_se[i].value,'C' + str(i) + '*',linewidth=config.linewidth, markersize=config.markersize1,label='Phase ' + str(i) + ' start and end')
 plt.legend(fontsize=config.fontsize2)
 plt.xlabel('Time [s]',fontsize=config.fontsize2)
 plt.ylabel('Position [m]',fontsize=config.fontsize2)
 plt.title('Z position',fontsize=config.fontsize1)
+if config.xlim is not None:
+	plt.xlim(config.xlim)
 
 plt.figure(figsize=config.figsize,dpi=config.dpi)
 for i in range(len(datasets_der)):
@@ -51,9 +70,12 @@ for i in range(len(datasets_der)):
 	plt.rcParams['xtick.labelsize'] = config.fontsize2
 	plt.rcParams['ytick.labelsize'] = config.fontsize2
 	plt.plot(phase_data.time, phase_data.value,'C' + str(i) + '-*',linewidth=config.linewidth, markersize=config.markersize2,label='ProMP phase ' + str(i))
+	plt.plot(phase_der_se[i].time, phase_der_se[i].value,'C' + str(i) + '*',linewidth=config.linewidth, markersize=config.markersize1,label='Phase ' + str(i) + ' start and end')
 plt.legend(fontsize=config.fontsize2)
 plt.xlabel('Time [s]',fontsize=config.fontsize2)
 plt.ylabel('Velocity [m/s]',fontsize=config.fontsize2)
 plt.title('Z velocity',fontsize=config.fontsize1)
+if config.xlim is not None:
+	plt.xlim(config.xlim)
 	
 plt.show()

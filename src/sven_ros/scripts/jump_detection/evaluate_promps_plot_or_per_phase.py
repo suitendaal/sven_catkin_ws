@@ -8,6 +8,8 @@ import config.config_create_trajectory as config2
 import matplotlib.pyplot as plt
 from decimal import Decimal, ROUND_DOWN, ROUND_UP
 
+variable_index = 3
+
 # Initialize data arrays
 position_data = []
 orientation_data = []
@@ -98,14 +100,14 @@ for phase in range(len(promp_reader.promp_handles)):
 	dataset_se = DataSet()
 	dataset_der_se = DataSet()
 	
-	z = promp_reader.promp_handles[phase][2]
+	z = promp_reader.promp_handles[phase][variable_index]
 	t_start, t_end = z.get_extended_start_end()
 	t_start_phase, t_end_phase = z.get_phase_start_end()
 	t_start = float(Decimal(t_start).quantize(Decimal(str(0.1)), ROUND_UP))
 	t_end = float(Decimal(t_end).quantize(Decimal(str(0.1)), ROUND_DOWN))
 	timerange = np.arange(t_start, t_end, config.step_size).tolist()
 	via_points = DataSet()
-	for via_point in config.via_points[2]:
+	for via_point in config.via_points[variable_index]:
 		if via_point.time >= t_start and via_point.time <= t_end:
 			via_points.append(via_point)
 	z.movement_primitive.set_weights_covariance(0.00001)
@@ -130,7 +132,8 @@ for phase in range(len(promp_reader.promp_handles)):
 	
 # Align data in time
 print("Align data in time")
-z_variable = position_variables[2]
+#z_variable = position_variables[2]
+z_variable = orientation_variables[variable_index-3]
 z_phases = []
 zd_phases = []
 for phase in range(z_variable.n_phases):
@@ -139,7 +142,7 @@ for phase in range(z_variable.n_phases):
 	for i in range(len(z_variable.demo_variables)):
 		extended_data = z_variable.demo_variables[i].get_extended_data(phase).copy()
 		extended_derivative_data = z_variable.demo_variables[i].get_extended_derivative(phase).copy()
-		promp = promp_reader.promp_handles[phase][2]
+		promp = promp_reader.promp_handles[phase][variable_index]
 		t_start, t_end = promp.get_phase_start_end()
 		t_start_extended, t_end_extended = promp.get_extended_start_end()
 		if phase == 0:
@@ -170,8 +173,8 @@ for i in range(len(datasets)):
 	plt.plot(phase_se[i].time, phase_se[i].value,'C1*',linewidth=config.linewidth, markersize=config.markersize1,label='Phase ' + str(i) + ' start and end')
 	plt.legend(fontsize=config.fontsize2)
 	plt.xlabel('Time [s]',fontsize=config.fontsize2)
-	plt.ylabel('Position [m]',fontsize=config.fontsize2)
-	plt.title('Z position phase ' + str(i),fontsize=config.fontsize1)
+	plt.ylabel('Rotation [rad]',fontsize=config.fontsize2)
+	plt.title('Rotation about X axis phase ' + str(i),fontsize=config.fontsize1)
 	if config.xlim is not None:
 		plt.xlim(config.xlim)
 
@@ -187,8 +190,8 @@ for i in range(len(datasets_der)):
 	plt.plot(phase_der_se[i].time, phase_der_se[i].value,'C1*',linewidth=config.linewidth, markersize=config.markersize1,label='Phase ' + str(i) + ' start and end')
 	plt.legend(fontsize=config.fontsize2)
 	plt.xlabel('Time [s]',fontsize=config.fontsize2)
-	plt.ylabel('Velocity [m/s]',fontsize=config.fontsize2)
-	plt.title('Z velocity phase ' + str(i),fontsize=config.fontsize1)
+	plt.ylabel('Velocity [rad/s]',fontsize=config.fontsize2)
+	plt.title('Rotational velocity around X axis phase ' + str(i),fontsize=config.fontsize1)
 	if config.xlim is not None:
 		plt.xlim(config.xlim)
 	

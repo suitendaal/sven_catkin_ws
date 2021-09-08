@@ -10,6 +10,11 @@ demos = [
 	'data/replay4.2.bag',
 	'data/replay4.3.bag'
 ]
+#demos = [
+#	'data/demo2.bag',
+#	'data/demo4.bag',
+#	'data/demo5.bag'
+#]
 
 ### Jump detector
 predictor = LeastSquaresFilter(order=2)
@@ -24,7 +29,7 @@ plot_prediction_difference = True
 plot_position = True
 plot_velocity = True
 show_figs = True
-save_figs = False
+save_figs = True
 pickle_figs = False
 save_figs_location = 'figures/detect_jumps'
 
@@ -48,5 +53,6 @@ xlim = [
 #xlim = [(8.6, 11)]
 # Zoomed in on high force
 #xlim = [(8.5, 11)]
+#xlim = [(2.6,4.5)]
 labels = ['X','Y','Z']
 

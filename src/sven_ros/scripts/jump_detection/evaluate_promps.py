@@ -81,23 +81,27 @@ if config.write_evaluation:
 	
 if config.plot_figs:
 	for i in range(len(datasets[0])):
-		plt.figure()
+		plt.figure(figsize=config.figsize,dpi=config.dpi)
 		for phase in range(len(datasets)):
 			phase_data = datasets[phase][i]
 			plt.rcParams['xtick.labelsize'] = config.fontsize2
 			plt.rcParams['ytick.labelsize'] = config.fontsize2
 			plt.plot(phase_data.time, phase_data.value,'C' + str(phase) + '-*',linewidth=config.linewidth, markersize=config.markersize2,label='Phase ' + str(phase))
-		plt.legend()
-		plt.title('Position ' + config.variable_labels[i])
+		plt.legend(fontsize=config.fontsize2)
+		plt.title('Position ' + config.variable_labels[i],fontsize=config.fontsize1)
+		if config.xlim is not None:
+			plt.xlim(config.xlim)
 		
-		plt.figure()
+		plt.figure(figsize=config.figsize,dpi=config.dpi)
 		for phase in range(len(datasets_derivative)):
 			phase_data = datasets_derivative[phase][i]
 			plt.rcParams['xtick.labelsize'] = config.fontsize2
 			plt.rcParams['ytick.labelsize'] = config.fontsize2
 			plt.plot(phase_data.time, phase_data.value,'C' + str(phase) + '-*',linewidth=config.linewidth, markersize=config.markersize2,label='Phase ' + str(phase))
-		plt.legend()
-		plt.title('Velocity ' + config.variable_labels[i])
+		plt.legend(fontsize=config.fontsize2)
+		plt.title('Velocity ' + config.variable_labels[i],fontsize=config.fontsize1)
+		if config.xlim is not None:
+			plt.xlim(config.xlim)
 	
 	plt.show()
 

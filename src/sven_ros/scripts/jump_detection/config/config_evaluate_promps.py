@@ -18,6 +18,8 @@ via_points = [
 	DataSet([
 	]),
 	DataSet([
+		ViaPoint(0, 0.16),
+		ViaPoint(0, 0, derivative=1)
 	]),
 	DataSet([
 	]),
@@ -29,7 +31,7 @@ via_points = [
 
 ### Output settings
 
-step_size = 0.01
+step_size = 0.02
 plot_figs = True
 
 # Output filename
@@ -41,18 +43,19 @@ variable_labels = ['X','Y','Z',r'$\phi$',r'$\theta$',r'$\psi$']
 figsize = (12, 9)
 dpi = 80
 linewidth = 2
-markersize1 = 10
-markersize2 = 8
+markersize1 = 16
+markersize2 = 6
 markersize3 = 2.5
 fontsize1 = 20
 fontsize2 = 16
 # Full trajectory
-xlim = [None]
+#xlim = None
 # Zoomed in on first impact
 #xlim = [(8.6, 8.8)]
 # Zoomed in on impact interval
 #xlim = [(8.6, 11)]
 # Zoomed in on high force
 #xlim = [(8.5, 11)]
+xlim = (0,1)
 labels = ['X','Y','Z']
 

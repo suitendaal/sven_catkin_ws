@@ -131,7 +131,7 @@ class DemoVariable(object):
 	
 		# Get the data of the phase
 		data = self.get_filtered_data(phase).copy()
-		derivative_data = self.get_derivative_data(phase).copy()
+		derivative_data = self.get_filtered_derivative(phase).copy()
 		
 		# Deleted times before and after
 		deleted_before = []
