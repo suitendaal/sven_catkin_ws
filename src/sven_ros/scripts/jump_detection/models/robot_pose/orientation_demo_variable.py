@@ -1,14 +1,11 @@
 from datalib import *
 
-class DemoVariable(object):
-	def __init__(self, data, derivative_data, impact_intervals):
+class OrientationDemoVariable(object):
+	def __init__(self, data, impact_intervals):
 		self.data_ = data
-		self.derivative_data_ = derivative_data
 		self.impact_intervals_ = impact_intervals
 		self.filtered_data_ = None
-		self.filtered_derivative_ = None
 		self.extended_data_ = None
-		self.extended_derivative_ = None
 		
 		# Real usable data for creating trajectory
 		self.real_times_ = []
@@ -88,10 +85,6 @@ class DemoVariable(object):
 		if data_filter is not None:
 			self.filtered_data_ = self.filter(self.data_, data_filter)
 		
-	def filter_derivative(self, derivative_filter):
-		if derivative_filter is not None:
-			self.filtered_derivative_ = self.filter(self.derivative_data_, derivative_filter)
-		
 	def filter(self, data, data_filter):
 		result = DataSet()
 		
@@ -113,16 +106,14 @@ class DemoVariable(object):
 		
 		# Create empty lists containing the extended datasets of each phase
 		self.extended_data_ = []
-		self.extended_derivative_ = []
 		
 		# Loop through the phases
 		for phase in range(self.n_phases):
 			t_start, t_end = None, None
 			if len(self.phase_times_[phase]) > 0:
 				t_start, t_end = self.phase_times_[phase]
-			extended_data, extended_derivative_data = self.extend_phase_data(extender, phase, t_start, t_end)
-			self.extended_data_.append(extended_data)
-			self.extended_derivative_.append(extended_derivative_data)			
+			extended_data = self.extend_phase_data(extender, phase, t_start, t_end)
+			self.extended_data_.append(extended_data)		
 			
 	def extend_phase_data(self, extender, phase, t_start=None, t_end=None):
 		
@@ -133,10 +124,9 @@ class DemoVariable(object):
 	
 		# Get the data of the phase
 		data = self.get_filtered_data(phase).copy()
-		derivative_data = self.get_filtered_derivative(phase).copy()
 		
 		# Deleted times before and after
-		deleted_before, deleted_after = self.remove_indices(data, derivative_data, t_start, t_end, phase)
+		deleted_before, deleted_after = self.remove_indices(data, t_start, t_end, phase)
 				
 		# Update real times
 		self.real_times_[phase] = [data[0].time + self.time_shift(phase), data[-1].time + self.time_shift(phase)]	
@@ -149,50 +139,46 @@ class DemoVariable(object):
 			
 		# Initialize extended data
 		extended_data = data.copy()
-		extended_derivative_data = derivative_data.copy()
 		
 		# Extend data before
-		extension_velocity = derivative_data[0].value
+		extension_velocity = 0
 		extended_data = extender.extend(extended_data, velocity=extension_velocity, extend_before=extend_before, extended_times_before=deleted_before)
-		extended_derivative_data = extender.extend_velocity(extended_derivative_data, velocity=extension_velocity, extend_before=extend_before, extended_times_before=deleted_before)
 		
 		# Extend data after
-		extension_velocity = derivative_data[-1].value
+		extension_velocity = 0
 		extended_data = extender.extend(extended_data, velocity=extension_velocity, extend_after=extend_after, extended_times_after=deleted_after)
-		extended_derivative_data = extender.extend_velocity(extended_derivative_data, velocity=extension_velocity, extend_after=extend_after, extended_times_after=deleted_after)
 		
 		self.extended_times_[phase] = [extended_data[0].time + self.time_shift(phase), extended_data[-1].time + self.time_shift(phase)]
 		
-		return extended_data, extended_derivative_data
+		return extended_data
 		
-	def remove_indices(self, data, derivative_data, t_start, t_end, phase):
+	def remove_indices(self, data, t_start, t_end, phase):
 		deleted_times_before = []
 		deleted_times_after = []
 		
 		# Remove None indices
-		deleted_times_before.extend(self.remove_none_indices(data, derivative_data))
+		deleted_times_before.extend(self.remove_none_indices(data))
 			
 		# Remove indices out of time range
-		deleted_times_before.extend(self.remove_before(data, derivative_data, t_start, phase))
-		deleted_times_after.extend(self.remove_after(data, derivative_data, t_end, phase))
+		deleted_times_before.extend(self.remove_before(data, t_start, phase))
+		deleted_times_after.extend(self.remove_after(data, t_end, phase))
 			
 		return deleted_times_before, deleted_times_after
 		
-	def remove_none_indices(self, data, derivative_data):
+	def remove_none_indices(self, data):
 		deleted_before = []
 		
 		indices_to_remove = []
 		for i in range(len(data)):
-			if data[i].value is None or derivative_data[i].value is None:
+			if data[i].value is None:
 				indices_to_remove.insert(0,i)
 		for i in indices_to_remove:
 			deleted_before.append(data[i].time)
 			data.pop(i)
-			derivative_data.pop(i)
 		
 		return deleted_before
 		
-	def remove_before(self, data, derivative_data, t_start, phase):
+	def remove_before(self, data, t_start, phase):
 		deleted_before = []
 	
 		indices_to_remove = []
@@ -203,11 +189,10 @@ class DemoVariable(object):
 				deleted_before.append(data[i].time)
 		for i in indices_to_remove:
 			data.pop(i)
-			derivative_data.pop(i)
 			
 		return deleted_before
 		
-	def remove_after(self, data, derivative_data, t_end, phase):
+	def remove_after(self, data, t_end, phase):
 		deleted_after = []
 	
 		indices_to_remove = []
@@ -218,7 +203,6 @@ class DemoVariable(object):
 				deleted_after.append(data[i].time)
 		for i in indices_to_remove:
 			data.pop(i)
-			derivative_data.pop(i)
 			
 		return deleted_after
 		
@@ -245,27 +229,9 @@ class DemoVariable(object):
 		if self.filtered_data_ is not None:
 			return self.filtered_data_[start:end]
 		return self.data_[start:end]
-		
-	def get_derivative_data(self, phase):
-		start = self.get_starting_index(phase)
-		end = self.get_ending_index(phase)
-		return self.derivative_data_[start:end]
-		
-	def get_filtered_derivative(self, phase):
-		start = self.get_starting_index(phase)
-		end = self.get_ending_index(phase)
-		if self.filtered_derivative_ is not None:
-			return self.filtered_derivative_[start:end]
-		return self.derivative_data_[start:end]
 	
 	def get_extended_data(self, phase):
 		if self.extended_data_ is not None and len(self.extended_data_) > phase:
 			return self.extended_data_[phase]
-		return self.get_filtered_data(phase)
-		
-	def get_extended_derivative(self, phase):
-		if self.extended_derivative_ is not None and len(self.extended_derivative_) > phase:
-			return self.extended_derivative_[phase]
-		return self.get_filtered_data(phase)
-		
+		return self.get_filtered_data(phase)		
 		

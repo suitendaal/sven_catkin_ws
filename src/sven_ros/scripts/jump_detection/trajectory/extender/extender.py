@@ -12,7 +12,7 @@ class TrajectoryExtender(object):
 	def copy(self):
 		return TrajectoryExtender(timesteps=self.timesteps, delta_time=self.delta_time)
 
-	def extend(self, trajectory, velocity_data, extend_before=True, extend_after=True):
+	def extend(self, trajectory, extend_before=True, extend_after=True):
 		return trajectory.copy()
 		
 	def extend_velocity(self, velocity_data, extend_before=True, extend_after=True):

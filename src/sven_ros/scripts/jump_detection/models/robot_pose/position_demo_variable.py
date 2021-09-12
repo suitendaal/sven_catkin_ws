@@ -1,6 +1,6 @@
 from datalib import *
 
-class DemoVariable(object):
+class PositionDemoVariable(object):
 	def __init__(self, data, derivative_data, impact_intervals):
 		self.data_ = data
 		self.derivative_data_ = derivative_data

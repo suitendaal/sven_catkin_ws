@@ -37,14 +37,14 @@ rbf_width = 5e-4
 n_rbfs_per_second = 35
 
 ## Filtering
-position_filter = LeastSquaresFilter(order=2, window_length=20)
-orientation_filter = LeastSquaresFilter(order=2, window_length=20)
-velocity_filter = LeastSquaresFilter(order=2, window_length=20)
-rotational_velocity_filter = LeastSquaresFilter(order=2, window_length=20)
+position_filter = None #LeastSquaresFilter(order=2, window_length=20)
+orientation_filter = None #LeastSquaresFilter(order=2, window_length=20)
+velocity_filter = None #LeastSquaresFilter(order=2, window_length=20)
+rotational_velocity_filter = None #LeastSquaresFilter(order=2, window_length=20)
 
 ## Extender
 position_extender = ConstantVelocityExtender(timesteps=100, delta_time=0.01)
-orientation_extender = ConstantVelocityExtender(timesteps=100, delta_time=0.01)
+orientation_extender = ConstantExtender(timesteps=100, delta_time=0.01)
 
 ### Create reference output settings
 

@@ -6,95 +6,98 @@ from datalib import *
 from filters import *
 from models import *
 import config.config_create_trajectory as config
+import config.config_evaluate_promps as config2
 import numpy as np
+import time as t
 
-position_data = []
-orientation_data = []
-velocity_data = []
-rotational_velocity_data = []
+start_time = t.time()
+
+position_datasets = []
+orientation_datasets = []
+velocity_datasets = []
+rotational_velocity_datasets = []
+
+print("Reading demonstration data")
 
 for demo in config.demos:
 	franka_reader = FrankaStateReader(demo)
 
-	position = []
-	orientation = []
-	velocity = []
-	rotational_velocity = []
-	for i in range(3):
-		position.append(DataSet())
-		orientation.append(DataSet())
-		velocity.append(DataSet())
-		rotational_velocity.append(DataSet())
+	position_dataset = PositionDataSet()
+	orientation_dataset = PositionDataSet()
+	velocity_dataset = PositionDataSet()
+	rotational_velocity_dataset = PositionDataSet()
 
 	for i in range(len(franka_reader.msgs)):
 		dp = franka_reader.next_datapoint()
 		time = dp.time
 		dp = dp.value
 		
-		for j in range(3):
-			position[j].append(DataPoint(time, dp.position[j]))
-			orientation[j].append(DataPoint(time, dp.euler_angles[j]))
-			velocity[j].append(DataPoint(time, dp.velocity[j]))
-			rotational_velocity[j].append(DataPoint(time, dp.rotational_velocity[j]))
+		position_dataset.append(PositionDataPoint(time, dp.position))
+		orientation_dataset.append(PositionDataPoint(time, dp.euler_angles))
+		velocity_dataset.append(PositionDataPoint(time, dp.velocity))
+		rotational_velocity_dataset.append(PositionDataPoint(time, dp.rotational_velocity))
 		
-	for i in range(3):
-		position[i].align_time()
-		orientation[i].align_time()
-		velocity[i].align_time()
-		rotational_velocity[i].align_time()
+	position_dataset.align_time()
+	orientation_dataset.align_time()
+	velocity_dataset.align_time()
+	rotational_velocity_dataset.align_time()
 		
-	position_data.append(position)
-	orientation_data.append(orientation)
-	velocity_data.append(velocity)
-	rotational_velocity_data.append(rotational_velocity)
+	position_datasets.append(position_dataset)
+	orientation_datasets.append(orientation_dataset)
+	velocity_datasets.append(velocity_dataset)
+	rotational_velocity_datasets.append(rotational_velocity_dataset)
 	
-position_variables = []
-orientation_variables = []
+datasets_handle = RobotDataSets(position_datasets, velocity_datasets, orientation_datasets, rotational_velocity_datasets, config.impact_intervals)
 
-for i in range(3):
-	position = []
-	orientation = []
-	velocity = []
-	rotational_velocity = []
+print("--- %s seconds ---" % (t.time() - start_time))
+print("Filtering and extending demonstration data")
+
+datasets_handle.filter_position_data(config.position_filter)
+datasets_handle.filter_velocity_data(config.velocity_filter)
+datasets_handle.filter_orientation_data(config.orientation_filter)
+datasets_handle.extend_position_data(config.position_extender)
+datasets_handle.extend_orientation_data(config.orientation_extender)
+
+print("--- %s seconds ---" % (t.time() - start_time))
+print("Creating ProMPs")
+
+position_promps = datasets_handle.create_position_promps(config.rbf_width, config.n_rbfs_per_second)
+orientation_promps = datasets_handle.create_orientation_promps(config.rbf_width, config.n_rbfs_per_second)
+
+print("--- %s seconds ---" % (t.time() - start_time))		
+
+# Save promps to file
+if config.write_mps:
+	print("Saving ProMPs to file")
+	# TODO
+	print("--- %s seconds ---" % (t.time() - start_time))
+
+print("Done")
+
+
+
+
 	
-	for j in range(len(config.demos)):
-		position.append(position_data[j][i])
-		orientation.append(orientation_data[j][i])
-		velocity.append(velocity_data[j][i])
-		rotational_velocity.append(rotational_velocity_data[j][i])
-	
-	position_variable = RobotVariable(position, velocity, config.impact_intervals)
-	position_variable.filter_data(config.position_filter)
-	position_variable.filter_derivative(config.velocity_filter)
-	position_variable.extend_data(config.position_extender)
-	position_variables.append(position_variable)
-	
-	orientation_variable = RobotVariable(orientation, rotational_velocity, config.impact_intervals)
-	orientation_variable.filter_data(config.orientation_filter)
-	orientation_variable.filter_derivative(config.rotational_velocity_filter)
-	orientation_variable.extend_data(config.orientation_extender)
-	orientation_variables.append(orientation_variable)
-	
-z = position_variables[2]
-z.filter_data(config.position_filter)
-z.filter_derivative(config.velocity_filter)
-z.extend_data(config.position_extender)
-promps = z.create_promps(config.rbf_width, config.n_rbfs_per_second)
-z_pos = []
-z_promps = []
-for phase in range(z.n_phases):
-	z_pos.append(z.demo_variables[0].get_extended_data(phase))
-	mu, sigma = promps[phase].evaluate(z_pos[phase].time)
-	z_promps.append(mu)
-	
-plt.figure()
-for i in range(len(z_pos)):
-	phase_data = z_pos[i]
-	plt.rcParams['xtick.labelsize'] = config.fontsize2
-	plt.rcParams['ytick.labelsize'] = config.fontsize2
-	plt.plot(phase_data.time, phase_data.value,'C' + str(i) + '-*',linewidth=config.linewidth, markersize=config.markersize2,label='data')
-	plt.plot(phase_data.time, z_promps[i],'C' + str(i+1) + '-*',linewidth=config.linewidth, markersize=config.markersize2,label='promp')
-plt.legend()
-	
-plt.show()
+#z_data = []
+#z_norm_data = []
+#for demo_data in datasets_handle.orientation_datasets:
+#	z_data.append(demo_data.x.copy())
+#for demo_data in datasets_handle.normalized_orientation_datasets:
+#	z_norm_data.append(demo_data.x.copy())
+#for i in range(len(z_data)):
+#	z_data[i].align_time(-z_data[i][config.impact_intervals[i][0][0]].time + z_data[0][config.impact_intervals[0][0][0]].time)
+#	z_norm_data[i].align_time(-z_norm_data[i][config.impact_intervals[i][0][0]].time + z_norm_data[0][config.impact_intervals[0][0][0]].time)
+#	
+#plt.figure(figsize=config2.figsize,dpi=config2.dpi)
+#for z in range(len(z_data)):
+#	data = z_data[z].diff()
+#	data2 = z_norm_data[z].diff()
+#	plt.rcParams['xtick.labelsize'] = config2.fontsize2
+#	plt.rcParams['ytick.labelsize'] = config2.fontsize2
+#	plt.plot(data.time, data.value,'C' + str(z+1) + '-*',linewidth=config2.linewidth, markersize=config2.markersize2,label='Data ' + str(z+1))
+#	plt.plot(data2.time, data2.value,'C' + str(z+4) + '-*',linewidth=config2.linewidth, markersize=config2.markersize2,label='Data2 ' + str(z+1))
+#plt.legend(fontsize=config2.fontsize2)
+#plt.title('Velocity',fontsize=config2.fontsize1)
+
+#plt.show()
 

@@ -13,17 +13,10 @@ class ConstantVelocityExtender(TrajectoryExtender):
 	def copy(self):
 		return ConstantVelocityExtender(timesteps=self.timesteps, delta_time=self.delta_time)
 
-	def extend(self, trajectory, velocity_data, extend_before=False, extend_after=False, extended_times_before=[], extended_times_after=[]):
-		if len(velocity_data) > 0:
-			vel_start = velocity_data[0].value
-			vel_end = velocity_data[-1].value
-		else:
-			vel_start = None
-			vel_end = None
-			
+	def extend(self, trajectory, velocity=0, extend_before=False, extend_after=False, extended_times_before=[], extended_times_after=[], **kwargs):
 		result = DataSet()
 		
-		if vel_start is not None and extend_before:
+		if extend_before:
 		
 			starting_time = trajectory[0].time
 			if len(extended_times_before) > 0:
@@ -34,14 +27,14 @@ class ConstantVelocityExtender(TrajectoryExtender):
 			times.extend(extended_times_before.copy())
 		
 			for i in range(len(times)):
-				value = trajectory[0].value - (trajectory[0].time - times[i]) * vel_start
+				value = trajectory[0].value - (trajectory[0].time - times[i]) * velocity
 				datapoint = DataPoint(times[i], value)
 				result.append(datapoint)
 		
 		for i in trajectory:
 			result.append(i.copy())
 			
-		if vel_end is not None and extend_after:
+		if extend_after:
 		
 			starting_time = trajectory[-1].time
 			if len(extended_times_after) > 0:
@@ -52,24 +45,17 @@ class ConstantVelocityExtender(TrajectoryExtender):
 			times.extend(np.arange(starting_time + self.delta_time, starting_time + (self.timesteps + 1) * self.delta_time, self.delta_time).tolist())
 			
 			for i in range(len(times)):
-				value = trajectory[-1].value + (times[i] - trajectory[-1].time) * vel_end
+				value = trajectory[-1].value + (times[i] - trajectory[-1].time) * velocity
 				datapoint = DataPoint(times[i], value)
 				result.append(datapoint)
 
 		return result
 		
-	def extend_velocity(self, velocity_data, extend_before=False, extend_after=False, extended_times_before=[], extended_times_after=[]):
+	def extend_velocity(self, velocity_data, velocity=0, extend_before=False, extend_after=False, extended_times_before=[], extended_times_after=[], **kwargs):
 	
-		if len(velocity_data) > 0:
-			vel_start = velocity_data[0].value
-			vel_end = velocity_data[-1].value
-		else:
-			vel_start = None
-			vel_end = None
-			
 		result = DataSet()
 		
-		if vel_start is not None and extend_before:
+		if extend_before:
 		
 			starting_time = velocity_data[0].time
 			if len(extended_times_before) > 0:
@@ -80,14 +66,14 @@ class ConstantVelocityExtender(TrajectoryExtender):
 			times.extend(extended_times_before.copy())
 		
 			for i in range(len(times)):
-				value = vel_start
+				value = velocity
 				datapoint = DataPoint(times[i], value)
 				result.append(datapoint)
 		
 		for i in velocity_data:
 			result.append(i.copy())
 			
-		if vel_end is not None and extend_after:
+		if extend_after:
 		
 			starting_time = velocity_data[-1].time
 			if len(extended_times_after) > 0:
@@ -98,7 +84,7 @@ class ConstantVelocityExtender(TrajectoryExtender):
 			times.extend(np.arange(starting_time + self.delta_time, starting_time + (self.timesteps + 1) * self.delta_time, self.delta_time).tolist())
 			
 			for i in range(len(times)):
-				value = vel_end
+				value = velocity
 				datapoint = DataPoint(times[i], value)
 				result.append(datapoint)
 

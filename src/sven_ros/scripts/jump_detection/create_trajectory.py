@@ -5,6 +5,9 @@ from datalib import *
 from models import *
 import config.config_create_trajectory as config
 import json
+import time as t
+
+start_time = t.time()
 
 # Initialize data arrays
 position_data = []
@@ -50,6 +53,7 @@ for demo in config.demos:
 	velocity_data.append(velocity)
 	rotational_velocity_data.append(rotational_velocity)
 
+print("--- %s seconds ---" % (t.time() - start_time))
 print("Filtering and extending demonstration data")
 
 # Initialize robot variables
@@ -81,6 +85,7 @@ for i in range(3):
 	orientation_variable.extend_data(config.orientation_extender)
 	orientation_variables.append(orientation_variable)
 	
+print("--- %s seconds ---" % (t.time() - start_time))
 print("Creating ProMPs")
 	
 # Create promps
@@ -99,10 +104,12 @@ for or_var in orientation_variables:
 	for phase in range(len(promps)):
 		orientation_promps[phase].append(promps[phase])
 		
-print("Saving ProMPs to file")
+print("--- %s seconds ---" % (t.time() - start_time))
 		
 # Save promps to file
 if config.write_mps:
+	print("Saving ProMPs to file")
+	
 	json_object = dict()
 	json_object['phases'] = []
 	for phase in range(len(position_promps)):
@@ -118,7 +125,7 @@ if config.write_mps:
 	
 	with open(config.output_file, 'w', encoding='utf-8') as f:
 		json.dump(json_object, f, ensure_ascii=False, indent=4)
-		
+	
+	print("--- %s seconds ---" % (t.time() - start_time))	
 print("Done")
-
 
