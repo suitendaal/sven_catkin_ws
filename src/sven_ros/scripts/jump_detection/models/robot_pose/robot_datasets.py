@@ -67,7 +67,11 @@ class RobotDataSets(object):
 		# Determine starting time of extended phase
 		for phase in range(self.n_phases):
 			t_start = self.get_starting_time(phase)
-			t_end = self.get_ending_time(phase) - time_of_impact_before_detecting
+			if phase > 0:
+				t_start -= time_of_impact_before_detecting
+			t_end = self.get_ending_time(phase)
+			if phase < self.n_phases - 1 and self.n_phases > 1:
+				t_end -= time_of_impact_before_detecting
 			for demos in self.demos:
 				for demo in demos:
 					demo.set_phase_time(phase, t_start, t_end)

@@ -1,6 +1,10 @@
 #!/usr/bin/python3
 
+import math
+import scipy.optimize as optimization
+import numpy as np
 from .orientation_demo_variable import *
+import matplotlib.pyplot as plt
 
 class PositionDemoVariable(OrientationDemoVariable):
 	def __init__(self, data, derivative_data, impact_intervals):
@@ -58,14 +62,14 @@ class PositionDemoVariable(OrientationDemoVariable):
 		# Extend data before
 		extension_velocity = 0
 		if extend_before:
-			extension_velocity = self.calculate_post_impact_velocity(data, derivative_data)
+			extension_velocity = self.calculate_post_impact_velocity(phase, data, derivative_data)
 		extended_data = extender.extend(extended_data, velocity=extension_velocity, extend_before=extend_before, extended_times_before=deleted_before)
 		extended_derivative_data = extender.extend_velocity(extended_derivative_data, velocity=extension_velocity, extend_before=extend_before, extended_times_before=deleted_before)
 		
 		# Extend data after
 		extension_velocity = 0
 		if extend_after:
-			extension_velocity = self.calculate_ante_impact_velocity(data, derivative_data)
+			extension_velocity = self.calculate_ante_impact_velocity(phase, data, derivative_data)
 		extended_data = extender.extend(extended_data, velocity=extension_velocity, extend_after=extend_after, extended_times_after=deleted_after)
 		extended_derivative_data = extender.extend_velocity(extended_derivative_data, velocity=extension_velocity, extend_after=extend_after, extended_times_after=deleted_after)
 		
@@ -147,9 +151,42 @@ class PositionDemoVariable(OrientationDemoVariable):
 			return self.extended_derivative_[phase]
 		return self.get_filtered_data(phase)
 		
-	def calculate_post_impact_velocity(self, data, derivative_data):
-		return derivative_data[0].value
+	def calculate_post_impact_velocity(self, phase, data, derivative_data):
+		if phase == 0:
+			return 0
+		ante_impact_velocity = self.get_extended_derivative(phase)[-1].value
+		print("hoi",ante_impact_velocity)
+		t_start = derivative_data[0].time
+		t_end = t_start + 0.200
+		data_to_analyze = DataSet()
+		for datapoint in derivative_data:
+			if datapoint.time < t_end:
+				data_to_analyze.append(datapoint.copy())
+		data_to_analyze.align_time()
+		func = lambda t, a, A, gamma, omega, phi : fitting_func(t, a, A, gamma, omega, phi, ante_impact_velocity)
 		
-	def calculate_ante_impact_velocity(self, data, derivative_data):
-		return derivative_data[-1].value			
+#		x0 = [0,0,0,0,0]
+		popt, pcov = optimization.curve_fit(func, np.array(data_to_analyze.time), np.array(data_to_analyze.value))
+		
+		print(func([0], popt[0], popt[1], 0, 0, popt[4])[0], data_to_analyze[-1])
+		
+		values = func(np.array(data_to_analyze.time), popt[0], popt[1], popt[2], popt[3], popt[4])
+#		for i in range(len(values)):
+#			values[i] -= math.cos(popt[4])
+		print(math.cos(popt[4]))
+#		plt.plot(np.array(data_to_analyze.time), values)
+#		plt.plot(np.array(data_to_analyze.time), np.array(data_to_analyze.value))
+		plt.show()
+		
+		return func([0], popt[0], popt[1], 0, 0, popt[4])[0]
+		
+	def calculate_ante_impact_velocity(self, phase, data, derivative_data):
+		return derivative_data[-1].value
+		
+def fitting_func(t, a, A, gamma, omega, phi, v_min):
+	result = []
+	for timestamp in t:
+		result.append(v_min + a*timestamp + A*(math.exp(gamma * timestamp) * math.cos(omega*timestamp + phi) - math.cos(phi)))
+	return np.array(result)
+			
 		

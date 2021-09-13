@@ -145,13 +145,13 @@ class OrientationDemoVariable(object):
 		# Extend data before
 		extension_velocity = 0
 		if extend_before:
-			extension_velocity = self.calculate_post_impact_velocity(phase)
+			extension_velocity = self.calculate_post_impact_velocity(phase, data)
 		extended_data = extender.extend(extended_data, velocity=extension_velocity, extend_before=extend_before, extended_times_before=deleted_before)
 		
 		# Extend data after
 		extension_velocity = 0
 		if extend_after:
-			extension_velocity = self.calculate_ante_impact_velocity(phase)
+			extension_velocity = self.calculate_ante_impact_velocity(phase, data)
 		extended_data = extender.extend(extended_data, velocity=extension_velocity, extend_after=extend_after, extended_times_after=deleted_after)
 		
 		self.extended_times_[phase] = [extended_data[0].time + self.time_shift(phase), extended_data[-1].time + self.time_shift(phase)]
@@ -241,9 +241,9 @@ class OrientationDemoVariable(object):
 			return self.extended_data_[phase]
 		return self.get_filtered_data(phase)
 		
-	def calculate_post_impact_velocity(self, data, derivative_data=None):
+	def calculate_post_impact_velocity(self, phase, data, derivative_data=None):
 		return 0
 		
-	def calculate_ante_impact_velocity(self, data, derivative_data=None):
+	def calculate_ante_impact_velocity(self, phase, data, derivative_data=None):
 		return 0	
 		
