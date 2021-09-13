@@ -6,6 +6,7 @@ from datalib import *
 import config.config_evaluate_promps as config
 import matplotlib.pyplot as plt
 from decimal import Decimal, ROUND_DOWN, ROUND_UP
+import time as t
 
 def round_up(number, step_size):
 	return float(Decimal(number).quantize(Decimal(str(step_size)), ROUND_UP))
@@ -13,95 +14,109 @@ def round_up(number, step_size):
 def round_down(number, step_size):
 	return float(Decimal(number).quantize(Decimal(str(step_size)), ROUND_DOWN))
 
+start_time = t.time()
+
+print("Reading ProMP file")
+
 promp_reader = ProMPReader(config.promp_file)
+robot_pose_evaluators = []
 
-datasets = []
-datasets_derivative = []
-
+# Read ProMPs
 for phase in range(len(promp_reader.promp_handles)):
-	datasets_phase = []
-	datasets_derivative_phase = []
+	position_promps = []
+	orientation_promps = []
 	
-	for i in range(len(promp_reader.promp_handles[phase])):
-		promp_handle = promp_reader.promp_handles[phase][i]
-		dataset_phase = DataSet()
-		dataset_derivative_phase = DataSet()
+	for i in range(3):
+		position_promps.append(promp_reader.promp_handles[phase][i])
+		orientation_promps.append(promp_reader.promp_handles[phase][i+3])
 		
-		# Time range for phase
-		t_start, t_end = promp_handle.get_extended_start_end()
-		t_start = round_up(t_start, config.step_size)
-		t_end = round_up(t_end, config.step_size)
-		time = np.arange(t_start, t_end, config.step_size).tolist()
+	robot_pose_evaluators.append(RobotPoseEvaluator(promp_reader.rotation_matrix, position_promps, orientation_promps))
+	
+print("--- %s seconds ---" % (t.time() - start_time))
+print("Evaluating ProMPs")
+	
+# Evaluate ProMPs
+datasets = []
+for phase in range(len(robot_pose_evaluators)):
+	datasets.append(DataSet())
+	
+	t_start = round_up(robot_pose_evaluators[phase].extended_starting_time, config.step_size)
+	t_end = round_down(robot_pose_evaluators[phase].extended_ending_time, config.step_size)
+	timerange = np.arange(t_start, t_end, config.step_size).tolist()
+	
+	for time in timerange:
 		
 		# Via points for phase
-		via_points = DataSet()
-		for via_point in config.via_points[i]:
-			if via_point.time >= t_start and via_point.time <= t_end:
-				via_points.append(via_point)
-				
-		# Evaluate promp
-		data, sigma = promp_handle.evaluate(time, via_points=via_points)
-		data_der, sigma_der = promp_handle.evaluate(time, derivative=1, via_points=via_points)
-		for i in range(len(time)):
-			dataset_phase.append(DataPoint(time[i], data[i]))
-			dataset_derivative_phase.append(DataPoint(time[i], data_der[i]))
-		datasets_phase.append(dataset_phase)
-		datasets_derivative_phase.append(dataset_derivative_phase)
+		via_points = []
+		for i in range(len(config.via_points)):
+			via_points.append(DataSet())
+			for via_point in via_points[i]:
+				if via_point.time >= t_start and via_point.time <= t_end:
+					via_points[i].append(via_point)
+		
+		# position, velocity, orientation
+		datasets[phase].append(DataPoint(time, robot_pose_evaluators[phase].evaluate(time, via_points=via_points)))
 	
-	datasets.append(datasets_phase)
-	datasets_derivative.append(datasets_derivative_phase)
+print("--- %s seconds ---" % (t.time() - start_time))
 	
 if config.write_evaluation:
+	print("Writing evaluation to file")	
+	
 	data = dict()
 	data['datasets'] = []
-	for datasets_phase in datasets:
-		datasets_phase_dict = []
-		for i in range(len(datasets_phase)):
-			dataset = datasets_phase[i]
-			dataset_dict = dict()
-			dataset_dict['label'] = config.variable_labels[i]
-			dataset_dict['time'] = dataset.time
-			dataset_dict['value'] = dataset.value
-			datasets_phase_dict.append(dataset_dict)
-		data['datasets'].append(datasets_phase_dict)
-	data['datasets_derivative'] = []
-	for datasets_derivative_phase in datasets_derivative:
-		datasets_derivative_phase_dict = []
-		for i in range(len(datasets_derivative_phase)):
-			dataset = datasets_derivative_phase[i]
-			dataset_dict = dict()
-			dataset_dict['label'] = config.variable_labels[i]
-			dataset_dict['time'] = dataset.time
-			dataset_dict['value'] = dataset.value
-			datasets_derivative_phase_dict.append(dataset_dict)
-		data['datasets_derivative'].append(datasets_derivative_phase_dict)
-	
+	for dataset in datasets:
+		dataset_dict = dict()
+		dataset_dict['time'] = dataset.time
+		dataset_dict['position'] = dataset.get_index(0).value
+		dataset_dict['velocity'] = dataset.get_index(1).value
+		dataset_dict['orientation'] = dataset.get_index(2).value
+		data['datasets'].append(dataset_dict)
+		
 	with open(config.output_file, 'w', encoding='utf-8') as f:
 		json.dump(data, f, ensure_ascii=False, indent=4)
+		
+	print("--- %s seconds ---" % (t.time() - start_time))
 	
 if config.plot_figs:
-	for i in range(len(datasets[0])):
+	print("Plotting figures")
+
+	for i in range(3):
 		plt.figure(figsize=config.figsize,dpi=config.dpi)
 		for phase in range(len(datasets)):
-			phase_data = datasets[phase][i]
+			pos_data = datasets[phase].get_index(0).get_index(i)
 			plt.rcParams['xtick.labelsize'] = config.fontsize2
 			plt.rcParams['ytick.labelsize'] = config.fontsize2
-			plt.plot(phase_data.time, phase_data.value,'C' + str(phase) + '-*',linewidth=config.linewidth, markersize=config.markersize2,label='Phase ' + str(phase))
+			plt.plot(pos_data.time, pos_data.value,'C' + str(phase) + '-*',linewidth=config.linewidth, markersize=config.markersize2,label='Phase ' + str(phase))
 		plt.legend(fontsize=config.fontsize2)
 		plt.title('Position ' + config.variable_labels[i],fontsize=config.fontsize1)
 		if config.xlim is not None:
 			plt.xlim(config.xlim)
-		
+			
 		plt.figure(figsize=config.figsize,dpi=config.dpi)
-		for phase in range(len(datasets_derivative)):
-			phase_data = datasets_derivative[phase][i]
+		for phase in range(len(datasets)):
+			vel_data = datasets[phase].get_index(1).get_index(i)
 			plt.rcParams['xtick.labelsize'] = config.fontsize2
 			plt.rcParams['ytick.labelsize'] = config.fontsize2
-			plt.plot(phase_data.time, phase_data.value,'C' + str(phase) + '-*',linewidth=config.linewidth, markersize=config.markersize2,label='Phase ' + str(phase))
+			plt.plot(vel_data.time, vel_data.value,'C' + str(phase) + '-*',linewidth=config.linewidth, markersize=config.markersize2,label='Phase ' + str(phase))
 		plt.legend(fontsize=config.fontsize2)
 		plt.title('Velocity ' + config.variable_labels[i],fontsize=config.fontsize1)
 		if config.xlim is not None:
 			plt.xlim(config.xlim)
+			
+		plt.figure(figsize=config.figsize,dpi=config.dpi)
+		for phase in range(len(datasets)):
+			or_data = datasets[phase].get_index(2).get_index(i)
+			plt.rcParams['xtick.labelsize'] = config.fontsize2
+			plt.rcParams['ytick.labelsize'] = config.fontsize2
+			plt.plot(or_data.time, or_data.value,'C' + str(phase) + '-*',linewidth=config.linewidth, markersize=config.markersize2,label='Phase ' + str(phase))
+		plt.legend(fontsize=config.fontsize2)
+		plt.title('Position ' + config.variable_labels[i+3],fontsize=config.fontsize1)
+		if config.xlim is not None:
+			plt.xlim(config.xlim)
+	
+	print("--- %s seconds ---" % (t.time() - start_time))
 	
 	plt.show()
+
+print("Done")
 

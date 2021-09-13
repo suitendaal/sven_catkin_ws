@@ -49,17 +49,7 @@ class SvenRosControllerNode(object):
 	def read_reference_trajectory(self):
 		result = []
 		with open(self.reference_trajectory_file) as f:
-			data = json.load(f)
-		for i in range(len(data['datasets'])):
-			phase = dict()
-			phase['time'] = data['datasets'][i][0]['time']
-			phase['values'] = []
-			phase['derivative_values'] = []
-			for j in range(len(data['datasets'][i])):
-				phase['values'].append(data['datasets'][i][j]['value'])
-				phase['derivative_values'].append(data['datasets_derivative'][i][j]['value'])
-			result.append(phase)
-		return result
+			return json.load(f)['datasets']
 		
 	def evaluate(self, time):
 		phase_data = self.phases[self.current_phase]
@@ -76,10 +66,9 @@ class SvenRosControllerNode(object):
 		vel_data = []
 		or_data = []
 		for i in range(3):
-			pos_data.append(phase_data['values'][i][index])
-			vel_data.append(phase_data['derivative_values'][i][index])
-#			or_data.append(phase_data['values'][i+3][index])
-		or_data.extend([ 3.12394258, -0.06351829, -0.07978305])
+			pos_data.append(phase_data['position'][index][i])
+			vel_data.append(phase_data['velocity'][index][i])
+			or_data.append(phase_data['orientation'][index][i])
 			
 		rot = Rotation.from_euler('xyz', or_data)
 		
@@ -93,7 +82,7 @@ class SvenRosControllerNode(object):
 		
 		result = []
 		result.extend(pos_data)
-		result.extend(rot.as_quat())
+		result.extend(rot.as_quat().tolist())
 		result.extend(vel_data)
 		
 		return result
@@ -131,8 +120,8 @@ class SvenRosControllerNode(object):
 		if self.impact_interval is not None:
 			if time >= self.impact_interval[0]:
 				if self.last_jump_time is not None and self.last_jump_time >= self.impact_interval[0] and time - self.last_jump_time <= self.impact_interval_threshold:
-#					msg.data = ImpedanceControlMode.PositionFeedback
-					msg.data = ImpedanceControlMode.FeedForward
+					msg.data = ImpedanceControlMode.PositionFeedback
+#					msg.data = ImpedanceControlMode.FeedForward
 
 		return msg
 		

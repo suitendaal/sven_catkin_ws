@@ -45,6 +45,7 @@ rotational_velocity_filter = None #LeastSquaresFilter(order=2, window_length=20)
 ## Extender
 position_extender = ConstantVelocityExtender(timesteps=100, delta_time=0.01)
 orientation_extender = ConstantExtender(timesteps=100, delta_time=0.01)
+time_of_impact_before_detecting = 0 # TODO: to be calculated based on demonstrations
 
 ### Create reference output settings
 

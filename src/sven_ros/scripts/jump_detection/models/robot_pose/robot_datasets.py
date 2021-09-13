@@ -9,7 +9,7 @@ from .orientation_demo_variable import *
 from models import ProMPHandler
 
 class RobotDataSets(object):
-	def __init__(self, position_datasets, velocity_datasets, orientation_datasets, rotational_velocity_datasets, impact_intervals):
+	def __init__(self, position_datasets, velocity_datasets, orientation_datasets, rotational_velocity_datasets, impact_intervals, normalize_orientation=True):
 		self.position_datasets = position_datasets
 		self.velocity_datasets = velocity_datasets
 		self.orientation_datasets = orientation_datasets
@@ -19,26 +19,29 @@ class RobotDataSets(object):
 		if len(self.orientation_datasets) > 0 and len(self.orientation_datasets[0]) > 0:
 			orientation = self.orientation_datasets[0][0].value
 			rotation = Rotation.from_euler('xyz',orientation)
-			self.rotation_matrix = np.linalg.inv(rotation.as_matrix())
-		self.normalized_orientation_datasets = self.normalize_orientation()
+			self.rotation_matrix = rotation.as_matrix().T
+		if normalize_orientation:
+			self.normalized_orientation_datasets = self.normalize_orientation()
+		else:
+			self.normalized_orientation_datasets = self.orientation_datasets.copy()
 		
 		self.x_demos = []
 		self.y_demos = []
 		self.z_demos = []
 		
 		for i in range(len(self.position_datasets)):
-			self.x_demos.append(PositionDemoVariable(position_datasets[i].x, velocity_datasets[i].x, impact_intervals[i]))
-			self.y_demos.append(PositionDemoVariable(position_datasets[i].y, velocity_datasets[i].y, impact_intervals[i]))
-			self.z_demos.append(PositionDemoVariable(position_datasets[i].z, velocity_datasets[i].z, impact_intervals[i]))
+			self.x_demos.append(PositionDemoVariable(self.position_datasets[i].x, self.velocity_datasets[i].x, self.impact_intervals[i]))
+			self.y_demos.append(PositionDemoVariable(self.position_datasets[i].y, self.velocity_datasets[i].y, self.impact_intervals[i]))
+			self.z_demos.append(PositionDemoVariable(self.position_datasets[i].z, self.velocity_datasets[i].z, self.impact_intervals[i]))
 			
 		self.or_x_demos = []
 		self.or_y_demos = []
 		self.or_z_demos = []
 		
 		for i in range(len(self.orientation_datasets)):
-			self.or_x_demos.append(OrientationDemoVariable(orientation_datasets[i].x, impact_intervals[i]))
-			self.or_y_demos.append(OrientationDemoVariable(orientation_datasets[i].y, impact_intervals[i]))
-			self.or_z_demos.append(OrientationDemoVariable(orientation_datasets[i].z, impact_intervals[i]))
+			self.or_x_demos.append(OrientationDemoVariable(self.normalized_orientation_datasets[i].x, self.impact_intervals[i]))
+			self.or_y_demos.append(OrientationDemoVariable(self.normalized_orientation_datasets[i].y, self.impact_intervals[i]))
+			self.or_z_demos.append(OrientationDemoVariable(self.normalized_orientation_datasets[i].z, self.impact_intervals[i]))
 		
 		self.set_demo_start_end()
 		
@@ -60,11 +63,11 @@ class RobotDataSets(object):
 	def demos(self):
 		return self.position_demos + self.orientation_demos
 		
-	def set_demo_start_end(self):
+	def set_demo_start_end(self, time_of_impact_before_detecting=0):
 		# Determine starting time of extended phase
 		for phase in range(self.n_phases):
 			t_start = self.get_starting_time(phase)
-			t_end = self.get_ending_time(phase)
+			t_end = self.get_ending_time(phase) - time_of_impact_before_detecting
 			for demos in self.demos:
 				for demo in demos:
 					demo.set_phase_time(phase, t_start, t_end)
@@ -151,12 +154,14 @@ class RobotDataSets(object):
 			for orientation_demo in demos:
 				orientation_demo.filter_data(filter)
 			
-	def extend_position_data(self, extender):
+	def extend_position_data(self, extender, time_of_impact_before_detecting=0):
+		self.set_demo_start_end(time_of_impact_before_detecting)
 		for demos in self.position_demos:
 			for position_demo in demos:
 				position_demo.extend_data(extender)
 			
-	def extend_orientation_data(self, extender):
+	def extend_orientation_data(self, extender, time_of_impact_before_detecting=0):
+		self.set_demo_start_end(time_of_impact_before_detecting)
 		for demos in self.orientation_demos:
 			for orientation_demo in demos:
 				orientation_demo.extend_data(extender)

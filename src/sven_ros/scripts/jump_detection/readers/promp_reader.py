@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import json
+import numpy as np
 from datalib import *
 from models import *
 
@@ -9,7 +10,7 @@ class ProMPReader(object):
 
 	def __init__(self, prompfile, **kwargs):
 		self.prompfile = prompfile
-		self.promp_handles = self.read()
+		self.promp_handles, self.rotation_matrix = self.read()
 
 	def read(self):
 		f = open(self.prompfile,'r')
@@ -31,6 +32,6 @@ class ProMPReader(object):
 				promps.append(or_promp)
 			result.append(promps)
 		
-		return result
+		return result, np.array(data['rotation_matrix'])
 			
 		

@@ -1,103 +1,122 @@
 #!/usr/bin/python3
 
 from readers import *
-import matplotlib.pyplot as plt
-from datalib import *
-from filters import *
 from models import *
-import config.config_create_trajectory as config
-import config.config_evaluate_promps as config2
-import numpy as np
+from datalib import *
+import config.config_evaluate_promps as config
+import matplotlib.pyplot as plt
+from decimal import Decimal, ROUND_DOWN, ROUND_UP
 import time as t
+
+def round_up(number, step_size):
+	return float(Decimal(number).quantize(Decimal(str(step_size)), ROUND_UP))
+	
+def round_down(number, step_size):
+	return float(Decimal(number).quantize(Decimal(str(step_size)), ROUND_DOWN))
 
 start_time = t.time()
 
-position_datasets = []
-orientation_datasets = []
-velocity_datasets = []
-rotational_velocity_datasets = []
+print("Reading ProMP file")
 
-print("Reading demonstration data")
+promp_reader = ProMPReader(config.promp_file)
+robot_pose_evaluators = []
 
-for demo in config.demos:
-	franka_reader = FrankaStateReader(demo)
-
-	position_dataset = PositionDataSet()
-	orientation_dataset = PositionDataSet()
-	velocity_dataset = PositionDataSet()
-	rotational_velocity_dataset = PositionDataSet()
-
-	for i in range(len(franka_reader.msgs)):
-		dp = franka_reader.next_datapoint()
-		time = dp.time
-		dp = dp.value
-		
-		position_dataset.append(PositionDataPoint(time, dp.position))
-		orientation_dataset.append(PositionDataPoint(time, dp.euler_angles))
-		velocity_dataset.append(PositionDataPoint(time, dp.velocity))
-		rotational_velocity_dataset.append(PositionDataPoint(time, dp.rotational_velocity))
-		
-	position_dataset.align_time()
-	orientation_dataset.align_time()
-	velocity_dataset.align_time()
-	rotational_velocity_dataset.align_time()
-		
-	position_datasets.append(position_dataset)
-	orientation_datasets.append(orientation_dataset)
-	velocity_datasets.append(velocity_dataset)
-	rotational_velocity_datasets.append(rotational_velocity_dataset)
+# Read ProMPs
+for phase in range(len(promp_reader.promp_handles)):
+	position_promps = []
+	orientation_promps = []
 	
-datasets_handle = RobotDataSets(position_datasets, velocity_datasets, orientation_datasets, rotational_velocity_datasets, config.impact_intervals)
-
+	for i in range(3):
+		position_promps.append(promp_reader.promp_handles[phase][i])
+		orientation_promps.append(promp_reader.promp_handles[phase][i+3])
+		
+	robot_pose_evaluators.append(RobotPoseEvaluator(promp_reader.rotation_matrix, position_promps, orientation_promps))
+	
 print("--- %s seconds ---" % (t.time() - start_time))
-print("Filtering and extending demonstration data")
-
-datasets_handle.filter_position_data(config.position_filter)
-datasets_handle.filter_velocity_data(config.velocity_filter)
-datasets_handle.filter_orientation_data(config.orientation_filter)
-datasets_handle.extend_position_data(config.position_extender)
-datasets_handle.extend_orientation_data(config.orientation_extender)
-
+print("Evaluating ProMPs")
+	
+# Evaluate ProMPs
+datasets = []
+for phase in range(len(robot_pose_evaluators)):
+	datasets.append(DataSet())
+	
+	t_start = round_up(robot_pose_evaluators[phase].extended_starting_time, config.step_size)
+	t_end = round_down(robot_pose_evaluators[phase].extended_ending_time, config.step_size)
+	timerange = np.arange(t_start, t_end, config.step_size).tolist()
+	
+	for time in timerange:
+		
+		# Via points for phase
+		via_points = []
+		for i in range(len(config.via_points)):
+			via_points.append(DataSet())
+			for via_point in via_points[i]:
+				if via_point.time >= t_start and via_point.time <= t_end:
+					via_points[i].append(via_point)
+		
+		# position, velocity, orientation
+		datasets[phase].append(DataPoint(time, robot_pose_evaluators[phase].evaluate(time, via_points=via_points)))
+	
 print("--- %s seconds ---" % (t.time() - start_time))
-print("Creating ProMPs")
-
-position_promps = datasets_handle.create_position_promps(config.rbf_width, config.n_rbfs_per_second)
-orientation_promps = datasets_handle.create_orientation_promps(config.rbf_width, config.n_rbfs_per_second)
-
-print("--- %s seconds ---" % (t.time() - start_time))		
-
-# Save promps to file
-if config.write_mps:
-	print("Saving ProMPs to file")
-	# TODO
+	
+if config.write_evaluation:
+	print("Writing evaluation to file")	
+	
+	data = dict()
+	data['datasets'] = []
+	for dataset in datasets:
+		dataset_dict = dict()
+		dataset_dict['time'] = dataset.time
+		dataset_dict['position'] = dataset.get_index(0).value
+		dataset_dict['velocity'] = dataset.get_index(1).value
+		dataset_dict['orientation'] = dataset.get_index(2).value
+		data['datasets'].append(dataset_dict)
+		
+	with open(config.output_file, 'w', encoding='utf-8') as f:
+		json.dump(data, f, ensure_ascii=False, indent=4)
+		
 	print("--- %s seconds ---" % (t.time() - start_time))
+	
+if config.plot_figs:
+	print("Plotting figures")
+
+	for i in range(3):
+		plt.figure(figsize=config.figsize,dpi=config.dpi)
+		for phase in range(len(datasets)):
+			pos_data = datasets[phase].get_index(0).get_index(i)
+			plt.rcParams['xtick.labelsize'] = config.fontsize2
+			plt.rcParams['ytick.labelsize'] = config.fontsize2
+			plt.plot(pos_data.time, pos_data.value,'C' + str(phase) + '-*',linewidth=config.linewidth, markersize=config.markersize2,label='Phase ' + str(phase))
+		plt.legend(fontsize=config.fontsize2)
+		plt.title('Position ' + config.variable_labels[i],fontsize=config.fontsize1)
+		if config.xlim is not None:
+			plt.xlim(config.xlim)
+			
+		plt.figure(figsize=config.figsize,dpi=config.dpi)
+		for phase in range(len(datasets)):
+			vel_data = datasets[phase].get_index(1).get_index(i)
+			plt.rcParams['xtick.labelsize'] = config.fontsize2
+			plt.rcParams['ytick.labelsize'] = config.fontsize2
+			plt.plot(vel_data.time, vel_data.value,'C' + str(phase) + '-*',linewidth=config.linewidth, markersize=config.markersize2,label='Phase ' + str(phase))
+		plt.legend(fontsize=config.fontsize2)
+		plt.title('Velocity ' + config.variable_labels[i],fontsize=config.fontsize1)
+		if config.xlim is not None:
+			plt.xlim(config.xlim)
+			
+		plt.figure(figsize=config.figsize,dpi=config.dpi)
+		for phase in range(len(datasets)):
+			or_data = datasets[phase].get_index(2).get_index(i)
+			plt.rcParams['xtick.labelsize'] = config.fontsize2
+			plt.rcParams['ytick.labelsize'] = config.fontsize2
+			plt.plot(or_data.time, or_data.value,'C' + str(phase) + '-*',linewidth=config.linewidth, markersize=config.markersize2,label='Phase ' + str(phase))
+		plt.legend(fontsize=config.fontsize2)
+		plt.title('Position ' + config.variable_labels[i+3],fontsize=config.fontsize1)
+		if config.xlim is not None:
+			plt.xlim(config.xlim)
+	
+	print("--- %s seconds ---" % (t.time() - start_time))
+	
+	plt.show()
 
 print("Done")
-
-
-
-
-	
-#z_data = []
-#z_norm_data = []
-#for demo_data in datasets_handle.orientation_datasets:
-#	z_data.append(demo_data.x.copy())
-#for demo_data in datasets_handle.normalized_orientation_datasets:
-#	z_norm_data.append(demo_data.x.copy())
-#for i in range(len(z_data)):
-#	z_data[i].align_time(-z_data[i][config.impact_intervals[i][0][0]].time + z_data[0][config.impact_intervals[0][0][0]].time)
-#	z_norm_data[i].align_time(-z_norm_data[i][config.impact_intervals[i][0][0]].time + z_norm_data[0][config.impact_intervals[0][0][0]].time)
-#	
-#plt.figure(figsize=config2.figsize,dpi=config2.dpi)
-#for z in range(len(z_data)):
-#	data = z_data[z].diff()
-#	data2 = z_norm_data[z].diff()
-#	plt.rcParams['xtick.labelsize'] = config2.fontsize2
-#	plt.rcParams['ytick.labelsize'] = config2.fontsize2
-#	plt.plot(data.time, data.value,'C' + str(z+1) + '-*',linewidth=config2.linewidth, markersize=config2.markersize2,label='Data ' + str(z+1))
-#	plt.plot(data2.time, data2.value,'C' + str(z+4) + '-*',linewidth=config2.linewidth, markersize=config2.markersize2,label='Data2 ' + str(z+1))
-#plt.legend(fontsize=config2.fontsize2)
-#plt.title('Velocity',fontsize=config2.fontsize1)
-
-#plt.show()
 
