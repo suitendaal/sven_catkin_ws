@@ -46,6 +46,44 @@ demo10
 demo11
 -zelfde als demo1
 -schrift bovenop rubber tegels gelegd voor gladheid
+-prima impact
+
+demo12
+-zelfde als demo11
+-prima impact
+
+demo13
+-zelfde als demo11
+-dikke impact
+
+demo14
+-zelfde als demo11
+-lichte impact, volgens mij geen dubbele
+
+demo15
+-zelfde als demo11
+-prima impact
+
+demo16
+-zelfde als demo11
+-prima impact
+
+demo17
+-zelfde als demo11
+-prima impact
+
+demo18
+-zelfde als demo11
+-prima impact
+-schrift leek verplaatst voor demo, dus goed gelegd
+
+demo19
+-zelfde als demo11
+-prima impact
+
+demo20
+-zelfde als demo11
+-prima impact
 
 
 videos
@@ -58,4 +96,15 @@ videos
 7: demo7
 8: demo8
 9: demo9
+10: demo10
+11: demo11
+12: demo12
+13: demo13
+14: demo14
+15: demo15
+16: demo16
+17: demo17
+18: demo18
+19: demo19
+20: demo20
 

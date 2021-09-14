@@ -41,7 +41,7 @@ class VivePoseConverterNode(object):
 			
 	def vive_pose_callback(self, msg):
 	
-		if self.robot_offset is None or self.button_pressed:
+		if self.button_pressed or self.robot_offset is None:
 			return
 			
 		vive_pose = []
@@ -113,11 +113,15 @@ class VivePoseConverterNode(object):
 		if msg.buttons[1] == 1:
 			self.button_pressed = True
 			self.vive_offset = None
+			self.robot_offset = None
 		else:
 			self.button_pressed = False
 		
 	def robot_callback(self, msg):
-		if self.robot_offset is None or self.vive_offset is None:
+		if self.button_pressed:
+			return
+	
+		if self.robot_offset is None:
 			self.robot_offset = []
 			
 			# Position
