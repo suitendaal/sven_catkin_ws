@@ -184,8 +184,9 @@ void ImpactAwareCartesianImpedanceController::update(const ros::Time& time,
 
   // nullspace PD control with damping ratio = 1
   tau_nullspace << (Eigen::MatrixXd::Identity(7, 7) - jacobian.transpose() * jacobian_transpose_pinv) * (nullspace_stiffness_ * (q_d_nullspace_ - q) - (2.0 * sqrt(nullspace_stiffness_)) * dq);
+  Eigen::Matrix<double, 7, 1> tau_joint_limit = calculateJointLimit(q);
   // Desired torque
-  tau_d << tau_task + tau_nullspace + coriolis;
+  tau_d << tau_task + tau_nullspace + coriolis + tau_joint_limit;
   // Saturate torque rate to avoid discontinuities
   tau_d << saturateTorqueRate(tau_d, tau_J_d);
   for (size_t i = 0; i < 7; ++i) {
@@ -283,6 +284,27 @@ void ImpactAwareCartesianImpedanceController::equilibriumPoseCallback(const geom
   if (last_orientation_d_target.coeffs().dot(orientation_d_target_.coeffs()) < 0.0) {
     orientation_d_target_.coeffs() << -orientation_d_target_.coeffs();
   }
+}
+
+Eigen::Matrix<double, 7, 1> ImpactAwareCartesianImpedanceController::calculateJointLimit(const Eigen::Matrix<double, 7, 1>& q) {
+  // set joint limit in order to avoid to have to controller to go to joint limit
+  Eigen::Matrix<double, 7, 1> tau_joint_limit;
+  tau_joint_limit.setZero();                      
+  if (q(0) > 2.85)     { tau_joint_limit(0) = -2; } 
+  else if (q(0) < -2.85)    { tau_joint_limit(0) = +2; }
+  if (q(1) > 1.7)      { tau_joint_limit(1) = -2; }
+  else if (q(1) < -1.7)     { tau_joint_limit(1) = +2; }
+  if (q(2) > 2.85)     { tau_joint_limit(2) = -2; }
+  else if (q(2) < -2.85)    { tau_joint_limit(2) = +2; }
+  if (q(3) > -0.1)     { tau_joint_limit(3) = -2; }
+  else if (q(3) < -3.0)     { tau_joint_limit(3) = +2; }
+  if (q(4) > 2.85)     { tau_joint_limit(4) = -2; }
+  else if (q(4) < -2.85)    { tau_joint_limit(4) = +2; }
+  if (q(5) > 3.7)      { tau_joint_limit(5) = -2; }  
+  else if (q(5) < -0.1)     { tau_joint_limit(5) = +2; }
+  if (q(6) > 2.8)      { tau_joint_limit(6) = -2; }
+  else if (q(6) < -2.8)     { tau_joint_limit(6) = +2; }
+  return tau_joint_limit;
 }
 
 }  // namespace franka_custom_controllers

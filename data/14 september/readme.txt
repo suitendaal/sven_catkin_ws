@@ -85,6 +85,32 @@ demo20
 -zelfde als demo11
 -prima impact
 
+exec1
+-offline algoritme uitgevoerd met replay4.1, replay4.2, replay4.3 van 23 juli
+-het resultaat van de gecreerde promps met jump detector
+-PositionFeedback tijdens impact phase
+-stiffness in x,y,z naar 2000, 2000, 6000
+-rotational stiffness naar 30
+-langzame beweging, 1 impact gedetecteerd
+
+exec2
+-zelfde als exec1, maar nu met schrift op rubberen tegels
+
+exec3
+-zelfde als exec2, maar nu met FeedForward aks control mode tijdens impact
+-in het begin stond de vorige sven ros controller nog aan, dus begin van data moet worden weggehaald
+
+exec4
+-zelfde als exec2
+-offline algoritme uitgevoerd met demo2, demo4, demo5 van 6 september
+-stiffness in x,y,z naar 1000
+-impact_interval_threshold van 0.1s naar 0.2s gezet
+
+exec5
+-zelfde als exec4
+-FeedForward mode tijdens impact phase
+
+
 
 videos
 1: demo1
@@ -107,4 +133,9 @@ videos
 18: demo18
 19: demo19
 20: demo20
+21: exec1
+22: exec2
+23: exec3
+24: exec4
+25: exec5
 

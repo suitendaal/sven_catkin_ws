@@ -6,28 +6,28 @@ from trajectory import *
 ### Load data
 
 # Files with demonstrations
-demos = [
-	'data/replay4.1.bag',
-	'data/replay4.2.bag',
-	'data/replay4.3.bag'
-]
 #demos = [
-#	'data/demo2.bag',
-#	'data/demo4.bag',
-#	'data/demo5.bag'
+#	'data/replay4.1.bag',
+#	'data/replay4.2.bag',
+#	'data/replay4.3.bag'
 #]
+demos = [
+	'data/demo2.bag',
+	'data/demo4.bag',
+	'data/demo5.bag'
+]
 
 # Impact interval indices
-impact_intervals = [
-	[(1559,)],
-	[(1573,)],
-	[(1497,)]
-]
 #impact_intervals = [
-#	[(625, 630, 634, 643)],
-#	[(680, 684, 688, 693, 700)],
-#	[(851, 859, 872)]
+#	[(1559,)],
+#	[(1573,)],
+#	[(1497,)]
 #]
+impact_intervals = [
+	[(625, 630, 634, 643)],
+	[(680, 684, 688, 693, 700)],
+	[(851, 859, 872)]
+]
 	
 ### Trajectory settings
 
@@ -45,7 +45,7 @@ rotational_velocity_filter = None #LeastSquaresFilter(order=2, window_length=20)
 ## Extender
 position_extender = ConstantVelocityExtender(timesteps=100, delta_time=0.01)
 orientation_extender = ConstantExtender(timesteps=100, delta_time=0.01)
-time_of_impact_before_detecting = 0.2 # TODO: to be calculated based on demonstrations
+time_of_impact_before_detecting = 0 # TODO: to be calculated based on demonstrations
 
 ### Create reference output settings
 

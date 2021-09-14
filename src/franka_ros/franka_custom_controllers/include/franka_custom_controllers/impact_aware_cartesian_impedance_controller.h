@@ -78,6 +78,9 @@ class ImpactAwareCartesianImpedanceController : public controller_interface::Mul
   // Equilibrium pose subscriber
   ros::Subscriber sub_equilibrium_pose_;
   void equilibriumPoseCallback(const geometry_msgs::PoseStampedConstPtr& msg);
+  
+  // Calculate joint limiting torque
+  Eigen::Matrix<double, 7, 1> calculateJointLimit(const Eigen::Matrix<double, 7, 1>& q);
 };
 
 }  // namespace franka_custom_controllers
