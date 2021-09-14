@@ -19,6 +19,14 @@ class VivePoseConverterNode(object):
 		self.ylim = ylim
 		self.zlim = zlim
 		
+		# Time
+		self.rate = rospy.Rate(100)
+		
+		# Offsets
+		self.vive_offset = None
+		self.robot_offset = None
+		self.button_pressed = True
+		
 		# Publishers
 		self.pose_pub = rospy.Publisher('/equilibrium_pose', PoseStamped, queue_size=40)
 		self.orientation_pub = rospy.Publisher('/equilibrium_orientation', PointStamped, queue_size=40)
@@ -27,14 +35,6 @@ class VivePoseConverterNode(object):
 		self.vive_sub = rospy.Subscriber("/vive/pose1", PoseStamped, self.vive_pose_callback)
 		self.vive_button_sub = rospy.Subscriber("/vive/controller_LHR_FF6FDF46/joy", Joy, self.vive_button_callback)
 		self.robot_sub = rospy.Subscriber("/cartesian_pose", PoseStamped, self.robot_callback)
-		
-		# Time
-		self.rate = rospy.Rate(100)
-		
-		# Offsets
-		self.vive_offset = None
-		self.robot_offset = None
-		self.button_pressed = True
 		
 	def run(self):
 		rospy.spin()
@@ -117,7 +117,7 @@ class VivePoseConverterNode(object):
 			self.button_pressed = False
 		
 	def robot_callback(self, msg):
-		if self.robot_offset is None:
+		if self.robot_offset is None or self.vive_offset is None:
 			self.robot_offset = []
 			
 			# Position
