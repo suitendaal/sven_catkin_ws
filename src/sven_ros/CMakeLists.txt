@@ -59,3 +59,8 @@ catkin_install_python(PROGRAMS scripts/vive_pose_converter_node.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
+# Build vive pose converter node 2
+catkin_install_python(PROGRAMS scripts/vive_pose_converter_node2.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+

@@ -10,7 +10,7 @@
   <rosparam param="/vive_pose_converter/max_vel">1</rosparam>
   <rosparam param="/vive_pose_converter/scale_factor">1</rosparam>
 
-  <node name="vive_pose_converter_node" pkg="sven_ros" type="vive_pose_converter_node.py" output="screen" required="true">
+  <node name="vive_pose_converter_node" pkg="sven_ros" type="vive_pose_converter_node2.py" output="screen" required="true">
   	<remap from="/vive_pose_converter/pose" to="/equilibrium_pose"/>
   	<remap from="/vive/pose1" to="/vive/pose9"/>
   	<remap from="/vive/controller_LHR_FF6FDF46/joy" to="/vive/controller_LHR_ED090D53/joy"/>

@@ -9,6 +9,7 @@
 #include <iostream>
 #include "vive_ros/vr_interface.h"
 #include <geometry_msgs/PoseStamped.h>
+#include <string>
 
 using namespace std;
 
@@ -455,13 +456,14 @@ class VIVEPoseNode
     tf::TransformBroadcaster tf_broadcaster_;
     tf::TransformListener tf_listener_;
     ros::ServiceServer set_origin_server_;
-    ros::Publisher pose0_pub_;
-    ros::Publisher pose1_pub_;
-    ros::Publisher pose2_pub_;
-    ros::Publisher pose3_pub_;
-    ros::Publisher pose4_pub_;
-    ros::Publisher pose5_pub_;
-    ros::Publisher pose6_pub_;
+//    ros::Publisher pose0_pub_;
+//    ros::Publisher pose1_pub_;
+//    ros::Publisher pose2_pub_;
+//    ros::Publisher pose3_pub_;
+//    ros::Publisher pose4_pub_;
+//    ros::Publisher pose5_pub_;
+//    ros::Publisher pose6_pub_;
+    std::map<std::string, ros::Publisher> pose_pubs_map;
     std::map<std::string, ros::Publisher> button_states_pubs_map;
     ros::Subscriber feedback_sub_;
 
@@ -480,13 +482,13 @@ VIVEPoseNode::VIVEPoseNode(int rate)
   nh_.getParam("/vive/world_yaw", world_yaw_);
   ROS_INFO(" [VIVE] World offset: [%2.3f , %2.3f, %2.3f] %2.3f", world_offset_[0], world_offset_[1], world_offset_[2], world_yaw_);
   set_origin_server_ = nh_.advertiseService("/vive/set_origin", &VIVEPoseNode::setOriginCB, this);
-  pose0_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("/vive/pose0", 10);
-  pose1_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("/vive/pose1", 10);
-  pose2_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("/vive/pose2", 10);
-  pose3_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("/vive/pose3", 10);
-  pose4_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("/vive/pose4", 10);
-  pose5_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("/vive/pose5", 10);
-  pose6_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("/vive/pose6", 10);
+//  pose0_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("/vive/pose0", 10);
+//  pose1_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("/vive/pose1", 10);
+//  pose2_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("/vive/pose2", 10);
+//  pose3_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("/vive/pose3", 10);
+//  pose4_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("/vive/pose4", 10);
+//  pose5_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("/vive/pose5", 10);
+//  pose6_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("/vive/pose6", 10);
   feedback_sub_ = nh_.subscribe("/vive/set_feedback", 10, &VIVEPoseNode::set_feedback, this);
 
 #ifdef USE_IMAGE
@@ -674,156 +676,40 @@ void VIVEPoseNode::Run()
     tf_world.setRotation(quat_world);
 
     tf_broadcaster_.sendTransform(tf::StampedTransform(tf_world, ros::Time::now(), "world", "world_vive"));
-
+    
     // Publish pose messages for controller1 and controller2
     double position[3], quaternion[4];
-    if (vr_.GetDevicePose(0, position, quaternion))
+    
+    for (int i=0; i<vr::k_unMaxTrackedDeviceCount; i++)
     {
-        geometry_msgs::Pose pose_msg;
-        pose_msg.position.x = position[0];
-        pose_msg.position.y = position[1];
-        pose_msg.position.z = position[2];
-        pose_msg.orientation.w = quaternion[0];
-        pose_msg.orientation.x = quaternion[1];
-        pose_msg.orientation.y = quaternion[2];
-        pose_msg.orientation.z = quaternion[3];
+		if (vr_.GetDevicePose(i, position, quaternion))
+		{
+		    geometry_msgs::Pose pose_msg;
+		    pose_msg.position.x = position[0];
+		    pose_msg.position.y = position[1];
+		    pose_msg.position.z = position[2];
+		    pose_msg.orientation.w = quaternion[0];
+		    pose_msg.orientation.x = quaternion[1];
+		    pose_msg.orientation.y = quaternion[2];
+		    pose_msg.orientation.z = quaternion[3];
 
-        geometry_msgs::PoseStamped pose_msg_stamped;
-        pose_msg_stamped.header.stamp = ros::Time::now();
-        pose_msg_stamped.header.frame_id = "world_vive";
-        pose_msg_stamped.pose = pose_msg;
+		    geometry_msgs::PoseStamped pose_msg_stamped;
+		    pose_msg_stamped.header.stamp = ros::Time::now();
+		    pose_msg_stamped.header.frame_id = "world_vive";
+		    pose_msg_stamped.pose = pose_msg;
 
-        pose0_pub_.publish(pose_msg_stamped);
-     
-        // std::cout<<"HMD:";
-        // std::cout<<twist_msg_stamped;
-    }
-    if (vr_.GetDevicePose(1, position, quaternion))
-    {
-        geometry_msgs::Pose pose_msg;
-        pose_msg.position.x = position[0];
-        pose_msg.position.y = position[1];
-        pose_msg.position.z = position[2];
-        pose_msg.orientation.w = quaternion[0];
-        pose_msg.orientation.x = quaternion[1];
-        pose_msg.orientation.y = quaternion[2];
-        pose_msg.orientation.z = quaternion[3];
-
-        geometry_msgs::PoseStamped pose_msg_stamped;
-        pose_msg_stamped.header.stamp = ros::Time::now();
-        pose_msg_stamped.header.frame_id = "world_vive";
-        pose_msg_stamped.pose = pose_msg;
-
-        pose1_pub_.publish(pose_msg_stamped);
-     
-        // std::cout<<"Controller 1:";
-        // std::cout<<twist_msg_stamped;
-    }
-    if (vr_.GetDevicePose(2, position, quaternion))
-    {
-        geometry_msgs::Pose pose_msg;
-        pose_msg.position.x = position[0];
-        pose_msg.position.y = position[1];
-        pose_msg.position.z = position[2];
-        pose_msg.orientation.w = quaternion[0];
-        pose_msg.orientation.x = quaternion[1];
-        pose_msg.orientation.y = quaternion[2];
-        pose_msg.orientation.z = quaternion[3];
-
-        geometry_msgs::PoseStamped pose_msg_stamped;
-        pose_msg_stamped.header.stamp = ros::Time::now();
-        pose_msg_stamped.header.frame_id = "world_vive";
-        pose_msg_stamped.pose = pose_msg;
-
-        pose2_pub_.publish(pose_msg_stamped);
-     
-        // std::cout<<"Controller 2:";
-        // std::cout<<twist_msg_stamped;
-    }
-    if (vr_.GetDevicePose(3, position, quaternion))
-    {
-        geometry_msgs::Pose pose_msg;
-        pose_msg.position.x = position[0];
-        pose_msg.position.y = position[1];
-        pose_msg.position.z = position[2];
-        pose_msg.orientation.w = quaternion[0];
-        pose_msg.orientation.x = quaternion[1];
-        pose_msg.orientation.y = quaternion[2];
-        pose_msg.orientation.z = quaternion[3];
-
-        geometry_msgs::PoseStamped pose_msg_stamped;
-        pose_msg_stamped.header.stamp = ros::Time::now();
-        pose_msg_stamped.header.frame_id = "world_vive";
-        pose_msg_stamped.pose = pose_msg;
-
-        pose3_pub_.publish(pose_msg_stamped);
-     
-        // std::cout<<"Controller 3:";
-        // std::cout<<twist_msg_stamped;
-    }
-    if (vr_.GetDevicePose(4, position, quaternion))
-    {
-        geometry_msgs::Pose pose_msg;
-        pose_msg.position.x = position[0];
-        pose_msg.position.y = position[1];
-        pose_msg.position.z = position[2];
-        pose_msg.orientation.w = quaternion[0];
-        pose_msg.orientation.x = quaternion[1];
-        pose_msg.orientation.y = quaternion[2];
-        pose_msg.orientation.z = quaternion[3];
-
-        geometry_msgs::PoseStamped pose_msg_stamped;
-        pose_msg_stamped.header.stamp = ros::Time::now();
-        pose_msg_stamped.header.frame_id = "world_vive";
-        pose_msg_stamped.pose = pose_msg;
-
-        pose4_pub_.publish(pose_msg_stamped);
-     
-        // std::cout<<"Controller 4:";
-        // std::cout<<twist_msg_stamped;
-    }
-    if (vr_.GetDevicePose(5, position, quaternion))
-    {
-        geometry_msgs::Pose pose_msg;
-        pose_msg.position.x = position[0];
-        pose_msg.position.y = position[1];
-        pose_msg.position.z = position[2];
-        pose_msg.orientation.w = quaternion[0];
-        pose_msg.orientation.x = quaternion[1];
-        pose_msg.orientation.y = quaternion[2];
-        pose_msg.orientation.z = quaternion[3];
-
-        geometry_msgs::PoseStamped pose_msg_stamped;
-        pose_msg_stamped.header.stamp = ros::Time::now();
-        pose_msg_stamped.header.frame_id = "world_vive";
-        pose_msg_stamped.pose = pose_msg;
-
-        pose5_pub_.publish(pose_msg_stamped);
-     
-        // std::cout<<"Controller 4:";
-        // std::cout<<twist_msg_stamped;
-    }
-    if (vr_.GetDevicePose(6, position, quaternion))
-    {
-        geometry_msgs::Pose pose_msg;
-        pose_msg.position.x = position[0];
-        pose_msg.position.y = position[1];
-        pose_msg.position.z = position[2];
-        pose_msg.orientation.w = quaternion[0];
-        pose_msg.orientation.x = quaternion[1];
-        pose_msg.orientation.y = quaternion[2];
-        pose_msg.orientation.z = quaternion[3];
-
-        geometry_msgs::PoseStamped pose_msg_stamped;
-        pose_msg_stamped.header.stamp = ros::Time::now();
-        pose_msg_stamped.header.frame_id = "world_vive";
-        pose_msg_stamped.pose = pose_msg;
-
-        pose6_pub_.publish(pose_msg_stamped);
-     
-        // std::cout<<"Controller 4:";
-        // std::cout<<twist_msg_stamped;
-    }
+			std::string s = std::to_string(i);
+			if(pose_pubs_map.count(s) == 0){
+				pose_pubs_map[s] = nh_.advertise<geometry_msgs::PoseStamped>("/vive/pose"+s, 10);
+//		      button_states_pubs_map[i] = nh_.advertise<sensor_msgs::Joy>("/vive/controller_"+cur_sn+"/joy", 10);
+		    }
+		    pose_pubs_map[s].publish(pose_msg_stamped);
+//		    pose0_pub_.publish(pose_msg_stamped);
+		 
+		    // std::cout<<"HMD:";
+		    // std::cout<<twist_msg_stamped;
+		}
+	}
    
 #ifdef USE_IMAGE
     pMainApplication->HandleInput();

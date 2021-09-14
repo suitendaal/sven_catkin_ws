@@ -2,6 +2,7 @@
 
 import rospy
 import math
+import numpy as np
 from scipy.spatial.transform import Rotation
 from std_msgs.msg import Int32
 from geometry_msgs.msg import PoseStamped
@@ -41,29 +42,16 @@ class VivePoseConverterNode(object):
 			
 	def vive_pose_callback(self, msg):
 	
-		or_quat = []
-		or_quat.append(msg.pose.orientation.x)
-		or_quat.append(msg.pose.orientation.y)
-		or_quat.append(msg.pose.orientation.z)
-		or_quat.append(msg.pose.orientation.w)
-		rot = Rotation.from_quat(or_quat)
-		orientation = rot.as_euler('xyz')
-		msg_out2 = PointStamped()
-		msg_out2.header = msg.header
-		msg_out2.point.x = orientation[0]
-		msg_out2.point.y = orientation[1]
-		msg_out2.point.z = orientation[2]
-		self.orientation_pub.publish(msg_out2)
-	
 		if self.button_pressed or self.robot_offset is None:
 			return
 			
 		vive_pose = []
 		
 		# Position
-		vive_pose.append(msg.pose.position.z)# * math.cos(math.pi / 4) - msg.pose.position.x * math.sin(math.pi / 4))
-		vive_pose.append(msg.pose.position.x)# * math.cos(math.pi / 4) + msg.pose.position.z * math.sin(math.pi / 4))
-		vive_pose.append(msg.pose.position.y)
+		vive_pose.extend(convert_vive_position(np.array([msg.pose.position.x, msg.pose.position.y, msg.pose.position.z])).tolist())
+#		vive_pose.append(msg.pose.position.z)# * math.cos(math.pi / 4) - msg.pose.position.x * math.sin(math.pi / 4))
+#		vive_pose.append(msg.pose.position.x)# * math.cos(math.pi / 4) + msg.pose.position.z * math.sin(math.pi / 4))
+#		vive_pose.append(msg.pose.position.y)
 		
 		# Orientation
 		or_quat = []
@@ -72,23 +60,26 @@ class VivePoseConverterNode(object):
 		or_quat.append(msg.pose.orientation.z)
 		or_quat.append(msg.pose.orientation.w)
 		rot = Rotation.from_quat(or_quat)
-		orientation = rot.as_euler('zxy')
-		vive_pose.append(-orientation[0])
-		vive_pose.append(-orientation[1])
-		vive_pose.append(orientation[2])
+#		orientation = convert_vive_orientation(rot.as_matrix())
+		orientation = rot.as_matrix()
+		vive_pose.append(orientation)
 		
 		if self.vive_offset is None:
 			self.vive_offset = []
-			for i in vive_pose:
-				self.vive_offset.append(-i)
+			for i in range(3):
+				self.vive_offset.append(-vive_pose[i])
+			self.vive_offset.append(vive_pose[3].T)
 		else:
 			pose = []
 			
 			vive_diff_pose = []
 			for i in range(3):
 				vive_diff_pose.append((vive_pose[i] + self.vive_offset[i]) * self.vive_scale_factor)
-			for i in range(3,6):
-				vive_diff_pose.append(vive_pose[i] + self.vive_offset[i])
+			orientation_diff = Rotation.from_matrix(self.vive_offset[3].dot(vive_pose[3])).as_euler('zxy')
+			orientation_diff[0] *= -1
+			orientation_diff[1] *= -1
+			orientation_diff_matrix = Rotation.from_euler('xyz',orientation_diff).as_matrix()
+			vive_diff_pose.append(orientation_diff_matrix)
 			
 			if vive_diff_pose[0] < self.xlim[0] or vive_diff_pose[0] > self.xlim[-1]:
 				return
@@ -97,8 +88,19 @@ class VivePoseConverterNode(object):
 			if vive_diff_pose[2] < self.zlim[0] or vive_diff_pose[2] > self.zlim[-1]:
 				return
 				
-			for i in range(6):
+			## DEBUG
+			or_eul = Rotation.from_matrix(orientation_diff_matrix).as_euler('xyz')
+			msg_out2 = PointStamped()
+			msg_out2.header = msg.header
+			msg_out2.point.x = or_eul[0]
+			msg_out2.point.y = or_eul[1]
+			msg_out2.point.z = or_eul[2]
+			self.orientation_pub.publish(msg_out2)
+			##
+				
+			for i in range(3):
 				pose.append(vive_diff_pose[i] + self.robot_offset[i])
+			pose.append(vive_diff_pose[3].dot(self.robot_offset[3]))
 				
 			msg_out = PoseStamped()
 			msg_out.header = msg.header
@@ -106,19 +108,20 @@ class VivePoseConverterNode(object):
 			msg_out.pose.position.y = pose[1]
 			msg_out.pose.position.z = pose[2]
 			
-			or_eul = Rotation.from_euler('xyz',pose[3:6])
-			or_quat = or_eul.as_quat()
+			or_mat = Rotation.from_matrix(pose[3])
+			or_quat = or_mat.as_quat()
 			msg_out.pose.orientation.x = or_quat[0]
 			msg_out.pose.orientation.y = or_quat[1]
 			msg_out.pose.orientation.z = or_quat[2]
 			msg_out.pose.orientation.w = or_quat[3]
 			self.pose_pub.publish(msg_out)
-#			
+			
+#			or_eul = or_mat.as_euler('xyz')
 #			msg_out2 = PointStamped()
 #			msg_out2.header = msg_out.header
-#			msg_out2.point.x = pose[3]
-#			msg_out2.point.y = pose[4]
-#			msg_out2.point.z = pose[5]
+#			msg_out2.point.x = or_eul[0]
+#			msg_out2.point.y = or_eul[1]
+#			msg_out2.point.z = or_eul[2]
 #			self.orientation_pub.publish(msg_out2)
 			
 			
@@ -150,7 +153,23 @@ class VivePoseConverterNode(object):
 			or_quat.append(msg.pose.orientation.z)
 			or_quat.append(msg.pose.orientation.w)
 			rot = Rotation.from_quat(or_quat)
-			self.robot_offset.extend(rot.as_euler('xyz'))
+			self.robot_offset.append(rot.as_matrix())
+			
+def convert_vive_position(vector):
+	rotation_matrix = np.array([
+		[0, 0, 1],
+		[1, 0, 0],
+		[0, 1, 0]
+	])
+	return rotation_matrix.dot(vector)
+	
+def convert_vive_orientation(matrix):
+	rotation_matrix = np.array([
+		[1, 0, 0],
+		[0, 1, 0],
+		[0, 0, 1]
+	])
+	return rotation_matrix.dot(matrix)
 
 
 if __name__ == '__main__':
