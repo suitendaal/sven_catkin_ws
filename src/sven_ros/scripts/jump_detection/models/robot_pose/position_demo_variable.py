@@ -154,31 +154,32 @@ class PositionDemoVariable(OrientationDemoVariable):
 	def calculate_post_impact_velocity(self, phase, data, derivative_data):
 		if phase == 0:
 			return 0
-		ante_impact_velocity = self.get_extended_derivative(phase)[-1].value
-		print("hoi",ante_impact_velocity)
-		t_start = derivative_data[0].time
-		t_end = t_start + 0.200
-		data_to_analyze = DataSet()
-		for datapoint in derivative_data:
-			if datapoint.time < t_end:
-				data_to_analyze.append(datapoint.copy())
-		data_to_analyze.align_time()
-		func = lambda t, a, A, gamma, omega, phi : fitting_func(t, a, A, gamma, omega, phi, ante_impact_velocity)
+#		ante_impact_velocity = self.get_extended_derivative(phase-1)[-1].value
+#		print("hoi",ante_impact_velocity)
+#		t_start = derivative_data[0].time
+#		t_end = t_start + 0.200
+#		data_to_analyze = DataSet()
+#		for datapoint in derivative_data:
+#			if datapoint.time < t_end:
+#				data_to_analyze.append(datapoint.copy())
+#		data_to_analyze.align_time()
+#		func = lambda t, a, A, gamma, omega, phi : fitting_func(t, a, A, gamma, omega, phi, ante_impact_velocity)
 		
 #		x0 = [0,0,0,0,0]
-		popt, pcov = optimization.curve_fit(func, np.array(data_to_analyze.time), np.array(data_to_analyze.value))
-		
-		print(func([0], popt[0], popt[1], 0, 0, popt[4])[0], data_to_analyze[-1])
-		
-		values = func(np.array(data_to_analyze.time), popt[0], popt[1], popt[2], popt[3], popt[4])
+#		popt, pcov = optimization.curve_fit(func, np.array(data_to_analyze.time), np.array(data_to_analyze.value))
+#		
+#		print(func([0], popt[0], popt[1], 0, 0, popt[4])[0], data_to_analyze[-1])
+#		
+#		values = func(np.array(data_to_analyze.time), popt[0], popt[1], popt[2], popt[3], popt[4])
 #		for i in range(len(values)):
 #			values[i] -= math.cos(popt[4])
-		print(math.cos(popt[4]))
+#		print(math.cos(popt[4]))
 #		plt.plot(np.array(data_to_analyze.time), values)
 #		plt.plot(np.array(data_to_analyze.time), np.array(data_to_analyze.value))
-		plt.show()
+#		plt.show()
 		
-		return func([0], popt[0], popt[1], 0, 0, popt[4])[0]
+#		return func([0], popt[0], popt[1], 0, 0, popt[4])[0]
+		return derivative_data[0].value
 		
 	def calculate_ante_impact_velocity(self, phase, data, derivative_data):
 		return derivative_data[-1].value
