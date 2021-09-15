@@ -3,11 +3,8 @@
 from readers import *
 import matplotlib.pyplot as plt
 from datalib import *
-from filters import *
 from models import *
 import config.config_create_trajectory as config
-import config.config_evaluate_promps as config2
-import numpy as np
 import time as t
 
 start_time = t.time()
@@ -47,7 +44,11 @@ for demo in config.demos:
 	velocity_datasets.append(velocity_dataset)
 	rotational_velocity_datasets.append(rotational_velocity_dataset)
 	
-datasets_handle = RobotDataSets(position_datasets, velocity_datasets, orientation_datasets, rotational_velocity_datasets, config.impact_intervals)
+datasets_handle = RobotDataSets(position_datasets, velocity_datasets, orientation_datasets, rotational_velocity_datasets, config.impact_intervals, config.impact_detection_delay, config.impact_phase_duration)
+
+data = datasets_handle.z_demos[0].get_derivative_data(0)
+plt.plot(data.time, data.value)
+plt.show()
 
 print("--- %s seconds ---" % (t.time() - start_time))
 print("Filtering and extending demonstration data")
@@ -55,8 +56,8 @@ print("Filtering and extending demonstration data")
 datasets_handle.filter_position_data(config.position_filter)
 datasets_handle.filter_velocity_data(config.velocity_filter)
 datasets_handle.filter_orientation_data(config.orientation_filter)
-datasets_handle.extend_position_data(config.position_extender, config.time_of_impact_before_detecting)
-datasets_handle.extend_orientation_data(config.orientation_extender, config.time_of_impact_before_detecting)
+datasets_handle.extend_position_data(config.position_extender)
+datasets_handle.extend_orientation_data(config.orientation_extender)
 
 print("--- %s seconds ---" % (t.time() - start_time))
 print("Creating ProMPs")
@@ -90,31 +91,4 @@ if config.write_mps:
 	print("--- %s seconds ---" % (t.time() - start_time))
 
 print("Done")
-
-
-
-
-	
-#z_data = []
-#z_norm_data = []
-#for demo_data in datasets_handle.orientation_datasets:
-#	z_data.append(demo_data.x.copy())
-#for demo_data in datasets_handle.normalized_orientation_datasets:
-#	z_norm_data.append(demo_data.x.copy())
-#for i in range(len(z_data)):
-#	z_data[i].align_time(-z_data[i][config.impact_intervals[i][0][0]].time + z_data[0][config.impact_intervals[0][0][0]].time)
-#	z_norm_data[i].align_time(-z_norm_data[i][config.impact_intervals[i][0][0]].time + z_norm_data[0][config.impact_intervals[0][0][0]].time)
-#	
-#plt.figure(figsize=config2.figsize,dpi=config2.dpi)
-#for z in range(len(z_data)):
-#	data = z_data[z].diff()
-#	data2 = z_norm_data[z].diff()
-#	plt.rcParams['xtick.labelsize'] = config2.fontsize2
-#	plt.rcParams['ytick.labelsize'] = config2.fontsize2
-#	plt.plot(data.time, data.value,'C' + str(z+1) + '-*',linewidth=config2.linewidth, markersize=config2.markersize2,label='Data ' + str(z+1))
-#	plt.plot(data2.time, data2.value,'C' + str(z+4) + '-*',linewidth=config2.linewidth, markersize=config2.markersize2,label='Data2 ' + str(z+1))
-#plt.legend(fontsize=config2.fontsize2)
-#plt.title('Velocity',fontsize=config2.fontsize1)
-
-#plt.show()
 

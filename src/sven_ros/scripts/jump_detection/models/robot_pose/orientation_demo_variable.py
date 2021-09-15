@@ -3,11 +3,12 @@
 from datalib import *
 
 class OrientationDemoVariable(object):
-	def __init__(self, data, impact_intervals):
+	def __init__(self, data, impact_intervals, **kwargs):
 		self.data_ = data
 		self.impact_intervals_ = impact_intervals
-		self.filtered_data_ = None
 		self.extended_data_ = None
+		self.impact_detection_delay = kwargs.get('impact_detection_delay',0)
+		self.impact_phase_duration = kwargs.get('impact_phase_duration',0)
 		
 		# Real usable data for creating trajectory
 		self.real_times_ = []
@@ -44,9 +45,6 @@ class OrientationDemoVariable(object):
 	def get_ending_time(self, phase):
 		return self.get_data(phase)[-1].time
 		
-	def set_real_time(self, phase, t_start, t_end):
-		self.real_times_[phase] = [t_start, t_end]
-		
 	def set_phase_time(self, phase, t_start, t_end):
 		self.phase_times_[phase] = [t_start, t_end]
 		
@@ -82,27 +80,6 @@ class OrientationDemoVariable(object):
 		if len(self.extended_times_[phase]) > 0:
 			return self.extended_times_[phase][-1] - self.time_shift(phase)
 		return self.get_ending_time(phase)
-			
-	def filter_data(self, data_filter):
-		if data_filter is not None:
-			self.filtered_data_ = self.filter(self.data_, data_filter)
-		
-	def filter(self, data, data_filter):
-		result = DataSet()
-		
-		for phase in range(self.n_phases):
-			start = self.get_starting_index(phase)
-			end = self.get_ending_index(phase)
-			
-			data_filter.reset()
-			for i in range(start, end):
-				filtered_datapoint, coefs = data_filter.update(data[i])
-				result.append(filtered_datapoint)
-			if phase < self.n_phases - 1:
-				for i in range(self.impact_intervals_[phase][0], self.impact_intervals_[phase][-1] + 1):
-					result.append(data[i].copy())
-					
-		return result
 		
 	def extend_data(self, extender):
 		
@@ -125,34 +102,35 @@ class OrientationDemoVariable(object):
 			t_end = self.get_phase_ending_time(phase)
 	
 		# Get the data of the phase
-		data = self.get_filtered_data(phase).copy()
+		data = self.get_data(phase).copy()
+		
+		# Set extension settings
+		extend_before, extend_after = True, True
+		if phase == 0:
+			extend_before = False
+		if len(data) == 0 or phase == self.n_phases - 1:
+			extend_after = False
+		if extend_after:
+			ante_impact_velocity = self.calculate_ante_impact_velocity(phase)
+		if extend_before:
+			post_impact_velocity = self.calculate_post_impact_velocity(phase)
 		
 		# Deleted times before and after
 		deleted_before, deleted_after = self.remove_indices(data, t_start, t_end, phase)
 				
 		# Update real times
 		self.real_times_[phase] = [data[0].time + self.time_shift(phase), data[-1].time + self.time_shift(phase)]	
-		
-		extend_before, extend_after = True, True
-		if phase == 0:
-			extend_before = False
-		if len(data) == 0 or phase == self.n_phases - 1:
-			extend_after = False
 			
 		# Initialize extended data
 		extended_data = data.copy()
 		
 		# Extend data before
-		extension_velocity = 0
 		if extend_before:
-			extension_velocity = self.calculate_post_impact_velocity(phase, data)
-		extended_data = extender.extend(extended_data, velocity=extension_velocity, extend_before=extend_before, extended_times_before=deleted_before)
+			extended_data = extender.extend(extended_data, velocity=post_impact_velocity, extend_before=extend_before, extended_times_before=deleted_before)
 		
 		# Extend data after
-		extension_velocity = 0
 		if extend_after:
-			extension_velocity = self.calculate_ante_impact_velocity(phase, data)
-		extended_data = extender.extend(extended_data, velocity=extension_velocity, extend_after=extend_after, extended_times_after=deleted_after)
+			extended_data = extender.extend(extended_data, velocity=ante_impact_velocity, extend_after=extend_after, extended_times_after=deleted_after)
 		
 		self.extended_times_[phase] = [extended_data[0].time + self.time_shift(phase), extended_data[-1].time + self.time_shift(phase)]
 		
@@ -162,27 +140,11 @@ class OrientationDemoVariable(object):
 		deleted_times_before = []
 		deleted_times_after = []
 		
-		# Remove None indices
-		deleted_times_before.extend(self.remove_none_indices(data))
-			
 		# Remove indices out of time range
 		deleted_times_before.extend(self.remove_before(data, t_start, phase))
 		deleted_times_after.extend(self.remove_after(data, t_end, phase))
 			
 		return deleted_times_before, deleted_times_after
-		
-	def remove_none_indices(self, data):
-		deleted_before = []
-		
-		indices_to_remove = []
-		for i in range(len(data)):
-			if data[i].value is None:
-				indices_to_remove.insert(0,i)
-		for i in indices_to_remove:
-			deleted_before.append(data[i].time)
-			data.pop(i)
-		
-		return deleted_before
 		
 	def remove_before(self, data, t_start, phase):
 		deleted_before = []
@@ -215,13 +177,19 @@ class OrientationDemoVariable(object):
 	def get_starting_index(self, phase):
 		start = 0
 		if phase > 0:
-			start = self.impact_intervals_[phase-1][-1] + 1
+			start = self.get_ending_index(phase-1) + 1
+			impact_time = self.data_[start-1].time
+			while self.data_[start-1].time < impact_time + self.impact_phase_duration:
+				start += 1
 		return start
 	
 	def get_ending_index(self, phase):
 		end = len(self.data_)
 		if phase < len(self.impact_intervals_):
 			end = self.impact_intervals_[phase][0]
+			impact_time = self.data_[end].time
+			while self.data_[end].time > impact_time - self.impact_detection_delay:
+				end -= 1
 		return end
 		
 	def get_data(self, phase):
@@ -241,9 +209,9 @@ class OrientationDemoVariable(object):
 			return self.extended_data_[phase]
 		return self.get_filtered_data(phase)
 		
-	def calculate_post_impact_velocity(self, phase, data, derivative_data=None):
+	def calculate_post_impact_velocity(self, phase):
 		return 0
 		
-	def calculate_ante_impact_velocity(self, phase, data, derivative_data=None):
+	def calculate_ante_impact_velocity(self, phase):
 		return 0	
 		

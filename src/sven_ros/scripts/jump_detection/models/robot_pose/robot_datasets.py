@@ -9,7 +9,7 @@ from .orientation_demo_variable import *
 from models import ProMPHandler
 
 class RobotDataSets(object):
-	def __init__(self, position_datasets, velocity_datasets, orientation_datasets, rotational_velocity_datasets, impact_intervals, normalize_orientation=True):
+	def __init__(self, position_datasets, velocity_datasets, orientation_datasets, rotational_velocity_datasets, impact_intervals, impact_detection_delay=0, impact_phase_duration=0, normalize_orientation=True):
 		self.position_datasets = position_datasets
 		self.velocity_datasets = velocity_datasets
 		self.orientation_datasets = orientation_datasets
@@ -30,18 +30,18 @@ class RobotDataSets(object):
 		self.z_demos = []
 		
 		for i in range(len(self.position_datasets)):
-			self.x_demos.append(PositionDemoVariable(self.position_datasets[i].x, self.velocity_datasets[i].x, self.impact_intervals[i]))
-			self.y_demos.append(PositionDemoVariable(self.position_datasets[i].y, self.velocity_datasets[i].y, self.impact_intervals[i]))
-			self.z_demos.append(PositionDemoVariable(self.position_datasets[i].z, self.velocity_datasets[i].z, self.impact_intervals[i]))
+			self.x_demos.append(PositionDemoVariable(self.position_datasets[i].x, self.velocity_datasets[i].x, self.impact_intervals[i], impact_detection_delay=impact_detection_delay, impact_phase_duration=impact_phase_duration))
+			self.y_demos.append(PositionDemoVariable(self.position_datasets[i].y, self.velocity_datasets[i].y, self.impact_intervals[i], impact_detection_delay=impact_detection_delay, impact_phase_duration=impact_phase_duration))
+			self.z_demos.append(PositionDemoVariable(self.position_datasets[i].z, self.velocity_datasets[i].z, self.impact_intervals[i], impact_detection_delay=impact_detection_delay, impact_phase_duration=impact_phase_duration))
 			
 		self.or_x_demos = []
 		self.or_y_demos = []
 		self.or_z_demos = []
 		
 		for i in range(len(self.orientation_datasets)):
-			self.or_x_demos.append(OrientationDemoVariable(self.normalized_orientation_datasets[i].x, self.impact_intervals[i]))
-			self.or_y_demos.append(OrientationDemoVariable(self.normalized_orientation_datasets[i].y, self.impact_intervals[i]))
-			self.or_z_demos.append(OrientationDemoVariable(self.normalized_orientation_datasets[i].z, self.impact_intervals[i]))
+			self.or_x_demos.append(OrientationDemoVariable(self.normalized_orientation_datasets[i].x, self.impact_intervals[i], impact_detection_delay=impact_detection_delay, impact_phase_duration=impact_phase_duration))
+			self.or_y_demos.append(OrientationDemoVariable(self.normalized_orientation_datasets[i].y, self.impact_intervals[i], impact_detection_delay=impact_detection_delay, impact_phase_duration=impact_phase_duration))
+			self.or_z_demos.append(OrientationDemoVariable(self.normalized_orientation_datasets[i].z, self.impact_intervals[i], impact_detection_delay=impact_detection_delay, impact_phase_duration=impact_phase_duration))
 		
 		self.set_demo_start_end()
 		
@@ -63,15 +63,11 @@ class RobotDataSets(object):
 	def demos(self):
 		return self.position_demos + self.orientation_demos
 		
-	def set_demo_start_end(self, time_of_impact_before_detecting=0):
+	def set_demo_start_end(self, impact_detection_delay=0):
 		# Determine starting time of extended phase
 		for phase in range(self.n_phases):
 			t_start = self.get_starting_time(phase)
-#			if phase > 0:
-#				t_start -= time_of_impact_before_detecting
 			t_end = self.get_ending_time(phase)
-#			if phase < self.n_phases - 1 and self.n_phases > 1:
-#				t_end -= time_of_impact_before_detecting
 			for demos in self.demos:
 				for demo in demos:
 					demo.set_phase_time(phase, t_start, t_end)
@@ -144,28 +140,29 @@ class RobotDataSets(object):
 		return result
 		
 	def filter_position_data(self, filter):
-		for demos in self.position_demos:
-			for position_demo in demos:
-				position_demo.filter_data(filter)
+		return
+#		for demos in self.position_demos:
+#			for position_demo in demos:
+#				position_demo.filter_data(filter)
 			
 	def filter_velocity_data(self, filter):
-		for demos in self.position_demos:
-			for position_demo in demos:
-				position_demo.filter_derivative(filter)
+		return
+#		for demos in self.position_demos:
+#			for position_demo in demos:
+#				position_demo.filter_derivative(filter)
 	
 	def filter_orientation_data(self, filter):
-		for demos in self.orientation_demos:
-			for orientation_demo in demos:
-				orientation_demo.filter_data(filter)
+		return
+#		for demos in self.orientation_demos:
+#			for orientation_demo in demos:
+#				orientation_demo.filter_data(filter)
 			
-	def extend_position_data(self, extender, time_of_impact_before_detecting=0):
-		self.set_demo_start_end(time_of_impact_before_detecting)
+	def extend_position_data(self, extender):
 		for demos in self.position_demos:
 			for position_demo in demos:
 				position_demo.extend_data(extender)
 			
-	def extend_orientation_data(self, extender, time_of_impact_before_detecting=0):
-		self.set_demo_start_end(time_of_impact_before_detecting)
+	def extend_orientation_data(self, extender):
 		for demos in self.orientation_demos:
 			for orientation_demo in demos:
 				orientation_demo.extend_data(extender)
