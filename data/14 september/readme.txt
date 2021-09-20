@@ -1,6 +1,7 @@
 Vandaag staat in het teken van demonstraties doen met de HTC Vive controller.
 De eerste demonstraties zijn de gebruikelijke taak: de robot bumpt in een stapel van rubberen tegels en komt weer omhoog.
 Daarna worden er demonstraties gedaan waarbij de robot een doos een eindje moet duwen. Dit gebeurt op zo'n manier dat de robot aankomt met een impact. Hierbij zijn een vaste start en eindlocatie vastgestelt met tape op de tafel.
+Dit laatste niet aan toegekomen. Wel aan het testen van verschillende "control modes" tijdens de impact phase.
 
 demo1
 -stiffness x,y,z naar 1000

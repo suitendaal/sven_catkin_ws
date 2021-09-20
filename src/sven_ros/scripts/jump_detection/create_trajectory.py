@@ -46,10 +46,6 @@ for demo in config.demos:
 	
 datasets_handle = RobotDataSets(position_datasets, velocity_datasets, orientation_datasets, rotational_velocity_datasets, config.impact_intervals, config.impact_detection_delay, config.impact_phase_duration)
 
-data = datasets_handle.z_demos[0].get_derivative_data(0)
-plt.plot(data.time, data.value)
-plt.show()
-
 print("--- %s seconds ---" % (t.time() - start_time))
 print("Filtering and extending demonstration data")
 

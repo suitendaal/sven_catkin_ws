@@ -7,82 +7,57 @@ import config.config_evaluate_promps as config
 import config.config_create_trajectory as config2
 import matplotlib.pyplot as plt
 from decimal import Decimal, ROUND_DOWN, ROUND_UP
+import time as t
 
-# Initialize data arrays
-position_data = []
-orientation_data = []
-velocity_data = []
-rotational_velocity_data = []
+start_time = t.time()
+
+position_datasets = []
+orientation_datasets = []
+velocity_datasets = []
+rotational_velocity_datasets = []
 
 print("Reading demonstration data")
 
-# Read data of each demo
 for demo in config2.demos:
 	franka_reader = FrankaStateReader(demo)
 
-	position = []
-	orientation = []
-	velocity = []
-	rotational_velocity = []
-	for i in range(3):
-		position.append(DataSet())
-		orientation.append(DataSet())
-		velocity.append(DataSet())
-		rotational_velocity.append(DataSet())
+	position_dataset = PositionDataSet()
+	orientation_dataset = PositionDataSet()
+	velocity_dataset = PositionDataSet()
+	rotational_velocity_dataset = PositionDataSet()
 
 	for i in range(len(franka_reader.msgs)):
 		dp = franka_reader.next_datapoint()
 		time = dp.time
 		dp = dp.value
 		
-		for j in range(3):
-			position[j].append(DataPoint(time, dp.position[j]))
-			orientation[j].append(DataPoint(time, dp.euler_angles[j]))
-			velocity[j].append(DataPoint(time, dp.velocity[j]))
-			rotational_velocity[j].append(DataPoint(time, dp.rotational_velocity[j]))
+		position_dataset.append(PositionDataPoint(time, dp.position))
+		orientation_dataset.append(PositionDataPoint(time, dp.euler_angles))
+		velocity_dataset.append(PositionDataPoint(time, dp.velocity))
+		rotational_velocity_dataset.append(PositionDataPoint(time, dp.rotational_velocity))
 		
-	for i in range(3):
-		position[i].align_time()
-		orientation[i].align_time()
-		velocity[i].align_time()
-		rotational_velocity[i].align_time()
+	position_dataset.align_time()
+	orientation_dataset.align_time()
+	velocity_dataset.align_time()
+	rotational_velocity_dataset.align_time()
 		
-	position_data.append(position)
-	orientation_data.append(orientation)
-	velocity_data.append(velocity)
-	rotational_velocity_data.append(rotational_velocity)
+	position_datasets.append(position_dataset)
+	orientation_datasets.append(orientation_dataset)
+	velocity_datasets.append(velocity_dataset)
+	rotational_velocity_datasets.append(rotational_velocity_dataset)
 	
+datasets_handle = RobotDataSets(position_datasets, velocity_datasets, orientation_datasets, rotational_velocity_datasets, config2.impact_intervals, config2.impact_detection_delay, config2.impact_phase_duration)
+
+print("--- %s seconds ---" % (t.time() - start_time))
 print("Filtering and extending demonstration data")
 
-# Initialize robot variables
-position_variables = []
-orientation_variables = []
+datasets_handle.filter_position_data(config2.position_filter)
+datasets_handle.filter_velocity_data(config2.velocity_filter)
+datasets_handle.filter_orientation_data(config2.orientation_filter)
+datasets_handle.extend_position_data(config2.position_extender)
+datasets_handle.extend_orientation_data(config2.orientation_extender)
 
-# Filter and extend data
-for i in range(3):
-	position = []
-	orientation = []
-	velocity = []
-	rotational_velocity = []
-	
-	for j in range(len(config2.demos)):
-		position.append(position_data[j][i])
-		orientation.append(orientation_data[j][i])
-		velocity.append(velocity_data[j][i])
-		rotational_velocity.append(rotational_velocity_data[j][i])
-	
-	position_variable = RobotVariable(position, velocity, config2.impact_intervals)
-	position_variable.filter_data(config2.position_filter)
-	position_variable.filter_derivative(config2.velocity_filter)
-	position_variable.extend_data(config2.position_extender)
-	position_variables.append(position_variable)
-	
-	orientation_variable = RobotVariable(orientation, rotational_velocity, config2.impact_intervals)
-	orientation_variable.filter_data(config2.orientation_filter)
-	orientation_variable.filter_derivative(config2.rotational_velocity_filter)
-	orientation_variable.extend_data(config2.orientation_extender)
-	orientation_variables.append(orientation_variable)
-
+print("--- %s seconds ---" % (t.time() - start_time))
 print("Evaluating ProMPs")
 
 promp_reader = ProMPReader(config.promp_file)
@@ -101,6 +76,7 @@ for phase in range(len(promp_reader.promp_handles)):
 	z = promp_reader.promp_handles[phase][2]
 	t_start, t_end = z.get_extended_start_end()
 	t_start_phase, t_end_phase = z.get_phase_start_end()
+	print(t_start,t_end, t_start_phase, t_end_phase)
 	t_start = float(Decimal(t_start).quantize(Decimal(str(0.1)), ROUND_UP))
 	t_end = float(Decimal(t_end).quantize(Decimal(str(0.1)), ROUND_DOWN))
 	timerange = np.arange(t_start, t_end, config.step_size).tolist()
@@ -130,22 +106,21 @@ for phase in range(len(promp_reader.promp_handles)):
 	
 # Align data in time
 print("Align data in time")
-z_variable = position_variables[2]
 z_phases = []
 zd_phases = []
-for phase in range(z_variable.n_phases):
+for phase in range(datasets_handle.n_phases):
 	z_phase = []
 	zd_phase = []
-	for i in range(len(z_variable.demo_variables)):
-		extended_data = z_variable.demo_variables[i].get_extended_data(phase).copy()
-		extended_derivative_data = z_variable.demo_variables[i].get_extended_derivative(phase).copy()
+	for i in range(len(datasets_handle.z_demos)):
+		extended_data = datasets_handle.z_demos[i].get_extended_data(phase).copy()
+		extended_derivative_data = datasets_handle.z_demos[i].get_extended_derivative(phase).copy()
 		promp = promp_reader.promp_handles[phase][2]
 		t_start, t_end = promp.get_phase_start_end()
 		t_start_extended, t_end_extended = promp.get_extended_start_end()
 		if phase == 0:
 			# Align to impact at end of phase
 			time_alignment = t_end - (extended_data[-1].time - extended_data[0].time) + (t_end_extended - t_end)
-		elif phase == z_variable.n_phases - 1:
+		elif phase == datasets_handle.n_phases - 1:
 			# Align to impact at start of phase
 			time_alignment = t_start + (t_start_extended - t_start)
 		else:

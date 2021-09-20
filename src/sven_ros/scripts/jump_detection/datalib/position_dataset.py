@@ -61,7 +61,7 @@ class PositionDataSet(DataSet):
 		
 		result = self.data[index]
 		if isinstance(result, list):
-			res = DataSet()
+			res = PositionDataSet()
 			for i in result:
 				res.append(i)
 			return res

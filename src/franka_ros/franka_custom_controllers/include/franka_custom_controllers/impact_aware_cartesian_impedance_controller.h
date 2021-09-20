@@ -16,7 +16,7 @@
 #include <ros/time.h>
 #include <Eigen/Dense>
 
-#include <franka_example_controllers/compliance_paramConfig.h>
+#include <franka_custom_controllers/compliance_paramConfig.h>
 #include <franka_hw/franka_model_interface.h>
 #include <franka_hw/franka_state_interface.h>
 
@@ -25,7 +25,8 @@ namespace franka_custom_controllers {
 enum class ControlMode {
   default_control_mode = 0,
   position_feedback_only = 1,
-  feedforward_control = 2
+  feedforward_control = 2,
+  lowered_gains = 3,
 };
 
 class ImpactAwareCartesianImpedanceController : public controller_interface::MultiInterfaceController<
@@ -54,8 +55,10 @@ class ImpactAwareCartesianImpedanceController : public controller_interface::Mul
   const double delta_tau_max_{1.0};
   Eigen::Matrix<double, 6, 6> cartesian_stiffness_;
   Eigen::Matrix<double, 6, 6> cartesian_stiffness_target_;
+  Eigen::Matrix<double, 6, 6> cartesian_stiffness_impact_;
   Eigen::Matrix<double, 6, 6> cartesian_damping_;
   Eigen::Matrix<double, 6, 6> cartesian_damping_target_;
+  Eigen::Matrix<double, 6, 6> cartesian_damping_impact_;
   Eigen::Matrix<double, 7, 1> q_d_nullspace_;
   Eigen::Vector3d position_d_;
   Eigen::Quaterniond orientation_d_;
@@ -67,9 +70,9 @@ class ImpactAwareCartesianImpedanceController : public controller_interface::Mul
   unsigned int sequence_{0};
 
   // Dynamic stiffness reconfigure
-  std::unique_ptr<dynamic_reconfigure::Server<franka_example_controllers::compliance_paramConfig>> dynamic_server_compliance_param_;
+  std::unique_ptr<dynamic_reconfigure::Server<franka_custom_controllers::compliance_paramConfig>> dynamic_server_compliance_param_;
   ros::NodeHandle dynamic_reconfigure_compliance_param_node_;
-  void complianceParamCallback(franka_example_controllers::compliance_paramConfig& config, uint32_t level);
+  void complianceParamCallback(franka_custom_controllers::compliance_paramConfig& config, uint32_t level);
   
   // Mode subscriber
   ros::Subscriber sub_mode_;

@@ -18,6 +18,7 @@ class OrientationDemoVariable(object):
 		
 		# Times included extended trajectories
 		self.extended_times_ = []
+		
 		for phase in range(self.n_phases):
 			self.real_times_.append([])
 			self.phase_times_.append([])

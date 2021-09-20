@@ -32,13 +32,9 @@ add_message_files(FILES
 
 generate_messages(DEPENDENCIES std_msgs)
 
-#generate_dynamic_reconfigure_options(
-#  cfg/compliance_param.cfg
-#  cfg/desired_mass_param.cfg
-#  cfg/dual_arm_compliance_param.cfg
-#  cfg/teleop_param.cfg
-#  cfg/teleop_gripper_param.cfg
-#)
+generate_dynamic_reconfigure_options(
+  cfg/compliance_param.cfg
+)
 
 catkin_package(
   INCLUDE_DIRS include

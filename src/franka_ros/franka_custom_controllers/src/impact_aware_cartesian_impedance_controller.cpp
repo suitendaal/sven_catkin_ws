@@ -16,10 +16,6 @@
 namespace franka_custom_controllers {
 
 bool ImpactAwareCartesianImpedanceController::init(hardware_interface::RobotHW* robot_hw, ros::NodeHandle& node_handle) {
-  // Not used?
-  std::vector<double> cartesian_stiffness_vector;
-  std::vector<double> cartesian_damping_vector;
-
   // Equilibrium pose
   sub_equilibrium_pose_ = node_handle.subscribe("/equilibrium_pose", 20, &ImpactAwareCartesianImpedanceController::equilibriumPoseCallback, this, ros::TransportHints().reliable().tcpNoDelay());
   
@@ -87,7 +83,7 @@ bool ImpactAwareCartesianImpedanceController::init(hardware_interface::RobotHW* 
 
   dynamic_reconfigure_compliance_param_node_ = ros::NodeHandle("dynamic_reconfigure_compliance_param_node");
 
-  dynamic_server_compliance_param_ = std::make_unique<dynamic_reconfigure::Server<franka_example_controllers::compliance_paramConfig>>(dynamic_reconfigure_compliance_param_node_);
+  dynamic_server_compliance_param_ = std::make_unique<dynamic_reconfigure::Server<franka_custom_controllers::compliance_paramConfig>>(dynamic_reconfigure_compliance_param_node_);
   dynamic_server_compliance_param_->setCallback(boost::bind(&ImpactAwareCartesianImpedanceController::complianceParamCallback, this, _1, _2));
 
   position_d_.setZero();
@@ -102,6 +98,24 @@ bool ImpactAwareCartesianImpedanceController::init(hardware_interface::RobotHW* 
 }
 
 void ImpactAwareCartesianImpedanceController::starting(const ros::Time& /*time*/) {
+  // update parameters changed online either through dynamic reconfigure or through the interactive
+  // target by filtering
+  switch (control_mode) {
+  	case ControlMode::lowered_gains:
+  	  cartesian_stiffness_ = filter_params_ * cartesian_stiffness_impact_ + (1.0 - filter_params_) * cartesian_stiffness_;
+	  cartesian_damping_ = filter_params_ * cartesian_damping_impact_ + (1.0 - filter_params_) * cartesian_damping_;
+	  break;
+  	case ControlMode::default_control_mode:
+  	default:
+	  cartesian_stiffness_ = filter_params_ * cartesian_stiffness_target_ + (1.0 - filter_params_) * cartesian_stiffness_;
+	  cartesian_damping_ = filter_params_ * cartesian_damping_target_ + (1.0 - filter_params_) * cartesian_damping_;
+	  break;
+  }
+	  
+  nullspace_stiffness_ = filter_params_ * nullspace_stiffness_target_ + (1.0 - filter_params_) * nullspace_stiffness_;
+  position_d_ = filter_params_ * position_d_target_ + (1.0 - filter_params_) * position_d_;
+  orientation_d_ = orientation_d_.slerp(filter_params_, orientation_d_target_);
+
   // compute initial velocity with jacobian and set x_attractor and q_d_nullspace
   // to initial configuration
   franka::RobotState initial_state = state_handle_->getRobotState();
@@ -192,14 +206,6 @@ void ImpactAwareCartesianImpedanceController::update(const ros::Time& time,
   for (size_t i = 0; i < 7; ++i) {
     joint_handles_[i].setCommand(tau_d(i));
   }
-
-  // update parameters changed online either through dynamic reconfigure or through the interactive
-  // target by filtering
-  cartesian_stiffness_ = filter_params_ * cartesian_stiffness_target_ + (1.0 - filter_params_) * cartesian_stiffness_;
-  cartesian_damping_ = filter_params_ * cartesian_damping_target_ + (1.0 - filter_params_) * cartesian_damping_;
-  nullspace_stiffness_ = filter_params_ * nullspace_stiffness_target_ + (1.0 - filter_params_) * nullspace_stiffness_;
-  position_d_ = filter_params_ * position_d_target_ + (1.0 - filter_params_) * position_d_;
-  orientation_d_ = orientation_d_.slerp(filter_params_, orientation_d_target_);
   
   // Send control state message
   ImpactControlState msg;
@@ -251,7 +257,7 @@ Eigen::Matrix<double, 7, 1> ImpactAwareCartesianImpedanceController::saturateTor
 }
 
 void ImpactAwareCartesianImpedanceController::complianceParamCallback(
-    franka_example_controllers::compliance_paramConfig& config,
+    franka_custom_controllers::compliance_paramConfig& config,
     uint32_t /*level*/) {
   cartesian_stiffness_target_.setIdentity();
   cartesian_stiffness_target_(0, 0) = config.translational_stiffness_X;
@@ -271,6 +277,18 @@ void ImpactAwareCartesianImpedanceController::complianceParamCallback(
   cartesian_damping_target_.bottomRightCorner(3, 3)
       << 2.0 * sqrt(config.rotational_stiffness) * Eigen::Matrix3d::Identity();
   nullspace_stiffness_target_ = config.nullspace_stiffness;
+  
+  // Setup impact stiffness
+  cartesian_stiffness_impact_(0,0) = config.translational_impact_stiffness_X;
+  cartesian_stiffness_impact_(1,1) = config.translational_impact_stiffness_Y;
+  cartesian_stiffness_impact_(2,2) = config.translational_impact_stiffness_Z;
+  cartesian_stiffness_impact_.bottomRightCorner(3, 3)
+      << config.rotational_impact_stiffness * Eigen::Matrix3d::Identity();
+  cartesian_damping_impact_(0,0) = 2.0 * sqrt(config.translational_impact_stiffness_X);
+  cartesian_damping_impact_(1,1) = 2.0 * sqrt(config.translational_impact_stiffness_X);
+  cartesian_damping_impact_(2,2) = 2.0 * sqrt(config.translational_impact_stiffness_X);
+  cartesian_damping_impact_.bottomRightCorner(3, 3)
+      << 2.0 * sqrt(config.rotational_impact_stiffness) * Eigen::Matrix3d::Identity();
 }
 
 void ImpactAwareCartesianImpedanceController::modeCallback(const std_msgs::Int32ConstPtr& msg) {

@@ -121,7 +121,8 @@ class SvenRosControllerNode(object):
 			if time >= self.impact_interval[0]:
 				if self.last_jump_time is not None and self.last_jump_time >= self.impact_interval[0] and time - self.last_jump_time <= self.impact_interval_threshold:
 #					msg.data = ImpedanceControlMode.PositionFeedback
-					msg.data = ImpedanceControlMode.FeedForward
+#					msg.data = ImpedanceControlMode.FeedForward
+					msg.data = ImpedanceControlMode.LoweredGains
 
 		return msg
 		
@@ -130,11 +131,11 @@ class SvenRosControllerNode(object):
 					
 			# Time has past impact interval
 			if time > self.impact_interval[-1]:
-				rospy.logwarn("Time of impact interval reached.")
+				rospy.logwarn("Time {} of impact interval reached.".format(time))
 				self.current_phase += 1
 			elif time >= self.impact_interval[0]:
 				if self.last_jump_time is not None and self.last_jump_time >= self.impact_interval[0] and time - self.last_jump_time > self.impact_interval_threshold:
-					rospy.loginfo("Last impact of simultaneous impact interval detected.")
+					rospy.loginfo("Last impact of simultaneous impact interval at time {} detected.".format(time))
 					self.current_phase += 1
 		
 	def jump_detector_callback(self, msg):
