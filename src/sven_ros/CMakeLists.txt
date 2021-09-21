@@ -50,17 +50,22 @@ target_link_libraries(external_force_jump_detector_node ${catkin_LIBRARIES})
 add_dependencies(external_force_jump_detector_node sven_ros_generate_messages_cpp)
 
 # Build sven ros controller node
-catkin_install_python(PROGRAMS scripts/sven_ros_controller_node.py
+catkin_install_python(PROGRAMS scripts/nodes/sven_ros_controller_node.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+# Build baseline controller node
+catkin_install_python(PROGRAMS scripts/nodes/baseline_controller_node.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
 # Build vive pose converter node
-catkin_install_python(PROGRAMS scripts/vive_pose_converter_node.py
+catkin_install_python(PROGRAMS scripts/nodes/vive_pose_converter_node.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
 # Build vive pose converter node 2
-catkin_install_python(PROGRAMS scripts/vive_pose_converter_node2.py
+catkin_install_python(PROGRAMS scripts/nodes/vive_pose_converter_node2.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

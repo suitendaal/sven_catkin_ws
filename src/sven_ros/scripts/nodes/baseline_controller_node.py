@@ -10,10 +10,10 @@ from geometry_msgs.msg import PoseStamped, Point
 from sven_ros.msg import BoolStamped
 from sven_ros import ImpedanceControlMode
 
-class SvenRosControllerNode(object):
-	def __init__(self, reference_trajectory_file, impact_interval_threshold=0.2, initialized=False):
+class BaselineControllerNode(object):
+	def __init__(self, reference_trajectory_file, initialized=False):
 		if not initialized:
-			rospy.init_node('sven_ros_controller', anonymous=True)
+			rospy.init_node('baseline_controller', anonymous=True)
 		self.reference_trajectory_file = reference_trajectory_file
 		self.phases = self.read_reference_trajectory()
 		
@@ -24,17 +24,13 @@ class SvenRosControllerNode(object):
 		self.orientation_pub = rospy.Publisher('/orientation', Point, queue_size=40)
 		##
 		
-		# Subscribers
-		self.jump_detector_sub = rospy.Subscriber("/sven_ros/jump_detector", BoolStamped, self.jump_detector_callback)
-		
 		# Time
 		self.rate = rospy.Rate(100)
 		self.starting_time = 0
 		
 		# Phase
-		self.impact_interval_threshold = impact_interval_threshold
-		self.last_jump_time = None
 		self.current_phase = 0
+		self.trajectory_ended = False
 		
 	@property
 	def impact_interval(self):
@@ -93,10 +89,15 @@ class SvenRosControllerNode(object):
 			time = rospy.get_time() - self.starting_time
 			self.update_phase(time)
 			
-			self.mode_pub.publish(self.get_mode_msg(time))
+			if not self.trajectory_ended:
+				self.mode_pub.publish(self.get_mode_msg(time))
 			
-			if time >= self.time_interval[0] and time <= self.time_interval[-1]:
+			if time >= self.time_interval[0] and not self.trajectory_ended:
 				self.pose_pub.publish(self.get_pose_msg(time))
+				
+			if time > self.time_interval[-1] and not self.trajectory_ended:
+				self.trajectory_ended = True
+				rospy.loginfo("Trajectory ended at time {}.".format(time))
 			
 			self.rate.sleep()
 			
@@ -116,39 +117,21 @@ class SvenRosControllerNode(object):
 	def get_mode_msg(self, time):
 		msg = Int32()
 		msg.data = ImpedanceControlMode.Default
-		
-		if self.impact_interval is not None:
-			if time >= self.impact_interval[0]:
-				if self.last_jump_time is not None and self.last_jump_time >= self.impact_interval[0] and time - self.last_jump_time <= self.impact_interval_threshold:
-#					msg.data = ImpedanceControlMode.PositionFeedback
-#					msg.data = ImpedanceControlMode.FeedForward
-					msg.data = ImpedanceControlMode.LoweredGains
 
 		return msg
 		
 	def update_phase(self, time):
 		if self.impact_interval is not None:
-					
-			# Time has past impact interval
-			if time > self.impact_interval[-1]:
-				rospy.logwarn("Time {} of impact interval reached.".format(time))
+			
+			# In the middle of 'impact interval'
+			if time > (self.impact_interval[0] + self.impact_interval[-1]) / 2:
+				rospy.loginfo("Switching to next phase at time {}.".format(time))
 				self.current_phase += 1
-			elif time >= self.impact_interval[0]:
-				if self.last_jump_time is not None and self.last_jump_time >= self.impact_interval[0] and time - self.last_jump_time > self.impact_interval_threshold:
-					rospy.loginfo("Last impact of simultaneous impact interval at time {} detected.".format(time))
-					self.current_phase += 1
-		
-	def jump_detector_callback(self, msg):
-		if msg.data:
-			rospy.loginfo("Jump detected")
-			time = msg.header.stamp.to_sec() - self.starting_time
-			if self.last_jump_time is None or time > self.last_jump_time:
-				self.last_jump_time = time
 
 
 if __name__ == '__main__':
 
-	rospy.init_node('sven_ros_controller', anonymous=True)
+	rospy.init_node('baseline_controller', anonymous=True)
 	trajectory_file = rospy.get_param('~trajectory_file')
 	
 	rospack = rospkg.RosPack()
@@ -157,7 +140,7 @@ if __name__ == '__main__':
 	print("Filename:",filename)
 	
 	try:
-		node = SvenRosControllerNode(filename)
+		node = BaselineControllerNode(filename)
 		node.run()
 	except rospy.ROSInterruptException:
 		pass
