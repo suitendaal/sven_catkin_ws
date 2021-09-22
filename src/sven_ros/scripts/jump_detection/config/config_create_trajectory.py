@@ -11,10 +11,18 @@ from trajectory import *
 #	'data/replay4.2.bag',
 #	'data/replay4.3.bag'
 #]
+#demos = [
+#	'data/demo2.bag',
+#	'data/demo4.bag',
+#	'data/demo5.bag'
+#]
 demos = [
-	'data/demo2.bag',
-	'data/demo4.bag',
-	'data/demo5.bag'
+	'data/demo10.bag',
+	'data/demo11.bag',
+	'data/demo12.bag',
+	'data/demo13.bag',
+	'data/demo14.bag',
+	'data/demo15.bag'
 ]
 
 # Impact interval indices
@@ -23,10 +31,18 @@ demos = [
 #	[(1573,)],
 #	[(1497,)]
 #]
+#impact_intervals = [
+#	[(625, 630, 634, 643)],
+#	[(680, 684, 688, 693, 700)],
+#	[(851, 859, 872)]
+#]
 impact_intervals = [
-	[(625, 630, 634, 643)],
-	[(680, 684, 688, 693, 700)],
-	[(851, 859, 872)]
+	[(409, 416, 435)],
+	[(463, 469, 487)],
+	[(303, 310)],
+	[(452, 459)],
+	[(315, 322)],
+	[(449, 457, 480)]
 ]
 	
 ### Trajectory settings
@@ -45,7 +61,7 @@ rotational_velocity_filter = None #LeastSquaresFilter(order=2, window_length=20)
 ## Extender
 position_extender = ConstantVelocityExtender(timesteps=400, delta_time=0.005)
 orientation_extender = ConstantExtender(timesteps=400, delta_time=0.005)
-impact_detection_delay = 0.012# 0.1 # TODO: to be calculated based on demonstrations
+impact_detection_delay = 0.03# 0.1 # TODO: to be calculated based on demonstrations
 impact_phase_duration = 0.25# 0.06
 
 ### Create reference output settings

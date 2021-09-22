@@ -11,6 +11,5 @@ fontsize1 = 20
 fontsize2 = 16
 # Full trajectory
 #xlim = None
-xlim = [(3,4)]
 labels = ['X','Y','Z']
 

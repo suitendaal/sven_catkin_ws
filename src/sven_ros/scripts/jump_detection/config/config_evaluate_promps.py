@@ -32,6 +32,7 @@ via_points = [
 
 step_size = 0.02
 plot_figs = True
+xlim = None
 
 # Output filename
 write_evaluation = True

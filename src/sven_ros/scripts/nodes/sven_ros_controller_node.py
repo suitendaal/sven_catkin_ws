@@ -11,7 +11,7 @@ from sven_ros.msg import BoolStamped
 from sven_ros import ImpedanceControlMode
 
 class SvenRosControllerNode(object):
-	def __init__(self, reference_trajectory_file, impact_interval_threshold=0.2, initialized=False):
+	def __init__(self, reference_trajectory_file, impact_interval_threshold=0.1, initialized=False):
 		if not initialized:
 			rospy.init_node('sven_ros_controller', anonymous=True)
 		self.reference_trajectory_file = reference_trajectory_file
@@ -127,8 +127,8 @@ class SvenRosControllerNode(object):
 			if time >= self.impact_interval[0]:
 				if self.last_jump_time is not None and self.last_jump_time >= self.impact_interval[0] and time - self.last_jump_time <= self.impact_interval_threshold:
 #					msg.data = ImpedanceControlMode.PositionFeedback
-#					msg.data = ImpedanceControlMode.FeedForward
-					msg.data = ImpedanceControlMode.LoweredGains
+					msg.data = ImpedanceControlMode.FeedForward
+#					msg.data = ImpedanceControlMode.LoweredGains
 #					msg.data = ImpedanceControlMode.LoweredGainsPositionFeedback
 
 		return msg

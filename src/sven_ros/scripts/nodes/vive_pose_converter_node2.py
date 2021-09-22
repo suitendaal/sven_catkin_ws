@@ -161,7 +161,13 @@ def convert_vive_position(vector):
 		[1, 0, 0],
 		[0, 1, 0]
 	])
-	return rotation_matrix.dot(vector)
+	yaw = math.pi/4
+	rotation_matrix2 = np.array([
+		[math.cos(yaw), -math.sin(yaw), 0],
+		[math.sin(yaw), math.cos(yaw), 0],
+		[0, 0, 1]
+	])
+	return rotation_matrix2.dot(rotation_matrix.dot(vector))
 	
 def convert_vive_orientation(matrix):
 	rotation_matrix = np.array([
@@ -169,6 +175,13 @@ def convert_vive_orientation(matrix):
 		[0, 1, 0],
 		[0, 0, 1]
 	])
+	yaw = math.pi/4
+	rotation_matrix2 = np.array([
+		[math.cos(yaw), -math.sin(yaw), 0],
+		[math.sin(yaw), math.cos(yaw), 0],
+		[0, 0, 1]
+	])
+	return rotation_matrix2.dot(rotation_matrix.dot(vector))
 	return rotation_matrix.dot(matrix)
 
 
