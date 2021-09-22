@@ -129,6 +129,7 @@ class SvenRosControllerNode(object):
 #					msg.data = ImpedanceControlMode.PositionFeedback
 #					msg.data = ImpedanceControlMode.FeedForward
 					msg.data = ImpedanceControlMode.LoweredGains
+#					msg.data = ImpedanceControlMode.LoweredGainsPositionFeedback
 
 		return msg
 		

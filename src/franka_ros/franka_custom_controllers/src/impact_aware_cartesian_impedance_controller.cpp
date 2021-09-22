@@ -98,24 +98,6 @@ bool ImpactAwareCartesianImpedanceController::init(hardware_interface::RobotHW* 
 }
 
 void ImpactAwareCartesianImpedanceController::starting(const ros::Time& /*time*/) {
-  // update parameters changed online either through dynamic reconfigure or through the interactive
-  // target by filtering
-  switch (control_mode) {
-  	case ControlMode::lowered_gains:
-  	  cartesian_stiffness_ = filter_params_ * cartesian_stiffness_impact_ + (1.0 - filter_params_) * cartesian_stiffness_;
-	  cartesian_damping_ = filter_params_ * cartesian_damping_impact_ + (1.0 - filter_params_) * cartesian_damping_;
-	  break;
-  	case ControlMode::default_control_mode:
-  	default:
-	  cartesian_stiffness_ = filter_params_ * cartesian_stiffness_target_ + (1.0 - filter_params_) * cartesian_stiffness_;
-	  cartesian_damping_ = filter_params_ * cartesian_damping_target_ + (1.0 - filter_params_) * cartesian_damping_;
-	  break;
-  }
-	  
-  nullspace_stiffness_ = filter_params_ * nullspace_stiffness_target_ + (1.0 - filter_params_) * nullspace_stiffness_;
-  position_d_ = filter_params_ * position_d_target_ + (1.0 - filter_params_) * position_d_;
-  orientation_d_ = orientation_d_.slerp(filter_params_, orientation_d_target_);
-
   // compute initial velocity with jacobian and set x_attractor and q_d_nullspace
   // to initial configuration
   franka::RobotState initial_state = state_handle_->getRobotState();
@@ -138,6 +120,25 @@ void ImpactAwareCartesianImpedanceController::starting(const ros::Time& /*time*/
 
 void ImpactAwareCartesianImpedanceController::update(const ros::Time& time,
                                                  const ros::Duration& /*period*/) {
+  // update parameters changed online either through dynamic reconfigure or through the interactive
+  // target by filtering
+  switch (control_mode) {
+    case ControlMode::lowered_gains:
+    case ControlMode::lowered_gains_position_feedback:
+      cartesian_stiffness_ = filter_params_ * cartesian_stiffness_impact_ + (1.0 - filter_params_) * cartesian_stiffness_;
+      cartesian_damping_ = filter_params_ * cartesian_damping_impact_ + (1.0 - filter_params_) * cartesian_damping_;
+      break;
+    case ControlMode::default_control_mode:
+    default:
+      cartesian_stiffness_ = filter_params_ * cartesian_stiffness_target_ + (1.0 - filter_params_) * cartesian_stiffness_;
+      cartesian_damping_ = filter_params_ * cartesian_damping_target_ + (1.0 - filter_params_) * cartesian_damping_;
+      break;
+  }
+    
+  nullspace_stiffness_ = filter_params_ * nullspace_stiffness_target_ + (1.0 - filter_params_) * nullspace_stiffness_;
+  position_d_ = filter_params_ * position_d_target_ + (1.0 - filter_params_) * position_d_;
+  orientation_d_ = orientation_d_.slerp(filter_params_, orientation_d_target_);
+
   // get state variables
   franka::RobotState robot_state = state_handle_->getRobotState();
   std::array<double, 7> coriolis_array = model_handle_->getCoriolis();
@@ -185,6 +186,7 @@ void ImpactAwareCartesianImpedanceController::update(const ros::Time& time,
   // Cartesian PD control with damping ratio = 1
   switch (control_mode) {
   	case ControlMode::position_feedback_only:
+    case ControlMode::lowered_gains_position_feedback:
   	  tau_task << jacobian.transpose() * (-cartesian_stiffness_ * error);
   	  break;
   	case ControlMode::feedforward_control:

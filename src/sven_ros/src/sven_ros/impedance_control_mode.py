@@ -4,5 +4,6 @@ class ImpedanceControlMode(IntEnum):
 	Default = 0,
 	PositionFeedback = 1,
 	FeedForward = 2,
-	LoweredGains = 3
+	LoweredGains = 3,
+	LoweredGainsPositionFeedback = 4
 

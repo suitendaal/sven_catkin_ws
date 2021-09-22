@@ -27,6 +27,7 @@ enum class ControlMode {
   position_feedback_only = 1,
   feedforward_control = 2,
   lowered_gains = 3,
+  lowered_gains_position_feedback = 4,
 };
 
 class ImpactAwareCartesianImpedanceController : public controller_interface::MultiInterfaceController<
