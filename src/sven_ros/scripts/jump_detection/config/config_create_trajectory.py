@@ -11,19 +11,19 @@ from trajectory import *
 #	'data/replay4.2.bag',
 #	'data/replay4.3.bag'
 #]
-#demos = [
-#	'data/demo2.bag',
-#	'data/demo4.bag',
-#	'data/demo5.bag'
-#]
 demos = [
-	'data/demo10.bag',
-	'data/demo11.bag',
-	'data/demo12.bag',
-	'data/demo13.bag',
-	'data/demo14.bag',
-	'data/demo15.bag'
+	'data/demo2.bag',
+	'data/demo4.bag',
+	'data/demo5.bag'
 ]
+#demos = [
+#	'data/demo10.bag',
+#	'data/demo11.bag',
+#	'data/demo12.bag',
+#	'data/demo13.bag',
+#	'data/demo14.bag',
+#	'data/demo15.bag'
+#]
 
 # Impact interval indices
 #impact_intervals = [
@@ -31,19 +31,19 @@ demos = [
 #	[(1573,)],
 #	[(1497,)]
 #]
-#impact_intervals = [
-#	[(625, 630, 634, 643)],
-#	[(680, 684, 688, 693, 700)],
-#	[(851, 859, 872)]
-#]
 impact_intervals = [
-	[(409, 416, 435)],
-	[(463, 469, 487)],
-	[(303, 310)],
-	[(452, 459)],
-	[(315, 322)],
-	[(449, 457, 480)]
+	[(625, 630, 634, 643)],
+	[(680, 684, 688, 693, 700)],
+	[(851, 859, 872)]
 ]
+#impact_intervals = [
+#	[(409, 416, 435)],
+#	[(463, 469, 487)],
+#	[(303, 310)],
+#	[(452, 459)],
+#	[(315, 322)],
+#	[(449, 457, 480)]
+#]
 	
 ### Trajectory settings
 
@@ -67,6 +67,8 @@ impact_phase_duration = 0.25# 0.06
 ### Create reference output settings
 
 ## Figure settings
+xlim = None
+xlim = [(3,4)]
 #figsize = (16, 12)
 #dpi = 80
 #linewidth = 1

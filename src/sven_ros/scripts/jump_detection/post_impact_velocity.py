@@ -125,8 +125,8 @@ plt.legend(fontsize=config2.fontsize2)
 plt.xlabel('Time [s]',fontsize=config2.fontsize2)
 plt.ylabel('Position [m]',fontsize=config2.fontsize2)
 plt.title('Z Position',fontsize=config2.fontsize1)
-if config2.xlim is not None:
-	plt.xlim(config2.xlim[demo_to_analyze])
+if config.xlim is not None:
+	plt.xlim(config.xlim[demo_to_analyze])
 	
 plt.figure(figsize=config2.figsize,dpi=config2.dpi)
 plt.rcParams['xtick.labelsize'] = config2.fontsize2
@@ -139,8 +139,8 @@ plt.legend(fontsize=config2.fontsize2)
 plt.xlabel('Time [s]',fontsize=config2.fontsize2)
 plt.ylabel('Velocity [m/s]',fontsize=config2.fontsize2)
 plt.title('Z Velocity',fontsize=config2.fontsize1)
-if config2.xlim is not None:
-	plt.xlim(config2.xlim[demo_to_analyze])
+if config.xlim is not None:
+	plt.xlim(config.xlim[demo_to_analyze])
 	
 plt.figure(figsize=config2.figsize,dpi=config2.dpi)
 plt.rcParams['xtick.labelsize'] = config2.fontsize2

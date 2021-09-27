@@ -85,7 +85,7 @@ for i in range(len(config.demos)):
 		plt.plot(force_ext[i].time, force_ext[i].value, 'C1-*', linewidth=config.linewidth, markersize=config.markersize2, label='External force')
 		
 		# Adding title and labels
-		plt.title('External force magnitude data and predictions',fontsize=config.fontsize1)
+		plt.title('External force magnitude data and predictions ' + demo,fontsize=config.fontsize1)
 		plt.xlabel('Time [s]',fontsize=config.fontsize2)
 		plt.ylabel('Force [N]',fontsize=config.fontsize2)
 		plt.legend(fontsize=config.fontsize2)
@@ -118,7 +118,7 @@ for i in range(len(config.demos)):
 		plt.plot(bounds[i].time, bounds[i].value, 'C1-*', linewidth=config.linewidth, markersize=config.markersize2, label='Bound')
 		
 		# Adding title and labels
-		plt.title('Difference between external force magnitude data and predictions',fontsize=config.fontsize1)
+		plt.title('Difference between external force magnitude data and predictions ' + demo,fontsize=config.fontsize1)
 		plt.xlabel('Time [s]',fontsize=config.fontsize2)
 		plt.ylabel('Force [N]',fontsize=config.fontsize2)
 		plt.legend(fontsize=config.fontsize2)
@@ -148,7 +148,7 @@ for i in range(len(config.demos)):
 			plt.plot(position_jumps.time, (position_jumps-position[i][j][0]).value, 'C' + str(j+1) + '*', linewidth=config.linewidth, markersize=config.markersize1)
 		
 		# Adding title and labels
-		plt.title('End effector position',fontsize=config.fontsize1)
+		plt.title('End effector position ' + demo,fontsize=config.fontsize1)
 		plt.xlabel('Time [s]',fontsize=config.fontsize2)
 		plt.ylabel('Force [N]',fontsize=config.fontsize2)
 		plt.legend(fontsize=config.fontsize2)
@@ -178,7 +178,7 @@ for i in range(len(config.demos)):
 			plt.plot(velocity_jumps.time, velocity_jumps.value, 'C' + str(j+1) + '*', linewidth=config.linewidth, markersize=config.markersize1)
 		
 		# Adding title and labels
-		plt.title('End effector velocity',fontsize=config.fontsize1)
+		plt.title('End effector velocity ' + demo,fontsize=config.fontsize1)
 		plt.xlabel('Time [s]',fontsize=config.fontsize2)
 		plt.ylabel('Force [N]',fontsize=config.fontsize2)
 		plt.legend(fontsize=config.fontsize2)

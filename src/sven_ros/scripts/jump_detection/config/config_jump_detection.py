@@ -6,37 +6,31 @@ from .config_plot_figures import *
 ### Load data
 
 # Files with demonstrations
-#demos = [
-#	'data/replay4.1.bag',
-#	'data/replay4.2.bag',
-#	'data/replay4.3.bag'
-#]
-#demos = [
-#	'data/demo2.bag',
-#	'data/demo4.bag',
-#	'data/demo5.bag'
-#]
 demos = [
+	'data/demo5.bag',
+	'data/demo6.bag',
+	'data/demo8.bag',
+	'data/demo9.bag',
 	'data/demo10.bag',
 	'data/demo11.bag',
-	'data/demo12.bag',
+#	'data/demo12.bag',
 	'data/demo13.bag',
 	'data/demo14.bag',
 	'data/demo15.bag'
 ]
 
 ### Jump detector
-predictor = LeastSquaresFilter(order=2)
-bounder = ConstantBounder(bound=6)
-jump_detector = JumpAwareFilter(predictor, bounder, max_window_length=20)
+predictor = LeastSquaresFilter(order=1)
+bounder = ConstantBounder(bound=8.150490554865762)
+jump_detector = JumpAwareFilter(predictor, bounder, max_window_length=18)
 	
 ### Detect Jumps output settings
 
 # Output settings
 plot_external_force = True
 plot_prediction_difference = True
-plot_position = True
-plot_velocity = True
+plot_position = False
+plot_velocity = False
 show_figs = True
 save_figs = False#True
 pickle_figs = False
