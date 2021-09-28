@@ -82,7 +82,7 @@ class PositionDataPoint(DataPoint):
 			return self.value == x
 
 	def __getitem__(self, index):
-		result = PositionDataPoint(self.time, self.value[index])
+		result = DataPoint(self.time, self.value[index])
 		return result
 		
 	def __abs__(self):

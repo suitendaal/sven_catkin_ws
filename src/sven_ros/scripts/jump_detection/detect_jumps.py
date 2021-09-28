@@ -3,6 +3,7 @@
 import sys
 import pickle
 import matplotlib.pyplot as plt
+import numpy as np
 import config.config_jump_detection as config
 from readers import *
 from datalib import *
@@ -14,6 +15,7 @@ bounds = []
 jump_indices = []
 position = []
 velocity = []
+mean_errors = []
 
 for i in range(len(config.demos)):
 
@@ -67,6 +69,11 @@ for i in range(len(config.demos)):
 	
 	# Print result
 	print(f"For demo {demo}, the jump indices are", jump_indices[i], "with jump times", force_ext[i][jump_indices[i]].time)
+	pred_diff = abs(force_ext[i] - predictions[i])
+	mean_error = 2*np.sqrt(np.mean([i**2 for i in pred_diff.value if i is not None]))
+	mean_errors.append(mean_error)
+	print(f'For demonstration {demo} the mean squared absolute difference between data and prediction is {mean_error}')
+	print(f'{max([i for i in pred_diff.value if i is not None])}')
 	
 	### Plot figures
 	
@@ -109,10 +116,9 @@ for i in range(len(config.demos)):
 		plt.rcParams['ytick.labelsize'] = config.fontsize2
 
 		# Difference between data and prediction
-		pred_diff = abs(force_ext[i] - predictions[i])
 		plt.plot(pred_diff.time, pred_diff.value, 'C2-*', linewidth=config.linewidth, markersize=config.markersize2, label='Difference')
 		pred_diff_jumps = pred_diff[jump_indices[i]]
-		plt.plot(pred_diff_jumps.time, pred_diff_jumps.value, 'C1*', linewidth=config.linewidth, markersize=config.markersize1)
+		plt.plot(pred_diff_jumps.time, pred_diff_jumps.value, 'C2*', linewidth=config.linewidth, markersize=config.markersize1)
 
 		# Bound
 		plt.plot(bounds[i].time, bounds[i].value, 'C1-*', linewidth=config.linewidth, markersize=config.markersize2, label='Bound')
@@ -195,6 +201,7 @@ for i in range(len(config.demos)):
 		if not config.show_figs:
 			plt.close()
 			
+print(f'The mean mean error is {np.mean(mean_errors)} and has a minumum value of {min(mean_errors)} and a maximum value of {max(mean_errors)}')
 print("Done")
 	
 if config.show_figs:

@@ -30,7 +30,7 @@ jump_detector = JumpAwareExternalForceFilter(predictor, bounder, max_window_leng
 
 # Output settings
 plot_external_force = True
-plot_prediction_difference = False
+plot_prediction_difference = True
 plot_position = False
 plot_velocity = True
 show_figs = True

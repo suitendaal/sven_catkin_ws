@@ -7,26 +7,43 @@ from .config_plot_figures import *
 ### Load data
 
 # Files with demonstrations
-#demos = [
-#	'data/replay4.1.bag',
-#	'data/replay4.2.bag',
-#	'data/replay4.3.bag'
-#]
 demos = [
-	'data/demo2.bag',
-	'data/demo4.bag',
-	'data/demo5.bag'
+	'data/demo3.bag',
+	'data/demo5.bag',
+	'data/demo6.bag',
+	'data/demo8.bag',
+	'data/demo9.bag',
+	'data/demo10.bag',
+	'data/demo11.bag',
+	'data/demo13.bag',
+	'data/demo14.bag',
+	'data/demo15.bag'
 ]
 
 # Impact interval indices
-#impact_intervals = [
-#	[(1559,)],
-#	[(1573,)],
-#	[(1497,)]
-#]
 impact_intervals = [
-	[(625, 630, 634, 643)],
-	[(680, 684, 688, 693, 700)],
-	[(851, 859, 872)]
+	[(411, 431)],
+	[(493, 511)],
+	[(575, 589)],
+	[(416, 438)],
+	[(432, 454)],
+	[(409, 426)],
+	[(463, 476)],
+	[(452, 468)],
+	[(315, 333)],
+	[(449, 466)]
 ]
+
+bound = 2.02
+
+### Output settings
+plot_external_force = False
+plot_prediction_difference = True
+plot_position = False
+plot_velocity = False
+show_figs = True
+save_figs = False#True
+pickle_figs = False
+save_figs_location = 'figures/impact_detection_delay'
+xlim = None
 
