@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import pickle
 import matplotlib.pyplot as plt
 import config

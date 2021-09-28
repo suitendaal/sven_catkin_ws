@@ -150,7 +150,7 @@ for i in range(len(config.demos)):
 		# Adding title and labels
 		plt.title('End effector position ' + demo,fontsize=config.fontsize1)
 		plt.xlabel('Time [s]',fontsize=config.fontsize2)
-		plt.ylabel('Force [N]',fontsize=config.fontsize2)
+		plt.ylabel('Force [m]',fontsize=config.fontsize2)
 		plt.legend(fontsize=config.fontsize2)
 		if config.xlim is not None and config.xlim[i] is not None:
 			plt.xlim(config.xlim[i])
@@ -180,7 +180,7 @@ for i in range(len(config.demos)):
 		# Adding title and labels
 		plt.title('End effector velocity ' + demo,fontsize=config.fontsize1)
 		plt.xlabel('Time [s]',fontsize=config.fontsize2)
-		plt.ylabel('Force [N]',fontsize=config.fontsize2)
+		plt.ylabel('Force [m/s]',fontsize=config.fontsize2)
 		plt.legend(fontsize=config.fontsize2)
 		if config.xlim is not None and config.xlim[i] is not None:
 			plt.xlim(config.xlim[i])

@@ -7,6 +7,8 @@ from .config_plot_figures import *
 
 # Files with demonstrations
 demos = [
+#	'data/demo2.bag',
+	'data/demo3.bag',
 	'data/demo5.bag',
 	'data/demo6.bag',
 	'data/demo8.bag',
@@ -21,16 +23,16 @@ demos = [
 
 ### Jump detector
 predictor = LeastSquaresFilter(order=1)
-bounder = ConstantBounder(bound=8.150490554865762)
-jump_detector = JumpAwareFilter(predictor, bounder, max_window_length=18)
+bounder = ConstantBounder(bound=8.16)
+jump_detector = JumpAwareExternalForceFilter(predictor, bounder, max_window_length=18)
 	
 ### Detect Jumps output settings
 
 # Output settings
 plot_external_force = True
-plot_prediction_difference = True
+plot_prediction_difference = False
 plot_position = False
-plot_velocity = False
+plot_velocity = True
 show_figs = True
 save_figs = False#True
 pickle_figs = False

@@ -9,7 +9,7 @@ from readers import *
 from datalib import *
 from filters import *
 
-local_maxima_count = 4
+expected_jumps = 3
 window_lengths = range(3,41)
 scores = []
 force_ext = []
@@ -72,7 +72,7 @@ for window_length in window_lengths:
 				local_maxima.append(pred_diff[j])
 		local_maxima.sort(reverse=True)
 		all_local_maxima.append(local_maxima)
-		proposed_bounds.append(local_maxima[local_maxima_count-1])
+		proposed_bounds.append(local_maxima[expected_jumps])
 		
 		# Print result
 #		print(f"For demo {demo}, the largest local_maxima are {local_maxima[0:local_maxima_count]}")
@@ -88,14 +88,14 @@ for window_length in window_lengths:
 		detected_jumps = 0		
 			
 		# Detect jumps
-		jump_detector = config.jump_detector
+		jump_detector = JumpAwareFilter(config.jump_detector.predictor, config.jump_detector.bounder, max_window_length=config.jump_detector.max_window_length)
 		jump_detector.reset()
 		for j in range(len(force_ext[i])):
 			jump_detected, info = jump_detector.update(force_ext[i][j])
 			if jump_detected:
 				detected_jumps += 1
 
-		score += (local_maxima_count-1-detected_jumps)**2
+		score += (expected_jumps-detected_jumps)**2
 		
 	scores.append(score)
 	
@@ -105,8 +105,8 @@ for window_length in window_lengths:
 fig = plt.figure(figsize=config.figsize, dpi=config.dpi)
 plt.rcParams['xtick.labelsize'] = config.fontsize2
 plt.rcParams['ytick.labelsize'] = config.fontsize2
-plt.plot(window_lengths, scores)
-plt.title('Score per max window length','-*',fontsize=config.fontsize1)
+plt.plot(window_lengths, scores,'-*')
+plt.title('Score per max window length',fontsize=config.fontsize1)
 plt.xlabel('Window length',fontsize=config.fontsize2)
 plt.ylabel('Score',fontsize=config.fontsize2)
 plt.show()
