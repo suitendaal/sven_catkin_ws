@@ -37,10 +37,10 @@ impact_intervals = [
 bound = 2.02
 
 ### Output settings
-plot_external_force = False
+plot_external_force = True
 plot_prediction_difference = True
 plot_position = False
-plot_velocity = False
+plot_velocity = True
 show_figs = True
 save_figs = False#True
 pickle_figs = False

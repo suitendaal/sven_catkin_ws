@@ -10,7 +10,7 @@ from geometry_msgs.msg import PointStamped
 from sensor_msgs.msg import Joy
 
 class VivePoseConverterNode(object):
-	def __init__(self, vive_scale_factor=1, xlim=(-0.5,0.5), ylim=(-0.5,0.5), zlim=(-0.5,0.5), initialized=False):
+	def __init__(self, vive_scale_factor=1, xlim=(0.3,0.6), ylim=(-0.2,0.4), zlim=(-0.05,0.5), initialized=False):
 		if not initialized:
 			rospy.init_node('vive_pose_converter', anonymous=True)
 			
@@ -49,9 +49,6 @@ class VivePoseConverterNode(object):
 		
 		# Position
 		vive_pose.extend(convert_vive_position(np.array([msg.pose.position.x, msg.pose.position.y, msg.pose.position.z])).tolist())
-#		vive_pose.append(msg.pose.position.z)# * math.cos(math.pi / 4) - msg.pose.position.x * math.sin(math.pi / 4))
-#		vive_pose.append(msg.pose.position.x)# * math.cos(math.pi / 4) + msg.pose.position.z * math.sin(math.pi / 4))
-#		vive_pose.append(msg.pose.position.y)
 		
 		# Orientation
 		or_quat = []
@@ -80,13 +77,6 @@ class VivePoseConverterNode(object):
 			orientation_diff[1] *= -1
 			orientation_diff_matrix = Rotation.from_euler('xyz',orientation_diff).as_matrix()
 			vive_diff_pose.append(orientation_diff_matrix)
-			
-			if vive_diff_pose[0] < self.xlim[0] or vive_diff_pose[0] > self.xlim[-1]:
-				return
-			if vive_diff_pose[1] < self.ylim[0] or vive_diff_pose[1] > self.ylim[-1]:
-				return
-			if vive_diff_pose[2] < self.zlim[0] or vive_diff_pose[2] > self.zlim[-1]:
-				return
 				
 			## DEBUG
 			or_eul = Rotation.from_matrix(orientation_diff_matrix).as_euler('xyz')
@@ -101,6 +91,19 @@ class VivePoseConverterNode(object):
 			for i in range(3):
 				pose.append(vive_diff_pose[i] + self.robot_offset[i])
 			pose.append(vive_diff_pose[3].dot(self.robot_offset[3]))
+			
+			if pose[0] < self.xlim[0]:
+				pose[0] = self.xlim[0]
+			elif pose[0] > self.xlim[-1]:
+				pose[0] = self.xlim[-1]
+			if pose[1] < self.ylim[0]:
+				pose[1] = self.ylim[0]
+			elif pose[1] > self.ylim[-1]:
+				pose[1] = self.ylim[-1]
+			if pose[2] < self.zlim[0]:
+				pose[2] = self.zlim[0]
+			elif pose[2] > self.zlim[-1]:
+				pose[2] = self.zlim[-1]
 				
 			msg_out = PoseStamped()
 			msg_out.header = msg.header
@@ -114,16 +117,7 @@ class VivePoseConverterNode(object):
 			msg_out.pose.orientation.y = or_quat[1]
 			msg_out.pose.orientation.z = or_quat[2]
 			msg_out.pose.orientation.w = or_quat[3]
-			self.pose_pub.publish(msg_out)
-			
-#			or_eul = or_mat.as_euler('xyz')
-#			msg_out2 = PointStamped()
-#			msg_out2.header = msg_out.header
-#			msg_out2.point.x = or_eul[0]
-#			msg_out2.point.y = or_eul[1]
-#			msg_out2.point.z = or_eul[2]
-#			self.orientation_pub.publish(msg_out2)
-			
+			self.pose_pub.publish(msg_out)			
 			
 		
 	def vive_button_callback(self, msg):
@@ -189,17 +183,17 @@ if __name__ == '__main__':
 
 	rospy.init_node('vive_pose_converter', anonymous=True)
 	
-#	scale_factor = rospy.get_param('~/scale_factor')
-#	x_min = rospy.get_param('~/x_min')
-#	x_max = rospy.get_param('~/x_max')
-#	y_min = rospy.get_param('~/y_min')
-#	y_max = rospy.get_param('~y_max')
-#	z_min = rospy.get_param('~z_min')
-#	z_max = rospy.get_param('~z_max')
+	scale_factor = rospy.get_param('~scale_factor',1)
+	x_min = rospy.get_param('~x_min',-1)
+	x_max = rospy.get_param('~x_max',1)
+	y_min = rospy.get_param('~y_min',-1)
+	y_max = rospy.get_param('~y_max',1)
+	z_min = rospy.get_param('~z_min',0)
+	z_max = rospy.get_param('~z_max',1)
 	
 	try:
-		node = VivePoseConverterNode()
-#		node = VivePoseConverterNode(vive_scale_factor=scale_factor, xlim=(x_min,x_max), ylim=(y_min,y_max), zlim=(z_min,z_max), initialized=True)
+#		node = VivePoseConverterNode()
+		node = VivePoseConverterNode(vive_scale_factor=scale_factor, xlim=(x_min,x_max), ylim=(y_min,y_max), zlim=(z_min,z_max), initialized=True)
 		node.run()
 	except rospy.ROSInterruptException:
 		pass
