@@ -45,30 +45,51 @@ print("--- %s seconds ---" % (t.time() - start_time))
 print("Analyzing demos")
 
 detection_delays = []
+for i in range(2):
+	detection_delays.append([])
 
 for i in range(len(force_ext_datasets)):
 	demo = config.demos[i]
+	
+	datas = []
+	all_jump_indices = []
+	all_predictions = []
+	all_bounds = []
+	ends = []
+	
+	for k in range(2):
 
-	end = config.impact_intervals[i][0][0]+1
-	start = max(0,end - 2*config_jd.jump_detector.max_window_length - 1)
-	data = force_ext_datasets[i][start:end]
-	impact_time = data[-1].time
-	jump_detector = config_jd.jump_detector.copy()
-	jump_detector.bounder.set_bound(None)
-	jump_detector.bounder.set_bound(config.bound)
-	jump_detector.reset()
-	
-	predictions = DataSet()
-	bounds = DataSet()
-	jump_indices = []
-	for j in range(len(data)):
-		jump_detected, info = jump_detector.update(data[j])
-		predictions.append(info[0])
-		bounds.append(info[1])
-		if jump_detected:
-			jump_indices.append(j-1)
-	
-	detection_delays.append(impact_time - data[jump_indices[0]].time)
+		end = config.impact_intervals[i][0][k]+1
+		start_compare = 0
+		if k > 0:
+			start_compare = config.impact_intervals[i][0][k-1]
+		start = max(start_compare,round(end - 2*config_jd.jump_detector.max_window_length - 1))
+		data = force_ext_datasets[i][start:end]
+		impact_time = data[-1].time
+		jump_detector = config_jd.jump_detector.copy()
+		jump_detector.bounder.set_bound(None)
+#		jump_detector.bounder.set_bound(config.bound[k])
+		jump_detector.reset()
+		
+		predictions = DataSet()
+		bounds = DataSet()
+		jump_indices = []
+		for j in range(len(data)):
+			jump_detected, info = jump_detector.update(data[j])
+			predictions.append(info[0])
+			bounds.append(info[1])
+			if jump_detected:
+				jump_indices.append(j-1)
+		
+		if len(jump_indices) > 0:
+			detection_delays[k].append(impact_time - data[jump_indices[-1]].time)
+		
+		ends.append(end)
+		datas.append(data)
+		all_predictions.append(predictions)
+		all_bounds.append(bounds)
+		all_jump_indices.append(jump_indices)
+		
 	
 	## Plot external force
 	if config.plot_external_force:
@@ -77,13 +98,16 @@ for i in range(len(force_ext_datasets)):
 		plt.rcParams['ytick.labelsize'] = config.fontsize2
 
 		# Predictions
-		plt.plot(predictions.time, predictions.value, 'C2-*', linewidth=config.linewidth, markersize=config.markersize2, label='Predictions')
+		for k in range(2):
+			plt.plot(all_predictions[k].time, all_predictions[k].value, 'C2-*', linewidth=config.linewidth, markersize=config.markersize2, label='Predictions')
 
 		# External force data
 		plt.plot(force_ext_datasets[i].time, force_ext_datasets[i].value, 'C0-*', linewidth=config.linewidth, markersize=config.markersize2, label='External force')
-		plt.plot(data.time, data.value, 'C1-*', linewidth=config.linewidth, markersize=config.markersize2, label='External force data used')
+		for k in range(2):
+			plt.plot(datas[k].time, datas[k].value, 'C' + str(k+1) + '-*', linewidth=config.linewidth, markersize=config.markersize2, label='External force data used')
 		detected_jumps = force_ext_datasets[i][list(config.impact_intervals[i][0])]
 		plt.plot(detected_jumps.time, detected_jumps.value, 'C0*', linewidth=config.linewidth, markersize=config.markersize1)
+		jump_indices = [ji for jis in all_jump_indices for ji in jis]
 		data_jumps = data[jump_indices]
 		plt.plot(data_jumps.time, data_jumps.value, 'C1*', linewidth=config.linewidth, markersize=config.markersize1)
 		
@@ -109,40 +133,42 @@ for i in range(len(force_ext_datasets)):
 			
 	## Plot difference between data and prediction
 	if config.plot_prediction_difference:
-		fig = plt.figure(figsize=config.figsize, dpi=config.dpi)
-		plt.rcParams['xtick.labelsize'] = config.fontsize2
-		plt.rcParams['ytick.labelsize'] = config.fontsize2
+		for k in range(2):
+			fig = plt.figure(figsize=config.figsize, dpi=config.dpi)
+			plt.rcParams['xtick.labelsize'] = config.fontsize2
+			plt.rcParams['ytick.labelsize'] = config.fontsize2
 
 		# Difference between data and prediction
-		pred_diff = abs(data - predictions)
-		plt.plot(pred_diff.time, pred_diff.value, 'C2-*', linewidth=config.linewidth, markersize=config.markersize2, label='Difference')
-		pred_diff_jumps = pred_diff[jump_indices]
-		plt.plot(pred_diff_jumps.time, pred_diff_jumps.value, 'C1*', linewidth=config.linewidth, markersize=config.markersize1)
+			pred_diff = abs(datas[k] - all_predictions[k])
+			plt.plot(pred_diff.time, pred_diff.value, 'C2-*', linewidth=config.linewidth, markersize=config.markersize2, label='Difference')
+			pred_diff_jumps = pred_diff[all_jump_indices[k]]
+			plt.plot(pred_diff_jumps.time, pred_diff_jumps.value, 'C1*', linewidth=config.linewidth, markersize=config.markersize1)
 
-		# Bound
-		plt.plot(bounds.time, bounds.value, 'C1-*', linewidth=config.linewidth, markersize=config.markersize2, label='Bound')
-		
-		# Adding title and labels
-		plt.title('Difference between external force magnitude data and predictions ' + demo,fontsize=config.fontsize1)
-		plt.xlabel('Time [s]',fontsize=config.fontsize2)
-		plt.ylabel('Force [N]',fontsize=config.fontsize2)
-		plt.legend(fontsize=config.fontsize2)
-		if config.xlim is not None and config.xlim[i] is not None:
-			plt.xlim(config.xlim[i])
-		
-		title = fig.axes[0].get_title() + demo.split('/')[-1].split('\\')[-1]
-		if config.save_figs:
-			plt.savefig(config.save_figs_location + '/figures/' + title + '.png')
+			# Bound
+			plt.plot(all_bounds[k].time, all_bounds[k].value, 'C1-*', linewidth=config.linewidth, markersize=config.markersize2, label='Bound')
+			
+			# Adding title and labels
+			plt.title(f'Difference between external force magnitude data and predictions impact {k+1} ' + demo,fontsize=config.fontsize1)
+			plt.xlabel('Time [s]',fontsize=config.fontsize2)
+			plt.ylabel('Force [N]',fontsize=config.fontsize2)
+			plt.legend(fontsize=config.fontsize2)
+			if config.xlim is not None and config.xlim[i] is not None:
+				plt.xlim(config.xlim[i])
+			
+			title = fig.axes[0].get_title() + demo.split('/')[-1].split('\\')[-1]
+			if config.save_figs:
+				plt.savefig(config.save_figs_location + '/figures/' + title + '.png')
 
-		if config.pickle_figs:
-			pickle.dump(fig,open(config.save_figs_location + '/pickles/' + title + '.pickle','wb'))
+			if config.pickle_figs:
+				pickle.dump(fig,open(config.save_figs_location + '/pickles/' + title + '.pickle','wb'))
+				
+			if not config.show_figs:
+				plt.close()
 			
-		if not config.show_figs:
-			plt.close()
-			
-	for j in range(len(jump_indices)):
-		jump_indices[j] = jump_indices[j] - (len(data) - 1) + (end - 1)
-		print(jump_indices, end, list(config.impact_intervals[i][0]))
+	for k in range(2):
+		for j in range(len(all_jump_indices[k])):
+			all_jump_indices[k][j] = all_jump_indices[k][j] - (len(datas[k]) - 1) + (ends[k] - 1)
+		print(k,all_jump_indices[k], ends[k], list(config.impact_intervals[i][0]))
 			
 	## Plot position data
 	if config.plot_position:
@@ -155,6 +181,7 @@ for i in range(len(force_ext_datasets)):
 			plt.plot(position_datasets[i].time, (position_datasets[i].get_index(j)-position_datasets[i].get_index(j)[0]).value, 'C' + str(j+1) + '-*', linewidth=config.linewidth, markersize=config.markersize2, label=config.labels[j])
 			position_detected_jumps = position_datasets[i].get_index(j)[list(config.impact_intervals[i][0])]
 			plt.plot(position_detected_jumps.time, (position_detected_jumps-position_datasets[i].get_index(j)[0]).value, 'C' + str(j+1) + '*', linewidth=config.linewidth, markersize=config.markersize1)
+			jump_indices = [ji for jis in all_jump_indices for ji in jis]
 			position_jumps = position_datasets[i].get_index(j)[jump_indices]
 			plt.plot(position_jumps.time, (position_jumps-position_datasets[i].get_index(j)[0]).value, 'C0*', linewidth=config.linewidth, markersize=config.markersize1)
 		
@@ -187,6 +214,7 @@ for i in range(len(force_ext_datasets)):
 			plt.plot(velocity_datasets[i].time, velocity_datasets[i].get_index(j).value, 'C' + str(j+1) + '-*', linewidth=config.linewidth, markersize=config.markersize2, label=config.labels[j])
 			velocity_detected_jumps = velocity_datasets[i].get_index(j)[list(config.impact_intervals[i][0])]
 			plt.plot(velocity_detected_jumps.time, velocity_detected_jumps.value, 'C' + str(j+1) + '*', linewidth=config.linewidth, markersize=config.markersize1)
+			jump_indices = [ji for jis in all_jump_indices for ji in jis]
 			velocity_jumps = velocity_datasets[i].get_index(j)[jump_indices]
 			plt.plot(velocity_jumps.time, velocity_jumps.value, 'C0*', linewidth=config.linewidth, markersize=config.markersize1)
 		
@@ -210,7 +238,10 @@ for i in range(len(force_ext_datasets)):
 		
 
 print(f'Detection delays: {detection_delays}')
-print(f'Maximal detection delay is {max(detection_delays)}, average_detection_delay is {mean(detection_delays)}')
+for k in range(2):
+	if len(detection_delays[k]) == 0:
+		detection_delays[k].append(0)
+	print(f'Maximal detection delay for {k+1}st impact is {max(detection_delays[k])}, average_detection_delay is {mean(detection_delays[k])}')
 print("--- %s seconds ---" % (t.time() - start_time))
 print("Done")
 

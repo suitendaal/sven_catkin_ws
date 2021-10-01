@@ -18,6 +18,7 @@ class JumpAwareExternalForceFilter(JumpAwareFilter):
 		# Detect jumps
 		jump_detected, info = self.detect_jump(datapoint)
 		info.append(self.window_length)
+		info.append(jump_detected)
 		
 		# Update window_length
 		if jump_detected:

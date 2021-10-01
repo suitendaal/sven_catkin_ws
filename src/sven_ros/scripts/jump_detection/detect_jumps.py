@@ -13,6 +13,7 @@ force_ext = []
 predictions = []
 bounds = []
 jump_indices = []
+impact_indices = []
 position = []
 velocity = []
 mean_errors = []
@@ -28,6 +29,7 @@ for i in range(len(config.demos)):
 	predictions.append(DataSet())
 	bounds.append(DataSet())
 	jump_indices.append([])
+	impact_indices.append([])
 	position.append([])
 	velocity.append([])
 	for j in range(3):
@@ -61,6 +63,8 @@ for i in range(len(config.demos)):
 	for j in range(len(force_ext[i])):
 		jump_detected, info = jump_detector.update(force_ext[i][j])
 		if jump_detected:
+			impact_indices[i].append(j)
+		if info[5]:
 			jump_indices[i].append(j)
 		predictions[i].append(info[0])
 		bounds[i].append(info[1])
@@ -69,6 +73,7 @@ for i in range(len(config.demos)):
 	
 	# Print result
 	print(f"For demo {demo}, the jump indices are", jump_indices[i], "with jump times", force_ext[i][jump_indices[i]].time)
+	print(f"For demo {demo}, the impact indices are", impact_indices[i], "with impact times", force_ext[i][impact_indices[i]].time)
 	pred_diff = abs(force_ext[i] - predictions[i])
 	mean_error = 2*np.sqrt(np.mean([i**2 for i in pred_diff.value if i is not None]))
 	mean_errors.append(mean_error)
@@ -87,6 +92,8 @@ for i in range(len(config.demos)):
 		plt.plot(predictions[i].time, predictions[i].value, 'C2-*', linewidth=config.linewidth, markersize=config.markersize2, label='Predictions')
 		force_ext_jumps = force_ext[i][jump_indices[i]]
 		plt.plot(force_ext_jumps.time, force_ext_jumps.value, 'C1*', linewidth=config.linewidth, markersize=config.markersize1)
+		force_ext_impacts = force_ext[i][impact_indices[i]]
+		plt.plot(force_ext_impacts.time, force_ext_impacts.value, 'C0*', linewidth=config.linewidth, markersize=config.markersize1,label='Impacts')
 
 		# External force data
 		plt.plot(force_ext[i].time, force_ext[i].value, 'C1-*', linewidth=config.linewidth, markersize=config.markersize2, label='External force')
@@ -119,6 +126,8 @@ for i in range(len(config.demos)):
 		plt.plot(pred_diff.time, pred_diff.value, 'C2-*', linewidth=config.linewidth, markersize=config.markersize2, label='Difference')
 		pred_diff_jumps = pred_diff[jump_indices[i]]
 		plt.plot(pred_diff_jumps.time, pred_diff_jumps.value, 'C2*', linewidth=config.linewidth, markersize=config.markersize1)
+		pred_diff_impacts = pred_diff[impact_indices[i]]
+		plt.plot(pred_diff_jumps.time, pred_diff_jumps.value, 'C0*', linewidth=config.linewidth, markersize=config.markersize1,label='Impacts')
 
 		# Bound
 		plt.plot(bounds[i].time, bounds[i].value, 'C1-*', linewidth=config.linewidth, markersize=config.markersize2, label='Bound')
@@ -150,13 +159,13 @@ for i in range(len(config.demos)):
 		# Position
 		for j in range(3):
 			plt.plot(position[i][j].time, (position[i][j]-position[i][j][0]).value, 'C' + str(j+1) + '-*', linewidth=config.linewidth, markersize=config.markersize2, label=config.labels[j])
-			position_jumps = position[i][j][jump_indices[i]]
+			position_jumps = position[i][j][impact_indices[i]]
 			plt.plot(position_jumps.time, (position_jumps-position[i][j][0]).value, 'C' + str(j+1) + '*', linewidth=config.linewidth, markersize=config.markersize1)
 		
 		# Adding title and labels
 		plt.title('End effector position ' + demo,fontsize=config.fontsize1)
 		plt.xlabel('Time [s]',fontsize=config.fontsize2)
-		plt.ylabel('Force [m]',fontsize=config.fontsize2)
+		plt.ylabel('Position [m]',fontsize=config.fontsize2)
 		plt.legend(fontsize=config.fontsize2)
 		if config.xlim is not None and config.xlim[i] is not None:
 			plt.xlim(config.xlim[i])
@@ -180,13 +189,13 @@ for i in range(len(config.demos)):
 		# Position
 		for j in range(3):
 			plt.plot(velocity[i][j].time, velocity[i][j].value, 'C' + str(j+1) + '-*', linewidth=config.linewidth, markersize=config.markersize2, label=config.labels[j])
-			velocity_jumps = velocity[i][j][jump_indices[i]]
+			velocity_jumps = velocity[i][j][impact_indices[i]]
 			plt.plot(velocity_jumps.time, velocity_jumps.value, 'C' + str(j+1) + '*', linewidth=config.linewidth, markersize=config.markersize1)
 		
 		# Adding title and labels
 		plt.title('End effector velocity ' + demo,fontsize=config.fontsize1)
 		plt.xlabel('Time [s]',fontsize=config.fontsize2)
-		plt.ylabel('Force [m/s]',fontsize=config.fontsize2)
+		plt.ylabel('Velocity [m/s]',fontsize=config.fontsize2)
 		plt.legend(fontsize=config.fontsize2)
 		if config.xlim is not None and config.xlim[i] is not None:
 			plt.xlim(config.xlim[i])
