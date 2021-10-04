@@ -20,18 +20,6 @@ demos = [
 	'data/demo19.bag',
 	'data/demo21.bag'
 ]
-#demos = [
-#	'data/demo3.bag',
-#	'data/demo5.bag',
-#	'data/demo6.bag',
-#	'data/demo8.bag',
-#	'data/demo9.bag',
-#	'data/demo10.bag',
-#	'data/demo11.bag',
-#	'data/demo13.bag',
-#	'data/demo14.bag',
-#	'data/demo15.bag'
-#]
 
 # Impact interval indices
 impact_intervals = [
@@ -47,20 +35,21 @@ impact_intervals = [
 	[(927, 958)],
 	[(655, 685)]
 ]
-#impact_intervals = [
-#	[(411, 431)],
-#	[(493, 511)],
-#	[(575, 589)],
-#	[(416, 438)],
-#	[(432, 454)],
-#	[(409, 426)],
-#	[(463, 476)],
-#	[(452, 468)],
-#	[(315, 333)],
-#	[(449, 466)]
-#]
+jump_intervals = [
+	[(798, 808, 835, 860)],
+	[(946, 955, 968)],
+	[(1524, 1534, 1557)],
+	[(1055, 1066, 1089)],
+	[(1079, 1090, 1115)],
+	[(1019, 1029, 1051)],
+	[(891, 900, 925)],
+	[(1144, 1156, 1177, 1208)],
+	[(643, 654, 683, 701)],
+	[(927, 937, 958)],
+	[(655, 663, 685)]
+]
 
-bound = [1.72, 4]
+bound = [2.16, 2.16]
 
 ### Output settings
 plot_external_force = True

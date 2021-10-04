@@ -9,7 +9,7 @@ from .orientation_demo_variable import *
 from models import ProMPHandler
 
 class RobotDataSets(object):
-	def __init__(self, position_datasets, velocity_datasets, orientation_datasets, rotational_velocity_datasets, impact_intervals, impact_detection_delay=0, impact_phase_duration=0, normalize_orientation=True):
+	def __init__(self, position_datasets, velocity_datasets, orientation_datasets, rotational_velocity_datasets, impact_intervals, impact_duration=0, normalize_orientation=True):
 		self.position_datasets = position_datasets
 		self.velocity_datasets = velocity_datasets
 		self.orientation_datasets = orientation_datasets
@@ -30,18 +30,18 @@ class RobotDataSets(object):
 		self.z_demos = []
 		
 		for i in range(len(self.position_datasets)):
-			self.x_demos.append(PositionDemoVariable(self.position_datasets[i].x, self.velocity_datasets[i].x, self.impact_intervals[i], impact_detection_delay=impact_detection_delay, impact_phase_duration=impact_phase_duration))
-			self.y_demos.append(PositionDemoVariable(self.position_datasets[i].y, self.velocity_datasets[i].y, self.impact_intervals[i], impact_detection_delay=impact_detection_delay, impact_phase_duration=impact_phase_duration))
-			self.z_demos.append(PositionDemoVariable(self.position_datasets[i].z, self.velocity_datasets[i].z, self.impact_intervals[i], impact_detection_delay=impact_detection_delay, impact_phase_duration=impact_phase_duration))
+			self.x_demos.append(PositionDemoVariable(self.position_datasets[i].x, self.velocity_datasets[i].x, self.impact_intervals[i], impact_duration=impact_duration))
+			self.y_demos.append(PositionDemoVariable(self.position_datasets[i].y, self.velocity_datasets[i].y, self.impact_intervals[i], impact_duration=impact_duration))
+			self.z_demos.append(PositionDemoVariable(self.position_datasets[i].z, self.velocity_datasets[i].z, self.impact_intervals[i], impact_duration=impact_duration))
 			
 		self.or_x_demos = []
 		self.or_y_demos = []
 		self.or_z_demos = []
 		
 		for i in range(len(self.orientation_datasets)):
-			self.or_x_demos.append(OrientationDemoVariable(self.normalized_orientation_datasets[i].x, self.impact_intervals[i], impact_detection_delay=impact_detection_delay, impact_phase_duration=impact_phase_duration))
-			self.or_y_demos.append(OrientationDemoVariable(self.normalized_orientation_datasets[i].y, self.impact_intervals[i], impact_detection_delay=impact_detection_delay, impact_phase_duration=impact_phase_duration))
-			self.or_z_demos.append(OrientationDemoVariable(self.normalized_orientation_datasets[i].z, self.impact_intervals[i], impact_detection_delay=impact_detection_delay, impact_phase_duration=impact_phase_duration))
+			self.or_x_demos.append(OrientationDemoVariable(self.normalized_orientation_datasets[i].x, self.impact_intervals[i], impact_duration=impact_duration))
+			self.or_y_demos.append(OrientationDemoVariable(self.normalized_orientation_datasets[i].y, self.impact_intervals[i], impact_duration=impact_duration))
+			self.or_z_demos.append(OrientationDemoVariable(self.normalized_orientation_datasets[i].z, self.impact_intervals[i], impact_duration=impact_duration))
 		
 		self.set_demo_start_end()
 		

@@ -7,8 +7,7 @@ class OrientationDemoVariable(object):
 		self.data_ = data
 		self.impact_intervals_ = impact_intervals
 		self.extended_data_ = None
-		self.impact_detection_delay = kwargs.get('impact_detection_delay',0)
-		self.impact_phase_duration = kwargs.get('impact_phase_duration',0)
+		self.impact_duration = kwargs.get('impact_duration',0)
 		
 		# Real usable data for creating trajectory
 		self.real_times_ = []
@@ -179,18 +178,12 @@ class OrientationDemoVariable(object):
 		start = 0
 		if phase > 0:
 			start = self.get_ending_index(phase-1) + 1
-			impact_time = self.data_[start-1].time
-			while self.data_[start-1].time < impact_time + self.impact_phase_duration:
-				start += 1
 		return start
 	
 	def get_ending_index(self, phase):
 		end = len(self.data_)
 		if phase < len(self.impact_intervals_):
 			end = self.impact_intervals_[phase][0]
-			impact_time = self.data_[end].time
-			while self.data_[end].time > impact_time - self.impact_detection_delay:
-				end -= 1
 		return end
 		
 	def get_data(self, phase):

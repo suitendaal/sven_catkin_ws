@@ -110,5 +110,11 @@ class FrankaState(object):
 		
 	def calc_force(self, torque):
 		return np.linalg.pinv(self.jacobian.T).dot(torque).tolist()[0:3]
+		
+	def distance(self, position):
+		delta_x = []
+		for i in range(3):
+			delta_x.append(position[i] - self.position[i])
+		return np.linalg.norm(delta_x)
 	
 		

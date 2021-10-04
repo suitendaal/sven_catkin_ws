@@ -39,15 +39,30 @@ for i in range(len(config.demos)):
 	# Read data
 	demo = config.demos[i]
 	franka_reader = FrankaStateReader(demo)
+	starting_position = None
+	starting_index = None
+	ending_index = None
+	ending_position = franka_reader.last_datapoint().value.position
 	while not franka_reader.end():
 		dp = franka_reader.next_datapoint()
 		time = dp.time
 		franka_state = dp.value
 		
+		if starting_position is None:
+			starting_position = franka_state.position
+		elif starting_index is None:
+			if franka_state.distance(starting_position) > 0.01:
+				starting_index = len(force_ext[i])
+		elif ending_index is None:
+			if franka_state.distance(ending_position) < 0.01 and np.linalg.norm(franka_state.velocity) < 0.01:
+				ending_index = len(force_ext[i]) + 1
+		
 		force_ext[i].append(DataPoint(time, franka_state.force_external_magnitude))
 		for j in range(3):
 			position[i][j].append(DataPoint(time, franka_state.position[j]))
 			velocity[i][j].append(DataPoint(time, franka_state.velocity[j]))
+	if ending_index is None:
+		ending_index = -1
 	
 	# Align time
 	force_ext[i].align_time()
@@ -60,12 +75,12 @@ for i in range(len(config.demos)):
 	# Detect jumps
 	jump_detector = config.jump_detector
 	jump_detector.reset()
-	for j in range(len(force_ext[i])):
-		jump_detected, info = jump_detector.update(force_ext[i][j])
+	for j in range(len(force_ext[i][starting_index:ending_index])):
+		jump_detected, info = jump_detector.update(force_ext[i][j+starting_index])
 		if jump_detected:
-			impact_indices[i].append(j)
+			impact_indices[i].append(j+starting_index)
 		if info[5]:
-			jump_indices[i].append(j)
+			jump_indices[i].append(j+starting_index)
 		predictions[i].append(info[0])
 		bounds[i].append(info[1])
 		
@@ -74,8 +89,8 @@ for i in range(len(config.demos)):
 	# Print result
 	print(f"For demo {demo}, the jump indices are", jump_indices[i], "with jump times", force_ext[i][jump_indices[i]].time)
 	print(f"For demo {demo}, the impact indices are", impact_indices[i], "with impact times", force_ext[i][impact_indices[i]].time)
-	pred_diff = abs(force_ext[i] - predictions[i])
-	mean_error = 2*np.sqrt(np.mean([i**2 for i in pred_diff.value if i is not None]))
+	pred_diff = abs(force_ext[i][starting_index:ending_index] - predictions[i])
+	mean_error = np.sqrt(np.mean([i**2 for i in pred_diff.value if i is not None]))
 	mean_errors.append(mean_error)
 	print(f'For demonstration {demo} the mean squared absolute difference between data and prediction is {mean_error}')
 	print(f'{max([i for i in pred_diff.value if i is not None])}')
@@ -124,9 +139,9 @@ for i in range(len(config.demos)):
 
 		# Difference between data and prediction
 		plt.plot(pred_diff.time, pred_diff.value, 'C2-*', linewidth=config.linewidth, markersize=config.markersize2, label='Difference')
-		pred_diff_jumps = pred_diff[jump_indices[i]]
+		pred_diff_jumps = pred_diff[[index - starting_index for index in jump_indices[i]]]
 		plt.plot(pred_diff_jumps.time, pred_diff_jumps.value, 'C2*', linewidth=config.linewidth, markersize=config.markersize1)
-		pred_diff_impacts = pred_diff[impact_indices[i]]
+		pred_diff_impacts = pred_diff[[index - starting_index for index in impact_indices[i]]]
 		plt.plot(pred_diff_jumps.time, pred_diff_jumps.value, 'C0*', linewidth=config.linewidth, markersize=config.markersize1,label='Impacts')
 
 		# Bound

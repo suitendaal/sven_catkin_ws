@@ -23,13 +23,11 @@ def fitting_func(t, a, A, gamma, omega, phi, v_min):
 	return np.array(result)
 
 start_time = t.time()
-demo_to_analyze = 0
+demo_to_analyze = -1
 
 ## Settings
-impact_detection_delay = 0.028
-#impact_detection_delay = 0
-impact_duration = 0.2
-#impact_duration = 0
+#config.impact_detection_delay = 0.028
+config.impact_duration = 0.09
 ##
 
 position_datasets = []
@@ -64,16 +62,8 @@ print("Analyzing data")
 position_data = position_datasets[demo_to_analyze]
 velocity_data = velocity_datasets[demo_to_analyze]
 
-ending_index = config.impact_intervals[demo_to_analyze][0][0]
-ending_impact_time = position_data[ending_index].time
-while position_data[ending_index].time > ending_impact_time - impact_detection_delay:
-	ending_index -= 1
-
-starting_index = config.impact_intervals[demo_to_analyze][0][-1] + 1
-starting_impact_time = position_data[starting_index-1].time
-while position_data[starting_index-1].time > starting_impact_time - impact_detection_delay:
-	starting_index -= 1
-#starting_index = ending_index + 1
+ending_index = config.impact_intervals[demo_to_analyze][0][0] - config.impact_detection_delay[0]
+starting_index = config.impact_intervals[demo_to_analyze][0][-1] - config.impact_detection_delay[-1]
 
 ante_impact_position = position_data[:ending_index].copy()
 impact_phase_position = position_data[ending_index:starting_index].copy()
@@ -86,14 +76,15 @@ detected_impact_velocity = PositionDataSet([velocity_data[i] for i in config.imp
 
 impact_phase_ending_index = 0
 last_impact_time = impact_phase_position[-1].time
-while post_impact_position[impact_phase_ending_index].time < last_impact_time + impact_duration:
+while post_impact_position[impact_phase_ending_index].time < last_impact_time + config.impact_duration:
 	impact_phase_ending_index += 1
-data_to_fit = post_impact_velocity[:impact_phase_ending_index].z
+data_to_fit = post_impact_velocity[:impact_phase_ending_index].y
 time_shift = data_to_fit[0].time
 data_to_fit.align_time()
 
-ante_impact_velocity_value = impact_phase_velocity[-1].z
-func = lambda t, a, A, gamma, omega, phi : fitting_func(t, a, A, gamma, omega, phi, ante_impact_velocity_value)
+ante_impact_velocity_value = impact_phase_velocity[-1].y
+omega = 2*math.pi / (config.impact_duration/3)
+func = lambda t, a, A, gamma, phi, omega : fitting_func(t, a, A, gamma, omega, phi, ante_impact_velocity_value)
 p, pcov = optimization.curve_fit(func, np.array(data_to_fit.time), np.array(data_to_fit.value),maxfev=50000)
 
 fitted_data = DataSet()
@@ -102,11 +93,11 @@ for i in range(len(data_to_fit.time)):
 	fitted_data.append(DataPoint(data_to_fit.time[i] + time_shift, fitted_data_values[i]))
 
 post_impact_prediction_data = DataSet()
-post_impact_prediction_data_values = func(data_to_fit.time, p[0], p[1], 0, 0, p[4])
+post_impact_prediction_data_values = func(data_to_fit.time, p[0], 0, 0, 0, 0)
 for i in range(len(data_to_fit.time)):
-	post_impact_prediction_data.append(DataPoint(data_to_fit.time[i] + time_shift, post_impact_prediction_data_values[i] - p[1]*math.cos(p[4])))
+	post_impact_prediction_data.append(DataPoint(data_to_fit.time[i] + time_shift, post_impact_prediction_data_values[i] - p[1]*math.cos(p[3])))
 	
-post_impact_prediction_point_value = func(0, p[0], p[1], 0, 0, p[4]) - p[1]*math.cos(p[4])
+post_impact_prediction_point_value = func(0, p[0], 0, 0, 0, 0) - p[1]*math.cos(p[3])
 post_impact_prediction_point = DataPoint(time_shift, post_impact_prediction_point_value)
 	
 data_to_fit.align_time(time_shift)
@@ -117,28 +108,28 @@ print("Plotting figures")
 plt.figure(figsize=config2.figsize,dpi=config2.dpi)
 plt.rcParams['xtick.labelsize'] = config2.fontsize2
 plt.rcParams['ytick.labelsize'] = config2.fontsize2
-plt.plot(ante_impact_position.time, ante_impact_position.z.value, 'C1-*', linewidth=config2.linewidth, markersize=config2.markersize3,label='Ante-impact phase')
-plt.plot(impact_phase_position.time, impact_phase_position.z.value, 'C2-*', linewidth=config2.linewidth, markersize=config2.markersize3,label='Impact phase')
-plt.plot(detected_impact_position.time, detected_impact_position.z.value, 'C2*', markersize=config2.markersize1,label='Detected impacts')
-plt.plot(post_impact_position.time, post_impact_position.z.value, 'C4-*', linewidth=config2.linewidth, markersize=config2.markersize3,label='Post-impact phase')
+plt.plot(ante_impact_position.time, ante_impact_position.y.value, 'C1-*', linewidth=config2.linewidth, markersize=config2.markersize3,label='Ante-impact phase')
+plt.plot(impact_phase_position.time, impact_phase_position.y.value, 'C2-*', linewidth=config2.linewidth, markersize=config2.markersize3,label='Impact phase')
+plt.plot(detected_impact_position.time, detected_impact_position.y.value, 'C2*', markersize=config2.markersize1,label='Detected impacts')
+plt.plot(post_impact_position.time, post_impact_position.y.value, 'C4-*', linewidth=config2.linewidth, markersize=config2.markersize3,label='Post-impact phase')
 plt.legend(fontsize=config2.fontsize2)
 plt.xlabel('Time [s]',fontsize=config2.fontsize2)
 plt.ylabel('Position [m]',fontsize=config2.fontsize2)
-plt.title('Z Position',fontsize=config2.fontsize1)
+plt.title('Y Position',fontsize=config2.fontsize1)
 if config.xlim is not None:
 	plt.xlim(config.xlim[demo_to_analyze])
 	
 plt.figure(figsize=config2.figsize,dpi=config2.dpi)
 plt.rcParams['xtick.labelsize'] = config2.fontsize2
 plt.rcParams['ytick.labelsize'] = config2.fontsize2
-plt.plot(ante_impact_velocity.time, ante_impact_velocity.z.value, 'C1-*', linewidth=config2.linewidth, markersize=config2.markersize3,label='Ante-impact phase')
-plt.plot(impact_phase_velocity.time, impact_phase_velocity.z.value, 'C2-*', linewidth=config2.linewidth, markersize=config2.markersize3,label='Impact phase')
-plt.plot(detected_impact_velocity.time, detected_impact_velocity.z.value, 'C2*', markersize=config2.markersize1,label='Detected impacts')
-plt.plot(post_impact_velocity.time, post_impact_velocity.z.value, 'C4-*', linewidth=config2.linewidth, markersize=config2.markersize3,label='Post-impact phase')
+plt.plot(ante_impact_velocity.time, ante_impact_velocity.y.value, 'C1-*', linewidth=config2.linewidth, markersize=config2.markersize3,label='Ante-impact phase')
+plt.plot(impact_phase_velocity.time, impact_phase_velocity.y.value, 'C2-*', linewidth=config2.linewidth, markersize=config2.markersize3,label='Impact phase')
+plt.plot(detected_impact_velocity.time, detected_impact_velocity.y.value, 'C2*', markersize=config2.markersize1,label='Detected impacts')
+plt.plot(post_impact_velocity.time, post_impact_velocity.y.value, 'C4-*', linewidth=config2.linewidth, markersize=config2.markersize3,label='Post-impact phase')
 plt.legend(fontsize=config2.fontsize2)
 plt.xlabel('Time [s]',fontsize=config2.fontsize2)
 plt.ylabel('Velocity [m/s]',fontsize=config2.fontsize2)
-plt.title('Z Velocity',fontsize=config2.fontsize1)
+plt.title('Y Velocity',fontsize=config2.fontsize1)
 if config.xlim is not None:
 	plt.xlim(config.xlim[demo_to_analyze])
 	

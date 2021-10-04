@@ -44,7 +44,7 @@ for demo in config.demos:
 	velocity_datasets.append(velocity_dataset)
 	rotational_velocity_datasets.append(rotational_velocity_dataset)
 	
-datasets_handle = RobotDataSets(position_datasets, velocity_datasets, orientation_datasets, rotational_velocity_datasets, config.impact_intervals, config.impact_detection_delay, config.impact_phase_duration)
+datasets_handle = RobotDataSets(position_datasets, velocity_datasets, orientation_datasets, rotational_velocity_datasets, config.impact_intervals, config.impact_duration)
 
 print("--- %s seconds ---" % (t.time() - start_time))
 print("Filtering and extending demonstration data")

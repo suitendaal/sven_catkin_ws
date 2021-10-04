@@ -31,6 +31,11 @@ class RosbagReader(object):
 			return result
 		return None
 		
+	def last_datapoint(self):
+		if len(self.msgs) > 0:
+			return self.msgs[-1]
+		return None
+		
 	def reset(self):
 		self.msgs_index_ = 0
 		

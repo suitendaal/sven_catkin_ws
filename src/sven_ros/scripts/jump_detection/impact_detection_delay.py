@@ -45,8 +45,10 @@ print("--- %s seconds ---" % (t.time() - start_time))
 print("Analyzing demos")
 
 detection_delays = []
+detection_index_delays = []
 for i in range(2):
 	detection_delays.append([])
+	detection_index_delays.append([])
 
 for i in range(len(force_ext_datasets)):
 	demo = config.demos[i]
@@ -62,12 +64,16 @@ for i in range(len(force_ext_datasets)):
 		end = config.impact_intervals[i][0][k]+1
 		start_compare = 0
 		if k > 0:
-			start_compare = config.impact_intervals[i][0][k-1]
+			impact_index = config.impact_intervals[i][0][k]
+			start_compare = config.impact_intervals[i][0][k-1] + 1
+			for index in config.jump_intervals[i][0]:
+				if index + 1 > start_compare and index + 1 < impact_index:
+					start_compare = index + 1
 		start = max(start_compare,round(end - 2*config_jd.jump_detector.max_window_length - 1))
 		data = force_ext_datasets[i][start:end]
 		impact_time = data[-1].time
 		jump_detector = config_jd.jump_detector.copy()
-		jump_detector.bounder.set_bound(None)
+#		jump_detector.bounder.set_bound(None)
 #		jump_detector.bounder.set_bound(config.bound[k])
 		jump_detector.reset()
 		
@@ -78,11 +84,18 @@ for i in range(len(force_ext_datasets)):
 			jump_detected, info = jump_detector.update(data[j])
 			predictions.append(info[0])
 			bounds.append(info[1])
-			if jump_detected:
-				jump_indices.append(j-1)
+#			if jump_detected:
+#				jump_indices.append(j-1)
+		
+		for p in range(len(data) - 2):
+			index = len(data) - p - 2
+			if abs(predictions[index].value - data[index].value) < abs(predictions[index+1].value - data[index+1].value) and abs(predictions[index].value - data[index].value) < abs(predictions[index-1].value - data[index-1].value):
+				jump_indices = [index+1]
+				break
 		
 		if len(jump_indices) > 0:
 			detection_delays[k].append(impact_time - data[jump_indices[-1]].time)
+			detection_index_delays[k].append(len(data) - jump_indices[-1])
 		
 		ends.append(end)
 		datas.append(data)
@@ -107,9 +120,10 @@ for i in range(len(force_ext_datasets)):
 			plt.plot(datas[k].time, datas[k].value, 'C' + str(k+1) + '-*', linewidth=config.linewidth, markersize=config.markersize2, label='External force data used')
 		detected_jumps = force_ext_datasets[i][list(config.impact_intervals[i][0])]
 		plt.plot(detected_jumps.time, detected_jumps.value, 'C0*', linewidth=config.linewidth, markersize=config.markersize1)
-		jump_indices = [ji for jis in all_jump_indices for ji in jis]
-		data_jumps = data[jump_indices]
-		plt.plot(data_jumps.time, data_jumps.value, 'C1*', linewidth=config.linewidth, markersize=config.markersize1)
+		for k in range(2):
+			jump_indices = all_jump_indices[k]
+			data_jumps = datas[k][jump_indices]
+			plt.plot(data_jumps.time, data_jumps.value, 'C1*', linewidth=config.linewidth, markersize=config.markersize1)
 		
 		# Adding title and labels
 		plt.title('External force magnitude data and predictions ' + demo,fontsize=config.fontsize1)
@@ -119,7 +133,7 @@ for i in range(len(force_ext_datasets)):
 		if config.xlim is not None and config.xlim[i] is not None:
 			plt.xlim(config.xlim[i])
 		else:
-			plt.xlim((data[0].time - (data[-1].time - data[0].time), data[-1].time + (data[-1].time - data[0].time)))
+			plt.xlim((datas[0][0].time - (datas[0][-1].time - datas[0][0].time), datas[-1][-1].time + (datas[-1][-1].time - datas[-1][0].time)))
 		
 		title = fig.axes[0].get_title() + demo.split('/')[-1].split('\\')[-1]
 		if config.save_figs:
@@ -168,7 +182,7 @@ for i in range(len(force_ext_datasets)):
 	for k in range(2):
 		for j in range(len(all_jump_indices[k])):
 			all_jump_indices[k][j] = all_jump_indices[k][j] - (len(datas[k]) - 1) + (ends[k] - 1)
-		print(k,all_jump_indices[k], ends[k], list(config.impact_intervals[i][0]))
+#		print(k,all_jump_indices[k], ends[k], list(config.impact_intervals[i][0]))
 			
 	## Plot position data
 	if config.plot_position:
@@ -238,10 +252,13 @@ for i in range(len(force_ext_datasets)):
 		
 
 print(f'Detection delays: {detection_delays}')
+print(f'Detection delay indices: {detection_index_delays}')
 for k in range(2):
 	if len(detection_delays[k]) == 0:
 		detection_delays[k].append(0)
+		detection_index_delays[k].append(0)
 	print(f'Maximal detection delay for {k+1}st impact is {max(detection_delays[k])}, average_detection_delay is {mean(detection_delays[k])}')
+	print(f'Maximal detection delay in indices for {k+1}st impact is {max(detection_index_delays[k])}, average_detection_delay is {mean(detection_index_delays[k])}, median is {int(np.median(detection_index_delays[k]))}')
 print("--- %s seconds ---" % (t.time() - start_time))
 print("Done")
 
