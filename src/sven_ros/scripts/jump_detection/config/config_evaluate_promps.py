@@ -30,7 +30,7 @@ via_points = [
 
 ### Output settings
 
-step_size = 0.02
+step_size = 1/500
 plot_figs = True
 xlim = None
 

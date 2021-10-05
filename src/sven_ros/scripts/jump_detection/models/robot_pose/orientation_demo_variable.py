@@ -6,6 +6,7 @@ class OrientationDemoVariable(object):
 	def __init__(self, data, impact_intervals, **kwargs):
 		self.data_ = data
 		self.impact_intervals_ = impact_intervals
+		self.filtered_data_ = None
 		self.extended_data_ = None
 		self.impact_duration = kwargs.get('impact_duration',0)
 		

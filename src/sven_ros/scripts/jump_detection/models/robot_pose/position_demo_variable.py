@@ -127,33 +127,41 @@ class PositionDemoVariable(OrientationDemoVariable):
 			return self.extended_derivative_[phase]
 		return self.get_data(phase)
 		
-	def calculate_post_impact_velocity(self, phase):
+	def calculate_post_impact_velocity(self, phase, return_evaluated_function=False):
 		if phase == 0:
 			return 0
-		starting_index = self.get_ending_index(phase-1)
-		ending_index = self.get_starting_index(phase)
+		starting_index = self.get_starting_index(phase)
+		ending_index = starting_index + 1
+		for datapoint in self.get_derivative_data(phase):
+			if datapoint.time < self.derivative_data_[starting_index].time + self.impact_duration:
+				ending_index += 1
+			else:
+				break
 		derivative_data = self.derivative_data_[starting_index:ending_index].copy()
 		if len(derivative_data) < 5:
 			return 0
-		derivative_data.align_time()
+		time_shift = derivative_data[0].time
+		derivative_data.align_time(1)
 		ante_impact_velocity = derivative_data[0].value
+		
+		return ante_impact_velocity
 
 		func = lambda t, a, A, gamma, omega, phi : fitting_func(t, a, A, gamma, omega, phi, ante_impact_velocity)
-		
 		popt, pcov = optimization.curve_fit(func, np.array(derivative_data.time), np.array(derivative_data.value),maxfev=5000)
+		result = func(0, popt[0], 0, 0, 0, 0) - popt[1]*math.cos(popt[4])
 		
-#		print(func([0], popt[0], popt[1], 0, 0, popt[4])[0] - popt[1]*math.cos(popt[4]), derivative_data[-1])
-#		
-##		values = func(np.array(derivative_data.time), popt[0], popt[1], popt[2], popt[3], popt[4])
-#		values = func(np.array(derivative_data.time), popt[0], popt[1], 0, 0, popt[4])
-#		for i in range(len(values)):
-#			values[i] -= popt[1]*math.cos(popt[4])
-#		plt.plot(np.array(derivative_data.time), values)
-#		plt.plot(np.array(derivative_data.time), np.array(derivative_data.value))
-#		plt.show()
+		if not return_evaluated_function:
+			return result
+			
+		fitted_data = DataSet()
+		fitted_data_values = func(derivative_data.time, popt[0], popt[1], popt[2], popt[3], popt[4])
+		linearized_data = DataSet()
+		linearized_data_values = func(derivative_data.time, popt[0], 0, 0, 0, 0)
+		for i in range(len(fitted_data_values)):
+			fitted_data.append(DataPoint(derivative_data[i].time + time_shift, fitted_data_values[i]))
+			linearized_data_values.append(DataPoint(derivative_data[i].time + time_shift, linearized_data[i] - popt[1]*math.cos(popt[4])))
 		
-		return func([0], popt[0], popt[1], 0, 0, popt[4])[0] - popt[1]*math.cos(popt[4])
-#		return derivative_data[-1].value
+		return result, fitted_data, linearized_data
 		
 	def calculate_ante_impact_velocity(self, phase):
 		if phase == self.n_phases - 1:
@@ -162,8 +170,13 @@ class PositionDemoVariable(OrientationDemoVariable):
 		
 def fitting_func(t, a, A, gamma, omega, phi, v_min):
 	result = []
+	if not isinstance(t, (np.ndarray, np.generic)):
+		if isinstance(t, list):
+			t = np.array(t)
+		else:
+			t = np.array([t])
+	
 	for timestamp in t:
 		result.append(v_min + a*timestamp + A*(math.exp(gamma * timestamp) * math.cos(omega*timestamp + phi) - math.cos(phi)))
 	return np.array(result)
-			
 		

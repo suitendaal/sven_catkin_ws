@@ -49,8 +49,8 @@ velocity_filter = None #LeastSquaresFilter(order=2, window_length=20)
 rotational_velocity_filter = None #LeastSquaresFilter(order=2, window_length=20)
 
 ## Extender
-position_extender = ConstantVelocityExtender(timesteps=400, delta_time=0.005)
-orientation_extender = ConstantExtender(timesteps=400, delta_time=0.005)
+position_extender = ConstantVelocityExtender(timesteps=0.2*500, delta_time=1/500)
+orientation_extender = ConstantExtender(timesteps=0.2*500, delta_time=1/500)
 impact_detection_delay = [5, 5]
 impact_duration = 0.06
 

@@ -43,8 +43,21 @@ for demo in config.demos:
 	orientation_datasets.append(orientation_dataset)
 	velocity_datasets.append(velocity_dataset)
 	rotational_velocity_datasets.append(rotational_velocity_dataset)
-	
-datasets_handle = RobotDataSets(position_datasets, velocity_datasets, orientation_datasets, rotational_velocity_datasets, config.impact_intervals, config.impact_duration)
+
+impact_intervals = []
+for delayed_demo_impact_intervals in config.impact_intervals:
+	demo_impact_intervals = []
+	for delayed_impact_interval in delayed_demo_impact_intervals:
+		impact_interval = ()
+		for i in range(len(delayed_impact_interval)):
+			if i == 0:
+				impact_interval += (delayed_impact_interval[0] - config.impact_detection_delay[0],)
+			else:
+				impact_interval += (delayed_impact_interval[i] - config.impact_detection_delay[-1],)
+		demo_impact_intervals.append(impact_interval)
+	impact_intervals.append(demo_impact_intervals)
+
+datasets_handle = RobotDataSets(position_datasets, velocity_datasets, orientation_datasets, rotational_velocity_datasets, impact_intervals, config.impact_duration)
 
 print("--- %s seconds ---" % (t.time() - start_time))
 print("Filtering and extending demonstration data")
