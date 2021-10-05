@@ -10,16 +10,16 @@
 
 class JointJumpDetectorNode : public JumpDetectorNode {
 
-  protected:
-	ros::Subscriber joint_data_sub;
-	int joint_;
-    void joint_state_received(const sensor_msgs::JointStateConstPtr &msg);
-    
-  public:
-    JointJumpDetectorNode(int joint, JumpDetector &detector);
-    JointJumpDetectorNode(ros::NodeHandle nh, int joint, JumpDetector &detector);
-    ~JointJumpDetectorNode();
-    void run();
+	protected:
+		ros::Subscriber joint_data_sub;
+		int joint_;
+		void joint_state_received(const sensor_msgs::JointStateConstPtr &msg);
+		
+	public:
+		JointJumpDetectorNode(int joint, JumpDetector &detector);
+		JointJumpDetectorNode(ros::NodeHandle nh, int joint, JumpDetector &detector);
+		~JointJumpDetectorNode();
+		void run();
 };
 
 #endif // JOINT_JUMP_DETECTOR_NODE_H

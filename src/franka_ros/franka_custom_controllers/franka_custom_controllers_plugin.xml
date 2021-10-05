@@ -4,4 +4,9 @@
       TODO.
     </description>
   </class>
+  <class name="franka_custom_controllers/DemonstrationCartesianImpedanceController" type="franka_custom_controllers::DemonstrationCartesianImpedanceController" base_class_type="controller_interface::ControllerBase">
+    <description>
+      TODO.
+    </description>
+  </class>
 </library>

@@ -31,7 +31,7 @@ public:
 	unsigned int latest_window_length;
 	
 	// Processed an incoming datapoint. Returns true if a jump is detected.
-	bool update(DataPoint &datapoint) {
+	virtual bool update(DataPoint &datapoint) {
 		// Detect jump
 		bool jump_detected = this->detect_jump(datapoint);
 		
@@ -58,7 +58,7 @@ public:
 		return jump_detected;
 	}
 		
-	bool detect_jump(const DataPoint &datapoint) {
+	virtual bool detect_jump(const DataPoint &datapoint) {
 		
 		// Initialize variables
 		double predicted_value; 

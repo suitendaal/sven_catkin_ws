@@ -1,5 +1,5 @@
 #include <sven_ros/external_force_jump_detector_node.h>
-#include <jump_detector/jump_aware_filter.h>
+#include <jump_detector/impact_aware_force_filter.h>
 #include <jump_detector/constant_bounder.h>
 #include <jump_detector/least_squares_predictor.h>
 #include <string>
@@ -24,7 +24,7 @@ int main(int argc, char **argv)
 	// Initialize jump detector
 	LeastSquaresPredictor predictor(order);
 	ConstantBounder bounder(bound);
-	JumpAwareFilter jafilter(max_window_length, predictor, bounder);
+	ImpactAwareForceFilter jafilter(max_window_length, predictor, bounder);
 
 	// Start node
 	ExternalForceJumpDetectorNode node(nh, jafilter);

@@ -9,9 +9,9 @@
 
 class JumpDetectorNode {
 
-  protected:
-    JumpDetector* detector_;
-    ros::Publisher jump_detector_pub_;
+	protected:
+		JumpDetector* detector_;
+		ros::Publisher jump_detector_pub_;
 		unsigned int sequence_;
 	
 		void send_jump_detected_msg(bool jump_detected) {
@@ -34,29 +34,29 @@ class JumpDetectorNode {
 			this->sequence_++;
 		}
 	
-    
-  public:
-    ros::NodeHandle nh;
-    
-    JumpDetectorNode(JumpDetector &detector)
-    : detector_(&detector),
-    nh()
-    {
-    	jump_detector_pub_ = nh.advertise<sven_ros::BoolStamped>("/sven_ros/jump_detector", 1000);
-    }
-    
-    JumpDetectorNode(ros::NodeHandle nh, JumpDetector &detector)
-    : detector_(&detector),
-    nh(nh)
-    {
-    	jump_detector_pub_ = nh.advertise<sven_ros::BoolStamped>("/sven_ros/jump_detector", 1000);
-    }
-    
-    ~JumpDetectorNode(){
-    	return;
-    }
-    
-    virtual void run() = 0;
+		
+	public:
+		ros::NodeHandle nh;
+		
+		JumpDetectorNode(JumpDetector &detector)
+		: detector_(&detector),
+		nh()
+		{
+			jump_detector_pub_ = nh.advertise<sven_ros::BoolStamped>("/sven_ros/jump_detector", 1000);
+		}
+		
+		JumpDetectorNode(ros::NodeHandle nh, JumpDetector &detector)
+		: detector_(&detector),
+		nh(nh)
+		{
+			jump_detector_pub_ = nh.advertise<sven_ros::BoolStamped>("/sven_ros/jump_detector", 1000);
+		}
+		
+		~JumpDetectorNode(){
+			return;
+		}
+		
+		virtual void run() = 0;
 
 };
 

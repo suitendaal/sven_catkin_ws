@@ -28,6 +28,7 @@ find_package(Franka 0.7.0 REQUIRED)
 
 add_message_files(FILES
   ImpactControlState.msg
+  DemonstrationControllerState.msg
 )
 
 generate_messages(DEPENDENCIES std_msgs)
@@ -59,6 +60,7 @@ catkin_package(
 
 add_library(franka_custom_controllers
   src/impact_aware_cartesian_impedance_controller.cpp
+  src/demonstration_cartesian_impedance_controller.cpp
 )
 
 add_dependencies(franka_custom_controllers
