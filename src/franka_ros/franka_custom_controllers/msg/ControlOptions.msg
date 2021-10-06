@@ -1,0 +1,7 @@
+std_msgs/Header header
+bool use_position_feedback
+bool use_velocity_feedback
+bool use_acceleration_feedforward
+uint8 stiffness_type
+bool use_torque_saturation
+float64 delta_tau_max

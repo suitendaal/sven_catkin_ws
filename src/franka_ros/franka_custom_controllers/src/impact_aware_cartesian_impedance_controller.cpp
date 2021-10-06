@@ -20,10 +20,17 @@ bool ImpactAwareCartesianImpedanceController::init(hardware_interface::RobotHW* 
   sub_equilibrium_pose_ = node_handle.subscribe("/equilibrium_pose", 20, &ImpactAwareCartesianImpedanceController::equilibriumPoseCallback, this, ros::TransportHints().reliable().tcpNoDelay());
   
   // Control mode
-  sub_mode_ = node_handle.subscribe("/impedance_control_mode", 20, &ImpactAwareCartesianImpedanceController::modeCallback, this, ros::TransportHints().reliable().tcpNoDelay());
+  sub_mode_ = node_handle.subscribe("/impedance_control_options", 20, &ImpactAwareCartesianImpedanceController::controlOptionsCallback, this, ros::TransportHints().reliable().tcpNoDelay());
 
   // Impact state publisher
   pub_state_ = node_handle.advertise<franka_custom_controllers::ImpactControlState>("impact_control_state", 20);
+  
+  control_options_ = franka_custom_controllers::DemonstrationControllerState;
+  control_options_.use_position_feedback = true;
+  control_options_.use_velocity_feedback = true;
+  control_options_.use_acceleration_feedforward = false;
+  control_options_.stiffness_type = 0
+  control_options_.use_torque_saturation = true;
   
   std::string arm_id;
   if (!node_handle.getParam("arm_id", arm_id)) {
@@ -122,13 +129,12 @@ void ImpactAwareCartesianImpedanceController::update(const ros::Time& time,
                                                  const ros::Duration& /*period*/) {
   // update parameters changed online either through dynamic reconfigure or through the interactive
   // target by filtering
-  switch (control_mode) {
-    case ControlMode::lowered_gains:
-    case ControlMode::lowered_gains_position_feedback:
+  switch (control_options_.stiffness_type) {
+    case 1:
       cartesian_stiffness_ = filter_params_ * cartesian_stiffness_impact_ + (1.0 - filter_params_) * cartesian_stiffness_;
       cartesian_damping_ = filter_params_ * cartesian_damping_impact_ + (1.0 - filter_params_) * cartesian_damping_;
       break;
-    case ControlMode::default_control_mode:
+    case 0:
     default:
       cartesian_stiffness_ = filter_params_ * cartesian_stiffness_target_ + (1.0 - filter_params_) * cartesian_stiffness_;
       cartesian_damping_ = filter_params_ * cartesian_damping_target_ + (1.0 - filter_params_) * cartesian_damping_;
@@ -177,6 +183,7 @@ void ImpactAwareCartesianImpedanceController::update(const ros::Time& time,
   // compute control
   // allocate variables
   Eigen::VectorXd tau_task(7), tau_nullspace(7), tau_d(7);
+  tau_task.setZero();
 
   // pseudoinverse for nullspace handling
   // kinematic pseuoinverse
@@ -184,18 +191,14 @@ void ImpactAwareCartesianImpedanceController::update(const ros::Time& time,
   franka_example_controllers::pseudoInverse(jacobian.transpose(), jacobian_transpose_pinv);
 
   // Cartesian PD control with damping ratio = 1
-  switch (control_mode) {
-  	case ControlMode::position_feedback_only:
-    case ControlMode::lowered_gains_position_feedback:
-  	  tau_task << jacobian.transpose() * (-cartesian_stiffness_ * error);
-  	  break;
-  	case ControlMode::feedforward_control:
-  	  tau_task << error * 0;
-  	  break;
-  	case ControlMode::default_control_mode:
-  	default:
-  	  tau_task << jacobian.transpose() * (-cartesian_stiffness_ * error - cartesian_damping_ * (jacobian * dq));
-  	  break;
+  if (control_options_.use_position_feedback) {
+  	tau_task << tau_task + jacobian.transpose() * (-cartesian_stiffness_ * error);
+  }
+  if (control_options_.use_velocity_feedback) {
+  	tau_task << tau_task + jacobian.transpose() * (-cartesian_damping_ * (jacobian * dq));
+  }
+  if (control_options_.use_acceleration_feedforward) {
+  	// TODO
   }
 
   // nullspace PD control with damping ratio = 1
@@ -204,7 +207,9 @@ void ImpactAwareCartesianImpedanceController::update(const ros::Time& time,
   // Desired torque
   tau_d << tau_task + tau_nullspace + coriolis + tau_joint_limit;
   // Saturate torque rate to avoid discontinuities
-  tau_d << saturateTorqueRate(tau_d, tau_J_d);
+  if (control_options_.use_torque_saturation) {
+  	tau_d << saturateTorqueRate(tau_d, tau_J_d);
+  }
   for (size_t i = 0; i < 7; ++i) {
     joint_handles_[i].setCommand(tau_d(i));
   }
@@ -293,8 +298,9 @@ void ImpactAwareCartesianImpedanceController::complianceParamCallback(
       << 2.0 * sqrt(config.rotational_impact_stiffness) * Eigen::Matrix3d::Identity();
 }
 
-void ImpactAwareCartesianImpedanceController::modeCallback(const std_msgs::Int32ConstPtr& msg) {
-  control_mode = ControlMode(msg->data);
+void ImpactAwareCartesianImpedanceController::controlOptionsCallback(const franka_custom_controllers::ControlOptionsPtr& msg) {
+  control_options_ = *msg;
+  delta_tau_max_ = control_opions_.delta_tau_max;
 }
 
 void ImpactAwareCartesianImpedanceController::equilibriumPoseCallback(const geometry_msgs::PoseStampedConstPtr& msg) {

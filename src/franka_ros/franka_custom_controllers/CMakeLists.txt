@@ -29,6 +29,7 @@ find_package(Franka 0.7.0 REQUIRED)
 add_message_files(FILES
   ImpactControlState.msg
   DemonstrationControllerState.msg
+  ControlOptions.msg
 )
 
 generate_messages(DEPENDENCIES std_msgs)

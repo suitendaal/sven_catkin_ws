@@ -17,18 +17,11 @@
 #include <Eigen/Dense>
 
 #include <franka_custom_controllers/compliance_paramConfig.h>
+#include <franka_custom_controllers/ControlOptions.h>
 #include <franka_hw/franka_model_interface.h>
 #include <franka_hw/franka_state_interface.h>
 
 namespace franka_custom_controllers {
-
-enum class ControlMode {
-  default_control_mode = 0,
-  position_feedback_only = 1,
-  feedforward_control = 2,
-  lowered_gains = 3,
-  lowered_gains_position_feedback = 4,
-};
 
 class ImpactAwareCartesianImpedanceController : public controller_interface::MultiInterfaceController<
                                                 franka_hw::FrankaModelInterface,
@@ -75,9 +68,10 @@ class ImpactAwareCartesianImpedanceController : public controller_interface::Mul
   ros::NodeHandle dynamic_reconfigure_compliance_param_node_;
   void complianceParamCallback(franka_custom_controllers::compliance_paramConfig& config, uint32_t level);
   
-  // Mode subscriber
-  ros::Subscriber sub_mode_;
-  void modeCallback(const std_msgs::Int32ConstPtr& msg);
+  // Control options subscriber
+  ros::Subscriber sub_options_;
+  void controlOptionsCallback(const franka_custom_controllers::ControlOptionsPtr& msg);
+  franka_custom_controllers::ControlOptions control_options_;
 
   // Equilibrium pose subscriber
   ros::Subscriber sub_equilibrium_pose_;

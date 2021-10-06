@@ -38,7 +38,6 @@ The jumps and impacts are detected based on the external force data, by making p
 A jump is considered an impact if the value of the datapoint is larger than the predicted value.
 Before starting this script, fill in the desired parameters in `config/config_jump_detection.py`.
 
-
 ### Impact detection delay
 
 The script `impact_detection_delay.py` analyzes the demonstration files around the time of impact to determine the delay of the causal jump detector.

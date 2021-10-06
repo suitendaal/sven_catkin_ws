@@ -8,21 +8,27 @@ from .config_plot_figures import *
 # Files with demonstrations
 demos = [
 	'data/demo1.bag',
-#	'data/demo2.bag',
-#	'data/demo3.bag',
+	'data/demo2.bag',
+	'data/demo3.bag',
 	'data/demo4.bag',
 	'data/demo5.bag',
-#	'data/demo8.bag',
+	'data/demo8.bag',
 	'data/demo10.bag',
 	'data/demo11.bag',
 	'data/demo12.bag',
 	'data/demo13.bag',
 	'data/demo14.bag',
 	'data/demo15.bag',
-#	'data/demo18.bag',
+	'data/demo18.bag',
 	'data/demo19.bag',
 	'data/demo21.bag'
 ]
+#demos = [
+#	'data/demo2.bag',
+#	'data/demo8.bag',
+#	'data/demo15.bag',
+#	'data/demo21.bag'
+#]
 #demos = [
 ##	'data/demo2.bag',
 #	'data/demo3.bag',
@@ -40,7 +46,7 @@ demos = [
 
 ### Jump detector
 predictor = LeastSquaresFilter(order=1)
-bounder = ConstantBounder(bound=8.23)
+bounder = ConstantBounder(bound=9.910265664084811)
 jump_detector = JumpAwareExternalForceFilter(predictor, bounder, max_window_length=25)
 	
 ### Detect Jumps output settings
