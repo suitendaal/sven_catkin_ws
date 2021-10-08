@@ -66,7 +66,7 @@ class DataPoint(object):
 		self.value[index] = value
 
 	def __str__(self):
-		return "Time: {}, Value: {}".format(self.time, self.value)
+		return "(Time: {}, Value: {})".format(self.time, self.value)
 
 	def __repr__(self):
 		return str(self)
