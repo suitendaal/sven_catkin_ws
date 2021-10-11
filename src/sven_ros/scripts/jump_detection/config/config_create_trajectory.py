@@ -2,6 +2,7 @@
 
 from filters import *
 from trajectory import *
+from .config_plot_figures import *
 
 ### Load data
 

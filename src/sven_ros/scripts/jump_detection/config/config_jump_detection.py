@@ -70,7 +70,7 @@ save_figs_location = 'figures/detect_jumps'
 #fontsize1 = 20
 #fontsize2 = 16
 ## Full trajectory
-xlim = None
+xlim = [-0.05, 0.05]
 #xlim = [
 #	xlim[0],
 #	None,
