@@ -8,18 +8,18 @@ from .config_plot_figures import *
 
 # Files with demonstrations
 demos = [
-	data/demo1.bag,
-	data/demo2.bag,
-	data/demo4.bag,
-	data/demo10.bag,
-	data/demo11.bag,
-	data/demo12.bag,
-	data/demo13.bag,
-	data/demo14.bag,
-	data/demo15.bag,
-	data/demo18.bag,
-	data/demo19.bag,
-	data/demo21.bag
+	'data/demo1.bag',
+	'data/demo2.bag',
+	'data/demo4.bag',
+	'data/demo10.bag',
+	'data/demo11.bag',
+	'data/demo12.bag',
+	'data/demo13.bag',
+	'data/demo14.bag',
+	'data/demo15.bag',
+	'data/demo18.bag',
+	'data/demo19.bag',
+	'data/demo21.bag'
 ]
 
 impact_intervals = [
@@ -59,7 +59,7 @@ impact_duration = 0.06
 ### Create reference output settings
 
 ## Figure settings
-xlim = None
+xlim = [-0.05, 0.05]
 #xlim = [(3,4)]
 #figsize = (16, 12)
 #dpi = 80
