@@ -8,32 +8,33 @@ from .config_plot_figures import *
 
 # Files with demonstrations
 demos = [
-	'data/demo1.bag',
-	'data/demo4.bag',
-	'data/demo5.bag',
-	'data/demo10.bag',
-	'data/demo11.bag',
-	'data/demo12.bag',
-	'data/demo13.bag',
-	'data/demo14.bag',
-	'data/demo15.bag',
-	'data/demo19.bag',
-	'data/demo21.bag'
+	data/demo1.bag,
+	data/demo2.bag,
+	data/demo4.bag,
+	data/demo10.bag,
+	data/demo11.bag,
+	data/demo12.bag,
+	data/demo13.bag,
+	data/demo14.bag,
+	data/demo15.bag,
+	data/demo18.bag,
+	data/demo19.bag,
+	data/demo21.bag
 ]
 
-# Impact interval indices
 impact_intervals = [
-	[(798, 835)],
-	[(946, 968)],
-	[(1524, 1557)],
-	[(1055, 1089)],
-	[(1079, 1115)],
-	[(1019, 1051)],
-	[(891, 925)],
-	[(1144, 1177)],
-	[(643, 683)],
-	[(927, 958)],
-	[(655, 685)]
+	[(798,834,)],
+	[(1190,1246,)],
+	[(945,967,)],
+	[(1054,1087,)],
+	[(1079,1113,)],
+	[(1018,1047,)],
+	[(891,919,)],
+	[(1144,1175,)],
+	[(642,676,)],
+	[(865,899,)],
+	[(927,951,)],
+	[(655,681,)]
 ]
 	
 ### Trajectory settings
@@ -52,7 +53,7 @@ rotational_velocity_filter = None #LeastSquaresFilter(order=2, window_length=20)
 ## Extender
 position_extender = ConstantVelocityExtender(timesteps=0.2*500, delta_time=1/500)
 orientation_extender = ConstantExtender(timesteps=0.2*500, delta_time=1/500)
-impact_detection_delay = [5, 5]
+impact_detection_delay = [3, 4]
 impact_duration = 0.06
 
 ### Create reference output settings
