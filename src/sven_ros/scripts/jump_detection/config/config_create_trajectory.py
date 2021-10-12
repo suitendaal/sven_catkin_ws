@@ -59,7 +59,7 @@ impact_duration = 0.04
 ## Movement primitives
 
 rbf_width = 5e-4
-n_rbfs_per_second = 35
+rbfs_per_second = 35
 
 ## Filtering
 position_filter = None #LeastSquaresFilter(order=2, window_length=20)
@@ -68,8 +68,8 @@ velocity_filter = None #LeastSquaresFilter(order=2, window_length=20)
 rotational_velocity_filter = None #LeastSquaresFilter(order=2, window_length=20)
 
 ## Extender
-position_extender = ConstantVelocityExtender(timesteps=0.2*500, delta_time=1/500)
-orientation_extender = ConstantExtender(timesteps=0.2*500, delta_time=1/500)
+position_extender = Extender() #ConstantVelocityExtender(timesteps=0.2*500, delta_time=1/500)
+orientation_extender = Extender() #ConstantExtender(timesteps=0.2*500, delta_time=1/500)
 
 ### Create reference output settings
 
@@ -105,4 +105,34 @@ xlim = [-0.05, 0.05]
 # Output filename
 write_mps = True
 output_file = 'output/promps.json'
+
+### Evaluation settings
+
+## ViaPoints
+
+via_points = [
+	DataSet([
+	]),
+	DataSet([
+	]),
+	DataSet([
+	]),
+	DataSet([
+	]),
+	DataSet([
+	]),
+	DataSet([
+	])
+]
+
+### Output settings
+
+step_size = 1/500
+plot_figs = True
+
+# Output filename
+write_evaluation = True
+output_file = 'output/evaluated_promps.json'
+variable_labels = ['X','Y','Z',r'$\phi$',r'$\theta$',r'$\psi$']
+
 

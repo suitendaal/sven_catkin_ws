@@ -8,4 +8,5 @@ from .robot_variable import *
 from .demo_variable import *
 #from .orientation_variable import *
 from .robot_pose import *
+from .trajectory_creator import *
 

@@ -27,7 +27,7 @@ class ProMPHandler(object):
 		self.next_starting_time = kwargs.get('next_starting_time',None)
 		
 		# Shift over time for evaluation.
-		self.time_shift = kwargs.get('time_shift')
+		self.time_shift = kwargs.get('time_shift',0)
 		
 	def get_phase_start_end(self):
 		return self.phase_starting_time + self.time_shift, self.phase_ending_time + self.time_shift

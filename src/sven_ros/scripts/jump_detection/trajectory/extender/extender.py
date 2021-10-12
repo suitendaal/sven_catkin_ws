@@ -2,22 +2,11 @@
 
 from datalib import *
 
-class TrajectoryExtender(object):
-	"""docstring for TrajectoryExtender."""
-
-	def __init__(self, **kwargs):
-		self.timesteps = kwargs.get('timesteps', 10)
-		self.delta_time = kwargs.get('delta_time', 0.01)
+class Extender(object):
+	def __init__(self):
+		pass
 		
-	def copy(self):
-		return TrajectoryExtender(timesteps=self.timesteps, delta_time=self.delta_time)
-
-	def extend(self, trajectory, extend_before=True, extend_after=True):
-		return trajectory.copy()
-		
-	def extend_velocity(self, velocity_data, extend_before=True, extend_after=True):
-		return velocity_data.copy()
-		
-	def extra_time(self):
-		return self.timesteps * self.delta_time
-	
+	def extend(self, phase, trajectory_handle):
+		result = trajectory_handle.trajectory_data[trajectory_handle.trimmed_post_impact_index(phase):trajectory_handle.trimmed_ante_impact_index(phase)].copy()
+		result.align_time(result[0].time + trajectory_handle.phase_time_shifts[phase])
+		return result

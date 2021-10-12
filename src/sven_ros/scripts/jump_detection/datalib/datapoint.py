@@ -79,7 +79,10 @@ class DataPoint(object):
 		return result
 		
 	def copy(self):
-		result = DataPoint(self.time, self.value)
+		value = self.value
+		if isinstance(value, list):
+			value = value.copy()
+		result = DataPoint(self.time, value)
 		return result
 		
 	def mean(self):

@@ -17,7 +17,7 @@ class PositionDataSet(DataSet):
 	@property
 	def z(self):
 		return self.get_index(2)
-			
+		
 	def __neg__(self):
 		result = PositionDataSet()
 		for datapoint in self.data:

@@ -33,8 +33,7 @@ class ProMP(object):
 			# Calculate weights for each demonstration
 			values = dataset.value
 			
-			if self.derivatives > 0:
-				values = [item for sublist in values for item in sublist[0:(self.derivatives+1)]]
+			values = [item for sublist in values for item in sublist[0:(self.derivatives+1)]]
 			x = np.transpose(np.array([values]))
 			pseud = np.transpose(np.linalg.pinv(psi))
 			self.weights[:,i] = pseud.dot(x)[:,0]
@@ -82,6 +81,10 @@ class ProMP(object):
 		
 	def evaluate(self, time, derivative=0, **kwargs):
 		via_points = kwargs.get('via_points',DataSet())
+		return_sigma = kwargs.get('return_sigma',False)
+		
+		result_in_list = isinstance(time, list)
+		
 		if not isinstance(time, list):
 			time = [time]
 		else:
@@ -120,7 +123,14 @@ class ProMP(object):
 			
 			# TODO: Sigma
 		
-		return Mu,Sigma
+		Mu = Mu.tolist()
+		if not result_in_list:
+			Mu = Mu[0]
+		
+		if return_sigma:
+			return Mu,Sigma
+		
+		return Mu
 		
 	def to_dict(self):
 		json_object = dict()
