@@ -36,6 +36,23 @@ impact_intervals = [
 	[(927,951,)],
 	[(655,681,)]
 ]
+
+impact_detection_delays = [
+	[4,4],
+	[3,4],
+	[2,4],
+	[5,3],
+	[2,3],
+	[2,4],
+	[2,9],
+	[3,3],
+	[4,3],
+	[2,3],
+	[3,6],
+	[3,4]
+]
+
+impact_duration = 0.04
 	
 ### Trajectory settings
 
@@ -53,8 +70,6 @@ rotational_velocity_filter = None #LeastSquaresFilter(order=2, window_length=20)
 ## Extender
 position_extender = ConstantVelocityExtender(timesteps=0.2*500, delta_time=1/500)
 orientation_extender = ConstantExtender(timesteps=0.2*500, delta_time=1/500)
-impact_detection_delay = [3, 4]
-impact_duration = 0.06
 
 ### Create reference output settings
 
