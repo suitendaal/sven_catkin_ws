@@ -2,16 +2,18 @@
 <launch>
 
   <node name="vive_pose_converter_node" pkg="sven_ros" type="vive_pose_converter_node2.py" output="screen" required="true">
-  	<rosparam param="x_min">0.3</rosparam>
-		<rosparam param="x_max">0.8</rosparam>
-		<rosparam param="y_min">-0.2</rosparam>
-		<rosparam param="y_max">0.4</rosparam>
-		<rosparam param="z_min">-0.05</rosparam>
-		<rosparam param="z_max">0.5</rosparam>
-		<rosparam param="scale_factor">1</rosparam>
+  	<rosparam param="x_min">0.340</rosparam>
+	<rosparam param="x_max">0.340</rosparam>
+	<rosparam param="y_min">0.540</rosparam>
+	<rosparam param="y_max">0.540</rosparam>
+	<rosparam param="z_min">-0.5</rosparam>
+	<rosparam param="z_max">0.150</rosparam>
+	<rosparam param="scale_factor">1</rosparam>
+	<rosparam param="rotational_scale_factor">0.5</rosparam>
+	<rosparam param="yaw">1.571</rosparam>
   
   	<remap from="/vive_pose_converter/pose" to="/equilibrium_pose"/>
-  	<remap from="/vive/pose1" to="/vive/pose9"/>
+  	<remap from="/vive/pose1" to="/vive/pose8"/>
   	<remap from="/vive/controller_LHR_FF6FDF46/joy" to="/vive/controller_LHR_ED090D53/joy"/>
   </node>
 

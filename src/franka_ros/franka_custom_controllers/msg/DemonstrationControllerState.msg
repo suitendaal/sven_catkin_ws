@@ -7,7 +7,9 @@ float64[16] O_T_EE
 float64[3] position_d
 float64[4] orientation_d
 float64[7] tau_external
+float64[6] F_measured
 float64[7] tau_measured
+float64[6] F_task
 float64[7] tau_task
 float64[7] tau_nullspace
 float64[7] tau_d

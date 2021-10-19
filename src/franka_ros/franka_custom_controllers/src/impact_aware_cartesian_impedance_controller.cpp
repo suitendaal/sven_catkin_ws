@@ -20,16 +20,16 @@ bool ImpactAwareCartesianImpedanceController::init(hardware_interface::RobotHW* 
   sub_equilibrium_pose_ = node_handle.subscribe("/equilibrium_pose", 20, &ImpactAwareCartesianImpedanceController::equilibriumPoseCallback, this, ros::TransportHints().reliable().tcpNoDelay());
   
   // Control mode
-  sub_mode_ = node_handle.subscribe("/impedance_control_options", 20, &ImpactAwareCartesianImpedanceController::controlOptionsCallback, this, ros::TransportHints().reliable().tcpNoDelay());
+  sub_options_ = node_handle.subscribe("/impedance_control_options", 20, &ImpactAwareCartesianImpedanceController::controlOptionsCallback, this, ros::TransportHints().reliable().tcpNoDelay());
 
   // Impact state publisher
   pub_state_ = node_handle.advertise<franka_custom_controllers::ImpactControlState>("impact_control_state", 20);
   
-  control_options_ = franka_custom_controllers::DemonstrationControllerState;
+  control_options_ = franka_custom_controllers::ControlOptions();
   control_options_.use_position_feedback = true;
   control_options_.use_velocity_feedback = true;
   control_options_.use_acceleration_feedforward = false;
-  control_options_.stiffness_type = 0
+  control_options_.stiffness_type = 0;
   control_options_.use_torque_saturation = true;
   
   std::string arm_id;
@@ -248,8 +248,6 @@ void ImpactAwareCartesianImpedanceController::update(const ros::Time& time,
   msg.orientation_d[2] = orientation_d_.z();
   msg.orientation_d[3] = orientation_d_.w();
   
-  msg.impedance_control_mode = (int)control_mode;
-  
   pub_state_.publish(msg);
   sequence_++;
 }
@@ -300,7 +298,7 @@ void ImpactAwareCartesianImpedanceController::complianceParamCallback(
 
 void ImpactAwareCartesianImpedanceController::controlOptionsCallback(const franka_custom_controllers::ControlOptionsPtr& msg) {
   control_options_ = *msg;
-  delta_tau_max_ = control_opions_.delta_tau_max;
+  delta_tau_max_ = control_options_.delta_tau_max;
 }
 
 void ImpactAwareCartesianImpedanceController::equilibriumPoseCallback(const geometry_msgs::PoseStampedConstPtr& msg) {

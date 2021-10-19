@@ -81,7 +81,7 @@ bool DemonstrationCartesianImpedanceController::init(hardware_interface::RobotHW
 
   dynamic_reconfigure_compliance_param_node_ = ros::NodeHandle("dynamic_reconfigure_compliance_param_node");
 
-  dynamic_server_compliance_param_ = std::make_unique<dynamic_reconfigure::Server<franka_example_controllers::compliance_paramConfig>>(dynamic_reconfigure_compliance_param_node_);
+  dynamic_server_compliance_param_ = std::make_unique<dynamic_reconfigure::Server<franka_custom_controllers::compliance_param_demonstrationConfig>>(dynamic_reconfigure_compliance_param_node_);
   dynamic_server_compliance_param_->setCallback(boost::bind(&DemonstrationCartesianImpedanceController::complianceParamCallback, this, _1, _2));
 
   position_d_.setZero();
@@ -170,14 +170,21 @@ void DemonstrationCartesianImpedanceController::update(const ros::Time& time,
   Eigen::MatrixXd jacobian_transpose_pinv;
   franka_example_controllers::pseudoInverse(jacobian.transpose(), jacobian_transpose_pinv);
 
+  // TEST
+  Eigen::Matrix<double, 6, 1> F_measured = jacobian_transpose_pinv * tau_measured;
+  // TEST
+
   // Cartesian PD control with damping ratio = 1
-  tau_task << jacobian.transpose() * (-cartesian_stiffness_ * error - cartesian_damping_ * (jacobian * dq));
+  Eigen::Matrix<double, 6, 1> F_task = -cartesian_stiffness_ * error - cartesian_damping_ * (jacobian * dq);
+  limit_force(F_task);
+  tau_task << jacobian.transpose() * F_task;
 
   // nullspace PD control with damping ratio = 1
   tau_nullspace << (Eigen::MatrixXd::Identity(7, 7) - jacobian.transpose() * jacobian_transpose_pinv) * (nullspace_stiffness_ * (q_d_nullspace_ - q) - (2.0 * sqrt(nullspace_stiffness_)) * dq);
   Eigen::Matrix<double, 7, 1> tau_joint_limit = calculateJointLimit(q);
   // Desired torque
   tau_d << tau_task + tau_nullspace + coriolis + tau_joint_limit;
+
   // Saturate torque rate to avoid discontinuities
   tau_d << saturateTorqueRate(tau_d, tau_J_d);
   for (size_t i = 0; i < 7; ++i) {
@@ -211,6 +218,10 @@ void DemonstrationCartesianImpedanceController::update(const ros::Time& time,
   
   for (int i = 0; i < 3; i++) {
     msg.position_d[i] = position_d_[i];
+    msg.F_task[i] = F_task[i];
+    msg.F_task[i+3] = F_task[i+3];
+    msg.F_measured[i] = F_measured[i];
+    msg.F_measured[i+3] = F_measured[i+3];
   }
   
   msg.orientation_d[0] = orientation_d_.x();
@@ -231,8 +242,14 @@ Eigen::Matrix<double, 7, 1> DemonstrationCartesianImpedanceController::saturateT
   return tau_d_saturated;
 }
 
+void DemonstrationCartesianImpedanceController::limit_force(Eigen::Matrix<double, 6, 1> &force) {
+  for (int i = 0; i < 6; i++) {
+  	force(i) = std::max(std::min(force(i), max_cartesian_force_(i)), -max_cartesian_force_(i));
+  }
+}
+
 void DemonstrationCartesianImpedanceController::complianceParamCallback(
-    franka_example_controllers::compliance_paramConfig& config,
+    franka_custom_controllers::compliance_param_demonstrationConfig& config,
     uint32_t /*level*/) {
   cartesian_stiffness_target_.setIdentity();
   cartesian_stiffness_target_(0, 0) = config.translational_stiffness_X;
@@ -252,6 +269,13 @@ void DemonstrationCartesianImpedanceController::complianceParamCallback(
   cartesian_damping_target_.bottomRightCorner(3, 3)
       << 2.0 * sqrt(config.rotational_stiffness) * Eigen::Matrix3d::Identity();
   nullspace_stiffness_target_ = config.nullspace_stiffness;
+  
+  max_cartesian_force_(0) = config.max_force_X;
+  max_cartesian_force_(1) = config.max_force_Y;
+  max_cartesian_force_(2) = config.max_force_Z;
+  for (int i = 3; i < 6; i++) {
+  	max_cartesian_force_(i) = config.max_cartesian_torque;
+  }
 }
 
 void DemonstrationCartesianImpedanceController::equilibriumPoseCallback(const geometry_msgs::PoseStampedConstPtr& msg) {

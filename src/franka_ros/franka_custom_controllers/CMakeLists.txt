@@ -36,6 +36,7 @@ generate_messages(DEPENDENCIES std_msgs)
 
 generate_dynamic_reconfigure_options(
   cfg/compliance_param.cfg
+  cfg/compliance_param_demonstration.cfg
 )
 
 catkin_package(

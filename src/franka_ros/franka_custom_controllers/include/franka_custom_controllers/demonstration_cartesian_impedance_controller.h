@@ -16,7 +16,7 @@
 #include <ros/time.h>
 #include <Eigen/Dense>
 
-#include <franka_example_controllers/compliance_paramConfig.h>
+#include <franka_custom_controllers/compliance_param_demonstrationConfig.h>
 #include <franka_hw/franka_model_interface.h>
 #include <franka_hw/franka_state_interface.h>
 
@@ -36,6 +36,9 @@ class DemonstrationCartesianImpedanceController : public controller_interface::M
   Eigen::Matrix<double, 7, 1> saturateTorqueRate(
       const Eigen::Matrix<double, 7, 1>& tau_d_calculated,
       const Eigen::Matrix<double, 7, 1>& tau_J_d);  // NOLINT (readability-identifier-naming)
+      
+  // Limiting force
+  void limit_force(Eigen::Matrix<double, 6, 1> &force);
 
   std::unique_ptr<franka_hw::FrankaStateHandle> state_handle_;
   std::unique_ptr<franka_hw::FrankaModelHandle> model_handle_;
@@ -50,6 +53,7 @@ class DemonstrationCartesianImpedanceController : public controller_interface::M
   Eigen::Matrix<double, 6, 6> cartesian_damping_;
   Eigen::Matrix<double, 6, 6> cartesian_damping_target_;
   Eigen::Matrix<double, 7, 1> q_d_nullspace_;
+  Eigen::Matrix<double, 6, 1> max_cartesian_force_;
   Eigen::Vector3d position_d_;
   Eigen::Quaterniond orientation_d_;
   Eigen::Vector3d position_d_target_;
@@ -60,9 +64,9 @@ class DemonstrationCartesianImpedanceController : public controller_interface::M
   unsigned int sequence_{0};
 
   // Dynamic stiffness reconfigure
-  std::unique_ptr<dynamic_reconfigure::Server<franka_example_controllers::compliance_paramConfig>> dynamic_server_compliance_param_;
+  std::unique_ptr<dynamic_reconfigure::Server<franka_custom_controllers::compliance_param_demonstrationConfig>> dynamic_server_compliance_param_;
   ros::NodeHandle dynamic_reconfigure_compliance_param_node_;
-  void complianceParamCallback(franka_example_controllers::compliance_paramConfig& config, uint32_t level);
+  void complianceParamCallback(franka_custom_controllers::compliance_param_demonstrationConfig& config, uint32_t level);
 
   // Equilibrium pose subscriber
   ros::Subscriber sub_equilibrium_pose_;

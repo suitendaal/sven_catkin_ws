@@ -10,15 +10,17 @@ from geometry_msgs.msg import PointStamped
 from sensor_msgs.msg import Joy
 
 class VivePoseConverterNode(object):
-	def __init__(self, vive_scale_factor=1, xlim=(0.3,0.6), ylim=(-0.2,0.4), zlim=(-0.05,0.5), initialized=False):
+	def __init__(self, vive_scale_factor=1, rotational_scale_factor=1, xlim=(0.3,0.6), ylim=(-0.2,0.4), zlim=(-0.05,0.5), yaw=0, initialized=False):
 		if not initialized:
 			rospy.init_node('vive_pose_converter', anonymous=True)
 			
 		# Settings
 		self.vive_scale_factor = vive_scale_factor
+		self.rotational_scale_factor = rotational_scale_factor
 		self.xlim = xlim
 		self.ylim = ylim
 		self.zlim = zlim
+		self.yaw = yaw
 		
 		# Time
 		self.rate = rospy.Rate(100)
@@ -48,7 +50,7 @@ class VivePoseConverterNode(object):
 		vive_pose = []
 		
 		# Position
-		vive_pose.extend(convert_vive_position(np.array([msg.pose.position.x, msg.pose.position.y, msg.pose.position.z])).tolist())
+		vive_pose.extend(self.convert_vive_position(np.array([msg.pose.position.x, msg.pose.position.y, msg.pose.position.z])).tolist())
 		
 		# Orientation
 		or_quat = []
@@ -57,7 +59,7 @@ class VivePoseConverterNode(object):
 		or_quat.append(msg.pose.orientation.z)
 		or_quat.append(msg.pose.orientation.w)
 		rot = Rotation.from_quat(or_quat)
-#		orientation = convert_vive_orientation(rot.as_matrix())
+#		orientation = self.convert_vive_orientation(rot.as_matrix())
 		orientation = rot.as_matrix()
 		vive_pose.append(orientation)
 		
@@ -72,10 +74,10 @@ class VivePoseConverterNode(object):
 			vive_diff_pose = []
 			for i in range(3):
 				vive_diff_pose.append((vive_pose[i] + self.vive_offset[i]) * self.vive_scale_factor)
-			orientation_diff = Rotation.from_matrix(self.vive_offset[3].dot(vive_pose[3])).as_euler('zxy')
+			orientation_diff = Rotation.from_matrix(self.vive_offset[3].dot(vive_pose[3]) * self.rotational_scale_factor).as_euler('zxy')
 			orientation_diff[0] *= -1
-			orientation_diff[1] *= -1
-			orientation_diff_matrix = Rotation.from_euler('xyz',orientation_diff).as_matrix()
+			orientation_diff[1] *= 1
+			orientation_diff_matrix = Rotation.from_euler('yxz',orientation_diff).as_matrix()
 			vive_diff_pose.append(orientation_diff_matrix)
 				
 			## DEBUG
@@ -149,34 +151,33 @@ class VivePoseConverterNode(object):
 			rot = Rotation.from_quat(or_quat)
 			self.robot_offset.append(rot.as_matrix())
 			
-def convert_vive_position(vector):
-	rotation_matrix = np.array([
-		[0, 0, 1],
-		[1, 0, 0],
-		[0, 1, 0]
-	])
-	yaw = math.pi/4
-	rotation_matrix2 = np.array([
-		[math.cos(yaw), -math.sin(yaw), 0],
-		[math.sin(yaw), math.cos(yaw), 0],
-		[0, 0, 1]
-	])
-	return rotation_matrix2.dot(rotation_matrix.dot(vector))
-	
-def convert_vive_orientation(matrix):
-	rotation_matrix = np.array([
-		[1, 0, 0],
-		[0, 1, 0],
-		[0, 0, 1]
-	])
-	yaw = math.pi/4
-	rotation_matrix2 = np.array([
-		[math.cos(yaw), -math.sin(yaw), 0],
-		[math.sin(yaw), math.cos(yaw), 0],
-		[0, 0, 1]
-	])
-	return rotation_matrix2.dot(rotation_matrix.dot(vector))
-	return rotation_matrix.dot(matrix)
+	def convert_vive_position(self, vector):
+		rotation_matrix = np.array([
+			[0, 0, 1],
+			[1, 0, 0],
+			[0, 1, 0]
+		])
+		yaw = math.pi/4 + self.yaw
+		rotation_matrix2 = np.array([
+			[math.cos(yaw), -math.sin(yaw), 0],
+			[math.sin(yaw), math.cos(yaw), 0],
+			[0, 0, 1]
+		])
+		return rotation_matrix2.dot(rotation_matrix.dot(vector))
+		
+	def convert_vive_orientation(self, matrix):
+		rotation_matrix = np.array([
+			[1, 0, 0],
+			[0, 1, 0],
+			[0, 0, 1]
+		])
+		yaw = self.yaw #math.pi/4 #+ self.yaw
+		rotation_matrix2 = np.array([
+			[math.cos(yaw), -math.sin(yaw), 0],
+			[math.sin(yaw), math.cos(yaw), 0],
+			[0, 0, 1]
+		])
+		return rotation_matrix2.dot(rotation_matrix.dot(matrix))
 
 
 if __name__ == '__main__':
@@ -184,16 +185,18 @@ if __name__ == '__main__':
 	rospy.init_node('vive_pose_converter', anonymous=True)
 	
 	scale_factor = rospy.get_param('~scale_factor',1)
+	rotational_scale_factor = rospy.get_param('~rotational_scale_factor',1)
 	x_min = rospy.get_param('~x_min',-1)
 	x_max = rospy.get_param('~x_max',1)
 	y_min = rospy.get_param('~y_min',-1)
 	y_max = rospy.get_param('~y_max',1)
 	z_min = rospy.get_param('~z_min',0)
 	z_max = rospy.get_param('~z_max',1)
+	yaw = rospy.get_param('~yaw',0)
 	
 	try:
 #		node = VivePoseConverterNode()
-		node = VivePoseConverterNode(vive_scale_factor=scale_factor, xlim=(x_min,x_max), ylim=(y_min,y_max), zlim=(z_min,z_max), initialized=True)
+		node = VivePoseConverterNode(vive_scale_factor=scale_factor, rotational_scale_factor=rotational_scale_factor, xlim=(x_min,x_max), ylim=(y_min,y_max), zlim=(z_min,z_max), yaw=yaw, initialized=True)
 		node.run()
 	except rospy.ROSInterruptException:
 		pass
