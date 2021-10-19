@@ -14,13 +14,13 @@ from .config_plot_figures import *
 #	'data/demo10.bag'
 #]
 
-#demos = [
-#	'data/demo13.bag',
-#	'data/demo14.bag',
-#	'data/demo15.bag',
-#	'data/demo16.bag',
-#	'data/demo17.bag'
-#]
+demos = [
+	'data/demo13.bag',
+	'data/demo14.bag',
+	'data/demo15.bag',
+	'data/demo16.bag',
+	'data/demo17.bag'
+]
 
 #demos = [
 #	'data/demo20.bag',
@@ -38,14 +38,14 @@ from .config_plot_figures import *
 #	'data/demo29.bag'
 #]
 
-demos = [
-	'data/demo33.bag',
-	'data/demo34.bag',
-	'data/demo35.bag',
-	'data/demo36.bag',
-	'data/demo37.bag',
-	'data/demo38.bag'
-]
+#demos = [
+#	'data/demo33.bag',
+#	'data/demo34.bag',
+#	'data/demo35.bag',
+#	'data/demo36.bag',
+#	'data/demo37.bag',
+#	'data/demo38.bag'
+#]
 
 ### Jump detector
 predictor = LeastSquaresFilter(order=1)

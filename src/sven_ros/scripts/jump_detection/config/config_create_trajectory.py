@@ -8,51 +8,30 @@ from .config_plot_figures import *
 
 # Files with demonstrations
 demos = [
-	'data/demo1.bag',
-	'data/demo2.bag',
-	'data/demo4.bag',
-	'data/demo10.bag',
-	'data/demo11.bag',
-	'data/demo12.bag',
 	'data/demo13.bag',
 	'data/demo14.bag',
 	'data/demo15.bag',
-	'data/demo18.bag',
-	'data/demo19.bag',
-	'data/demo21.bag'
+	'data/demo16.bag',
+	'data/demo17.bag'
 ]
 
 impact_intervals = [
-	[(798,834,)],
-	[(1190,1246,)],
-	[(945,967,)],
-	[(1054,1087,)],
-	[(1079,1113,)],
-	[(1018,1047,)],
-	[(891,919,)],
-	[(1144,1175,)],
-	[(642,676,)],
-	[(865,899,)],
-	[(927,951,)],
-	[(655,681,)]
+	[(388,400,)],
+	[(442,452,)],
+	[(556,568,)],
+	[(491,500,)],
+	[(364,380,)]
 ]
 
 impact_detection_delays = [
-	[4,4],
-	[3,4],
-	[2,4],
-	[5,3],
-	[2,3],
-	[2,4],
-	[2,9],
-	[3,3],
-	[4,3],
-	[2,3],
-	[3,6],
-	[3,4]
+	[1,0],
+	[2,2],
+	[1,0],
+	[5,0],
+	[2,2]
 ]
 
-impact_duration = 0.04
+impact_duration = 0.18
 	
 ### Trajectory settings
 
@@ -68,8 +47,8 @@ velocity_filter = None #LeastSquaresFilter(order=2, window_length=20)
 rotational_velocity_filter = None #LeastSquaresFilter(order=2, window_length=20)
 
 ## Extender
-position_extender = Extender() #ConstantVelocityExtender(timesteps=0.2*500, delta_time=1/500)
-orientation_extender = Extender() #ConstantExtender(timesteps=0.2*500, delta_time=1/500)
+position_extender = Extender(400, impact_duration) #ConstantVelocityExtender(timesteps=0.2*500, delta_time=1/500)
+orientation_extender = Extender(400, impact_duration) #ConstantExtender(timesteps=0.2*500, delta_time=1/500)
 
 ### Create reference output settings
 
