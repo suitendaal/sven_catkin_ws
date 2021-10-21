@@ -6,50 +6,18 @@ from .config_plot_figures import *
 ### Load data
 
 # Files with demonstrations
-#demos = [
-#	'data/demo4.bag',
-#	'data/demo5.bag',
-#	'data/demo6.bag',
-#	'data/demo9.bag',
-#	'data/demo10.bag'
-#]
-
 demos = [
-	'data/demo13.bag',
-	'data/demo14.bag',
-	'data/demo15.bag',
-	'data/demo16.bag',
-	'data/demo17.bag'
+	'data/demo3.3.bag',
+	'data/demo4.3.bag',
+	'data/demo5.3.bag',
+	'data/demo6.3.bag',
+	'data/demo8.3.bag',
+	'data/demo9.3.bag'
 ]
-
-#demos = [
-#	'data/demo20.bag',
-#	'data/demo21.bag',
-#	'data/demo22.bag',
-#	'data/demo23.bag',
-#	'data/demo24.bag'
-#]
-
-#demos = [
-#	'data/demo25.bag',
-#	'data/demo26.bag',
-#	'data/demo27.bag',
-#	'data/demo28.bag',
-#	'data/demo29.bag'
-#]
-
-#demos = [
-#	'data/demo33.bag',
-#	'data/demo34.bag',
-#	'data/demo35.bag',
-#	'data/demo36.bag',
-#	'data/demo37.bag',
-#	'data/demo38.bag'
-#]
 
 ### Jump detector
 predictor = LeastSquaresFilter(order=1)
-bounder = ConstantBounder(bound=None)#4.7487593326350535)
+bounder = ConstantBounder(bound=6)
 jump_detector = JumpAwareExternalForceFilter(predictor, bounder, max_window_length=24)
 	
 ### Detect Jumps output settings

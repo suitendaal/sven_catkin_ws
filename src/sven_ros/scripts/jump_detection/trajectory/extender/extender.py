@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 from datalib import *
+import numpy as np
 
 class Extender(object):
 	def __init__(self, frequency, impact_duration=0, timespan=0):
@@ -14,9 +15,9 @@ class Extender(object):
 		result.align_time(trajectory_handle.trajectory_data[trajectory_handle.trimmed_post_impact_index(phase)].time + trajectory_handle.phase_time_shifts[phase])
 		
 		if phase > 0:
-			self.extend_before(phase, trajectory_handle, result)
+			result = self.extend_before(phase, trajectory_handle, result)
 		if phase < trajectory_handle.n_phases - 1:
-			self.extend_after(phase, trajectory_handle, result)
+			result = self.extend_after(phase, trajectory_handle, result)
 		
 		return result
 		
@@ -27,9 +28,21 @@ class Extender(object):
 			index += 1
 		return index
 		
+	def get_times_before(self, trajectory):
+		t_end = trajectory[0].time
+		t_start = t_end - self.impact_duration - self.timespan
+		return np.arange(t_start, t_end, 1/self.frequency)
+		
 	def extend_before(self, phase, trajectory_handle, trajectory):
-#		t_end = 
+		times = self.get_times_before(trajectory)
+		result = DataSet()
+		for t in times:
+			value = []
+			for i in trajectory[0].value:
+				value.append(i.copy())
+			result.append(DataPoint(t, value))
+		return result
 		
 	def extend_after(self, phase, trajectory_handle, trajectory):
-		pass
+		return trajectory
 	
