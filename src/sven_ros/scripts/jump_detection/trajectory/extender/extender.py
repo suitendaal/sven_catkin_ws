@@ -33,16 +33,41 @@ class Extender(object):
 		t_start = t_end - self.impact_duration - self.timespan
 		return np.arange(t_start, t_end, 1/self.frequency)
 		
+	def get_times_after(self, trajectory):
+		t_start = trajectory[-1].time
+		t_end = t_start + self.timespan
+		return np.arange(t_start, t_end, 1/self.frequency)
+		
 	def extend_before(self, phase, trajectory_handle, trajectory):
 		times = self.get_times_before(trajectory)
 		result = DataSet()
 		for t in times:
 			value = []
-			for i in trajectory[0].value:
-				value.append(i.copy())
+			for i in range(len(trajectory[0].value)):
+				if i > 0:
+					tmp = []
+					for j in trajectory[0].value[i]:
+						tmp.append(0)
+					value.append(tmp)
+				else:
+					value.append(trajectory[0].value[i].copy())
 			result.append(DataPoint(t, value))
+		for datapoint in trajectory:
+			result.append(datapoint)
 		return result
 		
 	def extend_after(self, phase, trajectory_handle, trajectory):
+		times = self.get_times_after(trajectory)
+		for t in times:
+			value = []
+			for i in range(len(trajectory[-1].value)):
+				if i > 0:
+					tmp = []
+					for j in trajectory[-1].value[i]:
+						tmp.append(0)
+					value.append(tmp)
+				else:
+					value.append(trajectory[-1].value[i].copy())
+			trajectory.append(DataPoint(t, value))
 		return trajectory
 	

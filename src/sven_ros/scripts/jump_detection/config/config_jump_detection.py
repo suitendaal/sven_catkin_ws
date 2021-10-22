@@ -17,7 +17,7 @@ demos = [
 
 ### Jump detector
 predictor = LeastSquaresFilter(order=1)
-bounder = ConstantBounder(bound=6)
+bounder = ConstantBounder(bound=5)
 jump_detector = JumpAwareExternalForceFilter(predictor, bounder, max_window_length=24)
 	
 ### Detect Jumps output settings
