@@ -187,8 +187,8 @@ class DataSetsHandle(object):
 		return promps
 		
 	def create_phase_rbfs(self, trajectory_handles, phase, rbf_width, rbfs_per_second):
-		t_start = self.get_phase_starting_time(phase, trajectory_handles)
-		t_end = self.get_phase_ending_time(phase, trajectory_handles)
+		t_start = self.get_extended_starting_time(phase, trajectory_handles)
+		t_end = self.get_extended_ending_time(phase, trajectory_handles)
 		
 		n_rbfs = round(rbfs_per_second * (t_end - t_start) + 1)
 		rbfs = []

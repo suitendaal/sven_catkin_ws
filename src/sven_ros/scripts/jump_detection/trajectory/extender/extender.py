@@ -2,6 +2,7 @@
 
 from datalib import *
 import numpy as np
+from decimal import Decimal, ROUND_DOWN
 
 class Extender(object):
 	def __init__(self, frequency, impact_duration=0, timespan=0):
@@ -12,7 +13,7 @@ class Extender(object):
 	def extend(self, phase, trajectory_handle):
 		starting_index = self.post_impact_starting_index(phase, trajectory_handle)
 		result = trajectory_handle.trajectory_data[starting_index:trajectory_handle.trimmed_ante_impact_index(phase)].copy()
-		result.align_time(trajectory_handle.trajectory_data[trajectory_handle.trimmed_post_impact_index(phase)].time + trajectory_handle.phase_time_shifts[phase])
+		result.align_time(trajectory_handle.trajectory_data[starting_index].time + trajectory_handle.phase_time_shifts[phase])
 		
 		if phase > 0:
 			result = self.extend_before(phase, trajectory_handle, result)
@@ -23,18 +24,20 @@ class Extender(object):
 		
 	def post_impact_starting_index(self, phase, trajectory_handle):
 		index = trajectory_handle.trimmed_post_impact_index(phase)
+		if phase == 0:
+			return index
 		post_impact_time = trajectory_handle.trajectory_data[index].time
-		while trajectory_handle.trajectory_data[index].time <= post_impact_time + self.impact_duration and index < len(trajectory_handle.trajectory_data) - 1:
+		while trajectory_handle.trajectory_data[index].time < post_impact_time + self.impact_duration and index < len(trajectory_handle.trajectory_data) - 1:
 			index += 1
 		return index
 		
 	def get_times_before(self, trajectory):
 		t_end = trajectory[0].time
-		t_start = t_end - self.impact_duration - self.timespan
+		t_start = float(Decimal(t_end - self.impact_duration - self.timespan).quantize(Decimal(str(1/self.frequency)), ROUND_DOWN))
 		return np.arange(t_start, t_end, 1/self.frequency)
 		
 	def get_times_after(self, trajectory):
-		t_start = trajectory[-1].time
+		t_start = trajectory[-1].time + 1/self.frequency
 		t_end = t_start + self.timespan
 		return np.arange(t_start, t_end, 1/self.frequency)
 		

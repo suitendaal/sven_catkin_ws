@@ -6,13 +6,16 @@ from .config_plot_figures import *
 ### Load data
 
 # Files with demonstrations
+#demos = [
+#	'data/demo3.3.bag',
+#	'data/demo4.3.bag',
+#	'data/demo5.3.bag',
+#	'data/demo6.3.bag',
+#	'data/demo8.3.bag',
+#	'data/demo9.3.bag'
+#]
 demos = [
-	'data/demo3.3.bag',
-	'data/demo4.3.bag',
-	'data/demo5.3.bag',
-	'data/demo6.3.bag',
-	'data/demo8.3.bag',
-	'data/demo9.3.bag'
+	'data/demo3.2.bag'
 ]
 
 ### Jump detector

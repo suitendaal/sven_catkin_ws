@@ -95,7 +95,7 @@ class TrajectoryHandle(object):
 		index = starting_index
 		while index >= 0 and t_end < self.trajectory_data[index].time + self.phase_time_shifts[phase]:
 			index -= 1
-		result.append(index - starting_index)
+		result.append(index - starting_index + 1)
 		
 		self.phase_data_removed_indices[phase] = result
 		
