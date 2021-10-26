@@ -59,6 +59,11 @@ catkin_install_python(PROGRAMS scripts/nodes/baseline_controller_node.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
+# Build trajectory controller node
+catkin_install_python(PROGRAMS scripts/nodes/trajectory_controller_node.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
 # Build vive pose converter node
 catkin_install_python(PROGRAMS scripts/nodes/vive_pose_converter_node.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
