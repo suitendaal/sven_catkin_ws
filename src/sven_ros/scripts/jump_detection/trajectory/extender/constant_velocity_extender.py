@@ -11,6 +11,7 @@ class ConstantVelocityExtender(Extender):
 		super().__init__(frequency, impact_duration, timespan)
 		self.bounds = bounds
 		if self.bounds is None:
+			omega = 2*math.pi / (self.impact_duration/3)
 			self.bounds = ((-np.inf, 0, -np.log(10)/((3/2)*self.impact_duration/3), -np.pi, (2/3)*omega), (np.inf, np.inf, 0, np.pi, (3.2)*omega))
 
 	def calc_post_impact_velocity(self, phase, trajectory_handle):

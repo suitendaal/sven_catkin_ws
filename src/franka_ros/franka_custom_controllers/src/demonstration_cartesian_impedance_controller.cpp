@@ -129,10 +129,12 @@ void DemonstrationCartesianImpedanceController::update(const ros::Time& time,
   // get state variables
   franka::RobotState robot_state = state_handle_->getRobotState();
   std::array<double, 7> coriolis_array = model_handle_->getCoriolis();
+  std::array<double, 7> gravity_array = model_handle_->getGravity();
   std::array<double, 42> jacobian_array = model_handle_->getZeroJacobian(franka::Frame::kEndEffector);
 
   // convert to Eigen
   Eigen::Map<Eigen::Matrix<double, 7, 1>> coriolis(coriolis_array.data());
+  Eigen::Map<Eigen::Matrix<double, 7, 1>> gravity(gravity_array.data());
   Eigen::Map<Eigen::Matrix<double, 6, 7>> jacobian(jacobian_array.data());
   Eigen::Map<Eigen::Matrix<double, 7, 1>> q(robot_state.q.data());
   Eigen::Map<Eigen::Matrix<double, 7, 1>> dq(robot_state.dq.data());
@@ -198,7 +200,8 @@ void DemonstrationCartesianImpedanceController::update(const ros::Time& time,
   msg.header.frame_id = "DemonstrationCartesianImpedanceController";
   
   for (int i = 0; i < 7; i++) {
-    msg.coriolis[i] = coriolis_array[i];
+    msg.coriolis[i] = coriolis[i];
+    msg.gravity[i] = gravity[i];
     msg.q[i] = q.data()[i];
     msg.dq[i] = dq.data()[i];
     msg.tau_external[i] = tau_external.data()[i];

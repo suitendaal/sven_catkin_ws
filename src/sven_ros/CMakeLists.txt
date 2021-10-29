@@ -64,6 +64,11 @@ catkin_install_python(PROGRAMS scripts/nodes/trajectory_controller_node.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
+# Build move to start node
+catkin_install_python(PROGRAMS scripts/nodes/move_to_start.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
 # Build vive pose converter node
 catkin_install_python(PROGRAMS scripts/nodes/vive_pose_converter_node.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

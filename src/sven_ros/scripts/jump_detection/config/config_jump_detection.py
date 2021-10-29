@@ -15,12 +15,12 @@ from .config_plot_figures import *
 #	'data/demo9.3.bag'
 #]
 demos = [
-	'data/demo3.2.bag'
+	'data/demo1.bag'
 ]
 
 ### Jump detector
 predictor = LeastSquaresFilter(order=1)
-bounder = ConstantBounder(bound=5)
+bounder = ConstantBounder(bound=None)
 jump_detector = JumpAwareExternalForceFilter(predictor, bounder, max_window_length=24)
 	
 ### Detect Jumps output settings

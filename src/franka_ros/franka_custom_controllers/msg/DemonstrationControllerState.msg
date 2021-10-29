@@ -1,5 +1,6 @@
 std_msgs/Header header
 float64[7] coriolis
+float64[7] gravity
 float64[42] jacobian
 float64[7] q
 float64[7] dq

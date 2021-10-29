@@ -2,5 +2,8 @@
 <launch>
   <node name="trajectory_controller" pkg="sven_ros" type="trajectory_controller_node.py" output="screen" required="true">
   	<rosparam param="trajectory_file">"scripts/jump_detection/output/designed_trajectory.json"</rosparam>
+  	<rosparam param="impact_bounds">[-100,-100,-100,-100,-0.1,0]</rosparam>
+  	<rosparam param="rotational_stiffness">50</rosparam>
+  	<rosparam param="rotational_stiffness_impact">10</rosparam>
   </node>
 </launch>
