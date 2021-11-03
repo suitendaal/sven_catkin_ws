@@ -8,7 +8,8 @@ from .config_plot_figures import *
 # Files with demonstrations
 demos = [
 	'data/demo14.bag',
-	'data/demo15.bag'
+	'data/demo15.bag',
+	'data/demo22.bag'
 ]
 
 ### Jump detector
