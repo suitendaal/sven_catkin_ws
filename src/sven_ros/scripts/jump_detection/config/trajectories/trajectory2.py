@@ -9,7 +9,7 @@ velocity = 0.15
 
 table_height = 0
 hitting_y = 0.4
-angle = math.pi / 4
+angle = math.pi / 3
 
 starting_y = -(height-table_height) / math.tan(angle) + hitting_y
 ending_y = (table_height - bottom) / math.tan(angle) + hitting_y

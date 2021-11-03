@@ -30,6 +30,7 @@ add_message_files(FILES
   ImpactControlState.msg
   DemonstrationControllerState.msg
   ControlOptions.msg
+  ForceStamped.msg
 )
 
 generate_messages(DEPENDENCIES std_msgs)

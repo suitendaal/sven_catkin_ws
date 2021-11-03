@@ -19,6 +19,9 @@ bool DemonstrationCartesianImpedanceController::init(hardware_interface::RobotHW
   // Equilibrium pose
   sub_equilibrium_pose_ = node_handle.subscribe("/equilibrium_pose", 20, &DemonstrationCartesianImpedanceController::equilibriumPoseCallback, this, ros::TransportHints().reliable().tcpNoDelay());
   
+  // Equilibrium force
+  sub_equilibrium_force_ = node_handle.subscribe("/equilibrium_force", 20, &DemonstrationCartesianImpedanceController::equilibriumForceCallback, this, ros::TransportHints().reliable().tcpNoDelay());
+  
   // Controller state publisher
   pub_state_ = node_handle.advertise<franka_custom_controllers::DemonstrationControllerState>("demonstration_control_state", 20);
   
@@ -178,6 +181,9 @@ void DemonstrationCartesianImpedanceController::update(const ros::Time& time,
 
   // Cartesian PD control with damping ratio = 1
   Eigen::Matrix<double, 6, 1> F_task = -cartesian_stiffness_ * error - cartesian_damping_ * (jacobian * dq);
+  for (int i = 0; i < 6; i++) {
+  	F_task[i] += disturbance_force_[i];
+  }
   limit_force(F_task);
   tau_task << jacobian.transpose() * F_task;
 
@@ -287,6 +293,12 @@ void DemonstrationCartesianImpedanceController::equilibriumPoseCallback(const ge
   orientation_d_target_.coeffs() << msg->pose.orientation.x, msg->pose.orientation.y, msg->pose.orientation.z, msg->pose.orientation.w;
   if (last_orientation_d_target.coeffs().dot(orientation_d_target_.coeffs()) < 0.0) {
     orientation_d_target_.coeffs() << -orientation_d_target_.coeffs();
+  }
+}
+
+void DemonstrationCartesianImpedanceController::equilibriumForceCallback(const franka_custom_controllers::ForceStampedConstPtr& msg) {
+  for (int i = 0; i < 6; i++) {
+  	disturbance_force_[i] = msg->force[i];
   }
 }
 

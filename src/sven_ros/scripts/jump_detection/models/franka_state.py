@@ -97,6 +97,10 @@ class FrankaState(object):
 		return self.calc_force(self.tau_measured)
 		
 	@property
+	def force_measured_magnitude(self):
+		return np.linalg.norm(self.force_measured)
+		
+	@property
 	def force_desired(self):
 		return self.calc_force(self.tau_desired)
 		

@@ -16,6 +16,8 @@
 #include <ros/time.h>
 #include <Eigen/Dense>
 
+#include <franka_custom_controllers/ForceStamped.h>
+
 #include <franka_custom_controllers/compliance_param_demonstrationConfig.h>
 #include <franka_hw/franka_model_interface.h>
 #include <franka_hw/franka_state_interface.h>
@@ -58,6 +60,7 @@ class DemonstrationCartesianImpedanceController : public controller_interface::M
   Eigen::Quaterniond orientation_d_;
   Eigen::Vector3d position_d_target_;
   Eigen::Quaterniond orientation_d_target_;
+  Eigen::Matrix<double, 6, 1> disturbance_force_;
   
   // Impact state publisher
   ros::Publisher pub_state_;
@@ -71,6 +74,10 @@ class DemonstrationCartesianImpedanceController : public controller_interface::M
   // Equilibrium pose subscriber
   ros::Subscriber sub_equilibrium_pose_;
   void equilibriumPoseCallback(const geometry_msgs::PoseStampedConstPtr& msg);
+  
+  // Equilibruim force subscriber
+  ros::Subscriber sub_equilibrium_force_;
+  void equilibriumForceCallback(const franka_custom_controllers::ForceStampedConstPtr& msg);
   
   // Calculate joint limiting torque
   Eigen::Matrix<double, 7, 1> calculateJointLimit(const Eigen::Matrix<double, 7, 1>& q);

@@ -8,6 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   sensor_msgs
   message_generation
+  franka_custom_controllers
 )
 
 find_package(Eigen3 REQUIRED)
@@ -25,7 +26,10 @@ catkin_package(CATKIN_DEPENDS
   message_runtime
 )
 
-catkin_package()
+catkin_package(
+  CATKIN_DEPENDS
+    franka_custom_controllers
+)
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
