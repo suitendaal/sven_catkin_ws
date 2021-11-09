@@ -18,6 +18,13 @@ class PositionDataSet(DataSet):
 	def z(self):
 		return self.get_index(2)
 		
+	@property
+	def mag(self):
+		result = PositionDataSet()
+		for datapoint in self:
+			result.append(datapoint.mag)
+		return result
+		
 	def __neg__(self):
 		result = PositionDataSet()
 		for datapoint in self.data:
@@ -74,6 +81,7 @@ class PositionDataSet(DataSet):
 		return result
 		
 	# Euler differentiation. This assumes datapoints are in chronological order of time.
+	@property
 	def diff(self):
 		result = PositionDataSet()
 		for i in range(1,len(self)):

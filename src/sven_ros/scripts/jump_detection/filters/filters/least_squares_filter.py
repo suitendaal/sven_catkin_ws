@@ -51,5 +51,6 @@ class LeastSquaresFilter(Filter):
 		
 	# Returns if there is enough data to fit a polynomial
 	def enough_data(self, data_length):
-		return self.order + 1 + 1 <= data_length
+#		return self.order + 1 + 1 <= data_length
+		return self.order + 1 <= data_length
 

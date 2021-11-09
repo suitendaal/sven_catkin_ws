@@ -8,7 +8,7 @@ from scipy.spatial.transform import Rotation
 from std_msgs.msg import Int32
 from geometry_msgs.msg import PoseStamped, Point
 from sven_ros.msg import BoolStamped
-from sven_ros import ImpedanceControlMode
+from franka_custom_controllers.msg import ControlOptions
 
 class SvenRosControllerNode(object):
 	def __init__(self, reference_trajectory_file, impact_interval_threshold=0.1, initialized=False):
@@ -19,7 +19,7 @@ class SvenRosControllerNode(object):
 		
 		# Publishers
 		self.pose_pub = rospy.Publisher('/equilibrium_pose', PoseStamped, queue_size=40)
-		self.mode_pub = rospy.Publisher('/impedance_control_mode', Int32, queue_size=40)
+		self.mode_pub = rospy.Publisher('/impedance_control_options', ControlOptions, queue_size=40)
 		## For debugging
 		self.orientation_pub = rospy.Publisher('/orientation', Point, queue_size=40)
 		##
@@ -62,6 +62,7 @@ class SvenRosControllerNode(object):
 			else:
 				if time >= phase_data['time'][i] and time < phase_data['time'][i+1]:
 					index = i
+					break
 		
 		pos_data = []
 		vel_data = []
@@ -103,6 +104,8 @@ class SvenRosControllerNode(object):
 			if time > self.time_interval[-1] and not self.trajectory_ended:
 				self.trajectory_ended = True
 				rospy.loginfo("Trajectory ended at time {}.".format(time))
+				self.rate.sleep()
+				break
 			
 			self.rate.sleep()
 			
@@ -120,16 +123,30 @@ class SvenRosControllerNode(object):
 		return msg
 		
 	def get_mode_msg(self, time):
-		msg = Int32()
-		msg.data = ImpedanceControlMode.Default
+		msg = ControlOptions()
+		msg.header.stamp = rospy.Time.from_sec(time + self.starting_time)
+		
+		in_impact_interval = False
 		
 		if self.impact_interval is not None:
 			if time >= self.impact_interval[0]:
 				if self.last_jump_time is not None and self.last_jump_time >= self.impact_interval[0] and time - self.last_jump_time <= self.impact_interval_threshold:
-#					msg.data = ImpedanceControlMode.PositionFeedback
-					msg.data = ImpedanceControlMode.FeedForward
-#					msg.data = ImpedanceControlMode.LoweredGains
-#					msg.data = ImpedanceControlMode.LoweredGainsPositionFeedback
+					in_impact_interval = True
+		
+		if in_impact_interval:
+			msg.use_position_feedback = True
+			msg.use_velocity_feedback = False
+			msg.use_acceleration_feedforward = False
+			msg.stiffness_type = 1
+			msg.use_torque_saturation = True
+			msg.delta_tau_max = 1.0
+		else:
+			msg.use_position_feedback = True
+			msg.use_velocity_feedback = True
+			msg.use_acceleration_feedforward = False
+			msg.stiffness_type = 0
+			msg.use_torque_saturation = True
+			msg.delta_tau_max = 1.0
 
 		return msg
 		

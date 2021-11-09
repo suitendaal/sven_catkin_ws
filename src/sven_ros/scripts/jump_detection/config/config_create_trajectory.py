@@ -8,31 +8,22 @@ from .config_plot_figures import *
 
 # Files with demonstrations
 demos = [
-	'data/demo3.3.bag',
-	'data/demo4.3.bag',
-	'data/demo5.3.bag',
-	'data/demo6.3.bag',
-	'data/demo8.3.bag',
-	'data/demo9.3.bag'
+	'data/demo8.bag',
+	'data/demo9.bag',
+	'data/demo10.bag'
 ]
 
 impact_intervals = [
-	[(2773,2829,)],
-	[(3233,3280,)],
-	[(4958,5009,)],
-	[(3329,3379,)],
-	[(3336,3386,)],
-	[(3783,3835,)]
+	[(6514,6674,)],
+	[(6388,6544,)],
+	[(6360,6498,)]
 ]
 
 
 impact_detection_delays = [
-	[7,6],
-	[3,11],
-	[9,16],
-	[5,4],
-	[3,4],
-	[3,8]
+	[4,4],
+	[9,6],
+	[9,6]
 ]
 
 impact_duration = 0.18
@@ -51,8 +42,9 @@ velocity_filter = None #LeastSquaresFilter(order=2, window_length=20)
 rotational_velocity_filter = None #LeastSquaresFilter(order=2, window_length=20)
 
 ## Extender
-position_extender = ConstantVelocityExtender(1000, impact_duration, 0.06) #ConstantVelocityExtender(timesteps=0.2*500, delta_time=1/500)
-orientation_extender = Extender(1000, impact_duration, 0.06) #ConstantExtender(timesteps=0.2*500, delta_time=1/500)
+frequency, timespan = 1000, 0.5
+position_extender = ConstantVelocityExtender(frequency, impact_duration, timespan) #ConstantVelocityExtender(timesteps=0.2*500, delta_time=1/500)
+orientation_extender = Extender(frequency, impact_duration, timespan)
 
 ### Create reference output settings
 
@@ -110,7 +102,7 @@ via_points = [
 
 ### Output settings
 
-step_size = 1/100#1/500
+step_size = 1/500
 plot_figs = True
 
 # Output filename

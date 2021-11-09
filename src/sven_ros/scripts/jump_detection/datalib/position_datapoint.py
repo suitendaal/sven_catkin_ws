@@ -42,6 +42,10 @@ class PositionDataPoint(DataPoint):
 			self._init_value()
 		self.value[2] = value
 		
+	@property
+	def mag(self):
+		return PositionDataPoint(self.time, np.linalg.norm(self.value))
+		
 	def _init_value(self):
 		self.value = []
 		for i in range(3):

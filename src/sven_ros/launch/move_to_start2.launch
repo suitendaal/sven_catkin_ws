@@ -1,0 +1,6 @@
+<?xml version="1.0" ?>
+<launch>
+  <node name="move_to_start" pkg="sven_ros" type="move_to_start2.py" output="screen" required="true">
+  	<rosparam param="trajectory_file">"scripts/jump_detection/output/evaluated_promps.json"</rosparam>
+  </node>
+</launch>

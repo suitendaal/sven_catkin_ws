@@ -8,7 +8,7 @@ from scipy.spatial.transform import Rotation
 from std_msgs.msg import Int32
 from geometry_msgs.msg import PoseStamped, Point
 from sven_ros.msg import BoolStamped
-from sven_ros import ImpedanceControlMode
+from franka_custom_controllers.msg import ControlOptions
 
 class BaselineControllerNode(object):
 	def __init__(self, reference_trajectory_file, initialized=False):
@@ -19,7 +19,7 @@ class BaselineControllerNode(object):
 		
 		# Publishers
 		self.pose_pub = rospy.Publisher('/equilibrium_pose', PoseStamped, queue_size=40)
-		self.mode_pub = rospy.Publisher('/impedance_control_mode', Int32, queue_size=40)
+		self.mode_pub = rospy.Publisher('/impedance_control_mode', ControlOptions, queue_size=40)
 		## For debugging
 		self.orientation_pub = rospy.Publisher('/orientation', Point, queue_size=40)
 		##
@@ -98,6 +98,8 @@ class BaselineControllerNode(object):
 			if time > self.time_interval[-1] and not self.trajectory_ended:
 				self.trajectory_ended = True
 				rospy.loginfo("Trajectory ended at time {}.".format(time))
+				self.rate.sleep()
+				break
 			
 			self.rate.sleep()
 			
@@ -115,9 +117,15 @@ class BaselineControllerNode(object):
 		return msg
 		
 	def get_mode_msg(self, time):
-		msg = Int32()
-		msg.data = ImpedanceControlMode.Default
-
+		msg = ControlOptions()
+		msg.header.stamp = rospy.Time.from_sec(time + self.starting_time)	
+		msg.use_position_feedback = True
+		msg.use_velocity_feedback = True
+		msg.use_acceleration_feedforward = False
+		msg.stiffness_type = 1
+		msg.use_torque_saturation = True
+		msg.delta_tau_max = 1.0
+		
 		return msg
 		
 	def update_phase(self, time):

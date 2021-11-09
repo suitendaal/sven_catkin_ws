@@ -12,8 +12,8 @@ hitting_time = starting_time + (height - table_height) / velocity
 ending_time = starting_time + (height - bottom) / velocity
 
 via_points = PoseDataSet([
-	PoseDataPoint(0, [0, 0.6, height, math.pi, 0, math.pi/2]),
-	PoseDataPoint(starting_time, [0, 0.6, height, math.pi, 0, math.pi/2]),
-	PoseDataPoint(ending_time, [0, 0.6, bottom, math.pi, 0, math.pi/2]),
-	PoseDataPoint(ending_time + starting_time, [0, 0.6, bottom, math.pi, 0, math.pi/2])
+	PoseDataPoint(0, [0, 0.6, height, math.pi, -0.03, math.pi/2]),
+	PoseDataPoint(starting_time, [0, 0.6, height, math.pi, -0.03, math.pi/2]),
+	PoseDataPoint(ending_time, [0, 0.6, bottom, math.pi, -0.03, math.pi/2]),
+	PoseDataPoint(ending_time + starting_time, [0, 0.6, bottom, math.pi, -0.03, math.pi/2])
 ])

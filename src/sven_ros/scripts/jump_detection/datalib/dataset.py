@@ -109,6 +109,7 @@ class DataSet():
 		return y
 		
 	# Euler differentiation. This assumes datapoints are in chronological order of time.
+	@property
 	def diff(self):
 		result = DataSet()
 		for i in range(1,len(self)):

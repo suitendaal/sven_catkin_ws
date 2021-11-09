@@ -74,7 +74,7 @@ class FrankaState(object):
 		
 	@property
 	def tau_external(self):
-		return self.franka_state_.tau_ext_hat_filtered
+		return list(self.franka_state_.tau_ext_hat_filtered)
 		
 	@property
 	def robot(self):
@@ -106,7 +106,7 @@ class FrankaState(object):
 		
 	@property
 	def force_external(self):
-		return self.franka_state_.O_F_ext_hat_K[0:3]
+		return list(self.franka_state_.O_F_ext_hat_K)[0:3]
 		
 	@property
 	def force_external_magnitude(self):
