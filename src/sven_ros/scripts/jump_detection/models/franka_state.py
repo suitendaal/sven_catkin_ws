@@ -109,6 +109,10 @@ class FrankaState(object):
 		return list(self.franka_state_.O_F_ext_hat_K)[0:3]
 		
 	@property
+	def torque_external(self):
+		return list(self.franka_state_.O_F_ext_hat_K)[3:6]
+		
+	@property
 	def force_external_magnitude(self):
 		return np.linalg.norm(self.force_external)
 		

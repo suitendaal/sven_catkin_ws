@@ -17,7 +17,7 @@ namespace franka_custom_controllers {
 
 bool ImpactAwareCartesianImpedanceController::init(hardware_interface::RobotHW* robot_hw, ros::NodeHandle& node_handle) {
   // Equilibrium pose
-  sub_equilibrium_pose_ = node_handle.subscribe("/equilibrium_pose", 20, &ImpactAwareCartesianImpedanceController::equilibriumPoseCallback, this, ros::TransportHints().reliable().tcpNoDelay());
+  sub_equilibrium_pose_ = node_handle.subscribe("/equilibrium_state", 20, &ImpactAwareCartesianImpedanceController::equilibriumPoseCallback, this, ros::TransportHints().reliable().tcpNoDelay());
   
   // Control mode
   sub_options_ = node_handle.subscribe("/impedance_control_options", 20, &ImpactAwareCartesianImpedanceController::controlOptionsCallback, this, ros::TransportHints().reliable().tcpNoDelay());
@@ -140,19 +140,27 @@ void ImpactAwareCartesianImpedanceController::update(const ros::Time& time,
       cartesian_damping_ = filter_params_ * cartesian_damping_target_ + (1.0 - filter_params_) * cartesian_damping_;
       break;
   }
-    
+
   nullspace_stiffness_ = filter_params_ * nullspace_stiffness_target_ + (1.0 - filter_params_) * nullspace_stiffness_;
   position_d_ = filter_params_ * position_d_target_ + (1.0 - filter_params_) * position_d_;
   orientation_d_ = orientation_d_.slerp(filter_params_, orientation_d_target_);
+  velocity_d_ = filter_params_ * velocity_d_target_ + (1.0 - filter_params_) * velocity_d_;
+  rotational_velocity_d_ = filter_params_ * rotational_velocity_d_target_ + (1.0 - filter_params_) * rotational_velocity_d_;
+  acceleration_d_ = filter_params_ * acceleration_d_target_ + (1.0 - filter_params_) * acceleration_d_;
+  rotational_acceleration_d_ = filter_params_ * rotational_acceleration_d_target_ + (1.0 - filter_params_) * rotational_acceleration_d_;
+  effort_d_ = filter_params_ * effort_d_target_ + (1.0 - filter_params_) * effort_d_;
+  
 
   // get state variables
   franka::RobotState robot_state = state_handle_->getRobotState();
   std::array<double, 7> coriolis_array = model_handle_->getCoriolis();
   std::array<double, 42> jacobian_array = model_handle_->getZeroJacobian(franka::Frame::kEndEffector);
+  std::array<double, 49> mass_array = model_handle_->getMass();
 
   // convert to Eigen
   Eigen::Map<Eigen::Matrix<double, 7, 1>> coriolis(coriolis_array.data());
   Eigen::Map<Eigen::Matrix<double, 6, 7>> jacobian(jacobian_array.data());
+  Eigen::Map<Eigen::Matrix<double, 7, 7>> mass(mass_array.data());
   Eigen::Map<Eigen::Matrix<double, 7, 1>> q(robot_state.q.data());
   Eigen::Map<Eigen::Matrix<double, 7, 1>> dq(robot_state.dq.data());
   Eigen::Map<Eigen::Matrix<double, 7, 1>> tau_J_d(  // NOLINT (readability-identifier-naming)
@@ -160,25 +168,11 @@ void ImpactAwareCartesianImpedanceController::update(const ros::Time& time,
   Eigen::Affine3d transform(Eigen::Matrix4d::Map(robot_state.O_T_EE.data()));
   Eigen::Vector3d position(transform.translation());
   Eigen::Quaterniond orientation(transform.linear());
+  Eigen::Matrix<double, 6, 1> velocity(jacobian * dq);
   
   // Get other variables to record
   Eigen::Map<Eigen::Matrix<double, 7, 1>> tau_external(robot_state.tau_ext_hat_filtered.data());
   Eigen::Map<Eigen::Matrix<double, 7, 1>> tau_measured(robot_state.tau_J.data());
-
-  // compute error to desired pose
-  // position error
-  Eigen::Matrix<double, 6, 1> error;
-  error.head(3) << position - position_d_;
-
-  // orientation error
-  if (orientation_d_.coeffs().dot(orientation.coeffs()) < 0.0) {
-    orientation.coeffs() << -orientation.coeffs();
-  }
-  // "difference" quaternion
-  Eigen::Quaterniond error_quaternion(orientation.inverse() * orientation_d_);
-  error.tail(3) << error_quaternion.x(), error_quaternion.y(), error_quaternion.z();
-  // Transform to base frame
-  error.tail(3) << -transform.linear() * error.tail(3);
 
   // compute control
   // allocate variables
@@ -192,13 +186,51 @@ void ImpactAwareCartesianImpedanceController::update(const ros::Time& time,
 
   // Cartesian PD control with damping ratio = 1
   if (control_options_.use_position_feedback) {
+  	// position error
+	Eigen::Matrix<double, 6, 1> error;
+	error.head(3) << position - position_d_;
+
+	// orientation error
+	if (orientation_d_.coeffs().dot(orientation.coeffs()) < 0.0) {
+		orientation.coeffs() << -orientation.coeffs();
+	}
+	// "difference" quaternion
+	Eigen::Quaterniond error_quaternion(orientation.inverse() * orientation_d_);
+	error.tail(3) << error_quaternion.x(), error_quaternion.y(), error_quaternion.z();
+	
+	// Transform to base frame
+	error.tail(3) << -transform.linear() * error.tail(3);
+  	
   	tau_task << tau_task + jacobian.transpose() * (-cartesian_stiffness_ * error);
   }
+  
+  // velocity vector
+  Eigen::Matrix<double, 6, 1> velocity_d_vector;
+  velocity_d_vector.head(3) << velocity_d_;
+  velocity_d_vector.tail(3) << rotational_velocity_d_;
+  
   if (control_options_.use_velocity_feedback) {
-  	tau_task << tau_task + jacobian.transpose() * (-cartesian_damping_ * (jacobian * dq));
+		tau_task << tau_task + jacobian.transpose() * (-cartesian_damping_ * velocity);
   }
+  if (control_options_.use_velocity_feedforward) {
+    tau_task << tau_task + jacobian.transpose() * (-cartesian_damping_ * -velocity_d_vector);
+  }
+  
   if (control_options_.use_acceleration_feedforward) {
-  	// TODO
+  	// See https://studywolf.wordpress.com/2013/09/17/robot-control-4-operation-space-control/
+  	// Mass matrix
+  	Eigen::Matrix<double, 6, 6> mass_ts = (jacobian * mass.inverse() * jacobian.transpose()).inverse();
+  	
+  	// Acceleration vector
+  	Eigen::Matrix<double, 6, 1> acceleration_d_vector;
+  	acceleration_d_vector.head(3) << acceleration_d_;
+  	acceleration_d_vector.tail(3) << rotational_acceleration_d_;
+  	
+  	tau_task << tau_task + jacobian.transpose() * mass_ts * acceleration_d_vector;
+  }
+  
+  if (control_options_.use_effort_feedforward) {
+  	tau_task << tau_task + jacobian.transpose() * effort_d_;
   }
 
   // nullspace PD control with damping ratio = 1
@@ -301,13 +333,19 @@ void ImpactAwareCartesianImpedanceController::controlOptionsCallback(const frank
   delta_tau_max_ = control_options_.delta_tau_max;
 }
 
-void ImpactAwareCartesianImpedanceController::equilibriumPoseCallback(const geometry_msgs::PoseStampedConstPtr& msg) {
+void ImpactAwareCartesianImpedanceController::equilibriumPoseCallback(const franka_custom_controllers::RobotStateConstPtr& msg) {
   position_d_target_ << msg->pose.position.x, msg->pose.position.y, msg->pose.position.z;
   Eigen::Quaterniond last_orientation_d_target(orientation_d_target_);
   orientation_d_target_.coeffs() << msg->pose.orientation.x, msg->pose.orientation.y, msg->pose.orientation.z, msg->pose.orientation.w;
   if (last_orientation_d_target.coeffs().dot(orientation_d_target_.coeffs()) < 0.0) {
     orientation_d_target_.coeffs() << -orientation_d_target_.coeffs();
   }
+  velocity_d_target_ << msg->velocity.linear.x, msg->velocity.linear.y, msg->velocity.linear.z;
+  rotational_velocity_d_target_ << msg->velocity.angular.x, msg->velocity.angular.y, msg->velocity.angular.z;
+  acceleration_d_target_ << msg->acceleration.linear.x, msg->acceleration.linear.y, msg->acceleration.linear.z;
+  rotational_acceleration_d_target_ << msg->acceleration.angular.x, msg->acceleration.angular.y, msg->acceleration.angular.z;
+  effort_d_target_.head(3) << msg->effort.linear.x, msg->effort.linear.y, msg->effort.linear.z;
+  effort_d_target_.tail(3) << msg->effort.angular.x, msg->effort.angular.y, msg->effort.angular.z;
 }
 
 Eigen::Matrix<double, 7, 1> ImpactAwareCartesianImpedanceController::calculateJointLimit(const Eigen::Matrix<double, 7, 1>& q) {

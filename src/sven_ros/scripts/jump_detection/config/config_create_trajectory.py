@@ -42,9 +42,11 @@ velocity_filter = None #LeastSquaresFilter(order=2, window_length=20)
 rotational_velocity_filter = None #LeastSquaresFilter(order=2, window_length=20)
 
 ## Extender
-frequency, timespan = 1000, 0.5
+frequency, timespan = 1000, 1.0
 position_extender = ConstantVelocityExtender(frequency, impact_duration, timespan) #ConstantVelocityExtender(timesteps=0.2*500, delta_time=1/500)
 orientation_extender = Extender(frequency, impact_duration, timespan)
+force_extender = Extender(frequency, impact_duration, timespan)
+torque_extender = Extender(frequency, impact_duration, timespan)
 
 ### Create reference output settings
 
@@ -87,17 +89,29 @@ promps_output_file = 'output/promps.json'
 
 via_points = [
 	DataSet([
-	]),
+	]), # X
 	DataSet([
-	]),
+	]), # Y
 	DataSet([
-	]),
+	]), # Z
 	DataSet([
-	]),
+	]), # phi
 	DataSet([
-	]),
+	]), # theta
 	DataSet([
-	])
+	]), # psi
+	DataSet([
+	]), # Fx
+	DataSet([
+	]), # Fy
+	DataSet([
+	]), # Fz
+	DataSet([
+	]), # Tphi
+	DataSet([
+	]), # Ttheta
+	DataSet([
+	]) # Tpsi
 ]
 
 ### Output settings

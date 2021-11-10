@@ -25,7 +25,7 @@ class RadialBasisFunction(BasisFunction):
 
 	def to_dict(self):
 		json_object = dict()
-		json_object['type'] = 'RadialBasisFunction'
+		json_object['type'] = 'RBF'
 		json_object['center'] = self.center
 		json_object['width'] = self.width
 		return json_object

@@ -5,7 +5,8 @@ import rospkg
 import sys
 import json
 from scipy.spatial.transform import Rotation
-from geometry_msgs.msg import PoseStamped, Point
+from geometry_msgs.msg import Point
+from franka_custom_controllers.msg import RobotState
 
 
 if __name__ == '__main__':
@@ -19,7 +20,7 @@ if __name__ == '__main__':
 	print("Filename:",filename)
 	
 	try:
-		pose_pub = rospy.Publisher('/equilibrium_pose', PoseStamped, queue_size=40)
+		pose_pub = rospy.Publisher('/equilibrium_state', RobotState, queue_size=40)
 		orientation_pub = rospy.Publisher('/equilibrium_orientation', Point, queue_size=40)
 		rospy.sleep(1)
 		
@@ -36,7 +37,7 @@ if __name__ == '__main__':
 			orientation_pub.publish(msg1)
 			##
 			
-			msg = PoseStamped()
+			msg = RobotState()
 			msg.header.stamp = rospy.get_rostime()
 			msg.header.frame_id = "move_to_start"
 			msg.pose.position.x = value[0]

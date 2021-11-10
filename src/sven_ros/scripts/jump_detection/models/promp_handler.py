@@ -110,7 +110,7 @@ class ProMPHandler(object):
 	def basis_functions_from_dict(self, json_object):
 		basis_functions = []
 		for i in json_object:
-			if i['type'] == 'RadialBasisFunction':
+			if i['type'] == 'RBF':
 				basis_function = RadialBasisFunction()
 				basis_function.from_dict(i)
 				basis_functions.append(basis_function)

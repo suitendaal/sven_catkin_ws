@@ -8,7 +8,7 @@
 
 #include <controller_interface/multi_interface_controller.h>
 #include <dynamic_reconfigure/server.h>
-#include <geometry_msgs/PoseStamped.h>
+/*#include <geometry_msgs/PoseStamped.h>*/
 #include <std_msgs/Int32.h>
 #include <hardware_interface/joint_command_interface.h>
 #include <hardware_interface/robot_hw.h>
@@ -18,6 +18,7 @@
 
 #include <franka_custom_controllers/compliance_paramConfig.h>
 #include <franka_custom_controllers/ControlOptions.h>
+#include <franka_custom_controllers/RobotState.h>
 #include <franka_hw/franka_model_interface.h>
 #include <franka_hw/franka_state_interface.h>
 
@@ -42,6 +43,7 @@ class ImpactAwareCartesianImpedanceController : public controller_interface::Mul
   std::unique_ptr<franka_hw::FrankaModelHandle> model_handle_;
   std::vector<hardware_interface::JointHandle> joint_handles_;
 
+  // Stiffness parameters
   double filter_params_{0.005};
   double nullspace_stiffness_{20.0};
   double nullspace_stiffness_target_{20.0};
@@ -53,10 +55,22 @@ class ImpactAwareCartesianImpedanceController : public controller_interface::Mul
   Eigen::Matrix<double, 6, 6> cartesian_damping_target_;
   Eigen::Matrix<double, 6, 6> cartesian_damping_impact_;
   Eigen::Matrix<double, 7, 1> q_d_nullspace_;
+  
+  // State parameters
   Eigen::Vector3d position_d_;
-  Eigen::Quaterniond orientation_d_;
   Eigen::Vector3d position_d_target_;
+  Eigen::Quaterniond orientation_d_;
   Eigen::Quaterniond orientation_d_target_;
+  Eigen::Vector3d velocity_d_;
+  Eigen::Vector3d velocity_d_target_;
+  Eigen::Vector3d rotational_velocity_d_;
+  Eigen::Vector3d rotational_velocity_d_target_;
+  Eigen::Vector3d acceleration_d_;
+  Eigen::Vector3d acceleration_d_target_;
+  Eigen::Vector3d rotational_acceleration_d_;
+  Eigen::Vector3d rotational_acceleration_d_target_;
+  Eigen::Matrix<double, 6, 1> effort_d_;
+  Eigen::Matrix<double, 6, 1> effort_d_target_;
   
   // Impact state publisher
   ros::Publisher pub_state_;
@@ -74,7 +88,7 @@ class ImpactAwareCartesianImpedanceController : public controller_interface::Mul
 
   // Equilibrium pose subscriber
   ros::Subscriber sub_equilibrium_pose_;
-  void equilibriumPoseCallback(const geometry_msgs::PoseStampedConstPtr& msg);
+  void equilibriumPoseCallback(const franka_custom_controllers::RobotStateConstPtr& msg);
   
   // Calculate joint limiting torque
   Eigen::Matrix<double, 7, 1> calculateJointLimit(const Eigen::Matrix<double, 7, 1>& q);

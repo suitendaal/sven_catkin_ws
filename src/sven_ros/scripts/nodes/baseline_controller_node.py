@@ -6,9 +6,9 @@ import sys
 import json
 from scipy.spatial.transform import Rotation
 from std_msgs.msg import Int32
-from geometry_msgs.msg import PoseStamped, Point
+from geometry_msgs.msg import Point
 from sven_ros.msg import BoolStamped
-from franka_custom_controllers.msg import ControlOptions
+from franka_custom_controllers.msg import ControlOptions, RobotState
 
 class BaselineControllerNode(object):
 	def __init__(self, reference_trajectory_file, initialized=False):
@@ -18,8 +18,8 @@ class BaselineControllerNode(object):
 		self.phases = self.read_reference_trajectory()
 		
 		# Publishers
-		self.pose_pub = rospy.Publisher('/equilibrium_pose', PoseStamped, queue_size=40)
-		self.mode_pub = rospy.Publisher('/impedance_control_mode', ControlOptions, queue_size=40)
+		self.pose_pub = rospy.Publisher('/equilibrium_state', RobotState, queue_size=40)
+		self.mode_pub = rospy.Publisher('/impedance_control_options', ControlOptions, queue_size=40)
 		## For debugging
 		self.orientation_pub = rospy.Publisher('/orientation', Point, queue_size=40)
 		##
@@ -61,10 +61,14 @@ class BaselineControllerNode(object):
 		pos_data = []
 		vel_data = []
 		or_data = []
+		for_data = []
+		tor_data = []
 		for i in range(3):
 			pos_data.append(phase_data['position'][index][i])
 			vel_data.append(phase_data['velocity'][index][i])
 			or_data.append(phase_data['orientation'][index][i])
+			for_data.append(phase_data['force'][index][i])
+			tor_data.append(phase_data['torque'][index][i])
 			
 		rot = Rotation.from_euler('xyz', or_data)
 		
@@ -80,6 +84,8 @@ class BaselineControllerNode(object):
 		result.extend(pos_data)
 		result.extend(rot.as_quat().tolist())
 		result.extend(vel_data)
+		result.extend(for_data)
+		result.extend(tor_data)
 		
 		return result
 		
@@ -104,8 +110,8 @@ class BaselineControllerNode(object):
 			self.rate.sleep()
 			
 	def get_pose_msg(self, time):
-		msg = PoseStamped()
-		x, y, z, qx, qy, qz, qw, xd, yd, zd = self.evaluate(time)
+		msg = RobotState()
+		x, y, z, qx, qy, qz, qw, xd, yd, zd, fx, fy, fz, tx, ty, tz = self.evaluate(time)
 		msg.header.stamp = rospy.Time.from_sec(time + self.starting_time)
 		msg.pose.position.x = x
 		msg.pose.position.y = y
@@ -114,17 +120,33 @@ class BaselineControllerNode(object):
 		msg.pose.orientation.y = qy
 		msg.pose.orientation.z = qz
 		msg.pose.orientation.w = qw
+		msg.velocity.linear.x = xd
+		msg.velocity.linear.y = yd
+		msg.velocity.linear.z = zd
+		msg.effort.linear.x = fx
+		msg.effort.linear.y = fy
+		msg.effort.linear.z = fz
+		msg.effort.angular.x = tx
+		msg.effort.angular.y = ty
+		msg.effort.angular.z = tz
+		
 		return msg
 		
 	def get_mode_msg(self, time):
 		msg = ControlOptions()
-		msg.header.stamp = rospy.Time.from_sec(time + self.starting_time)	
+		msg.header.stamp = rospy.Time.from_sec(time + self.starting_time)			
 		msg.use_position_feedback = True
 		msg.use_velocity_feedback = True
+		msg.use_velocity_feedforward = False
 		msg.use_acceleration_feedforward = False
-		msg.stiffness_type = 1
+		msg.stiffness_type = 0
 		msg.use_torque_saturation = True
 		msg.delta_tau_max = 1.0
+		msg.use_effort_feedforward = False
+#		# TODO: dependent on phase
+#		msg.use_effort_feedforward = False
+#		if self.current_phase == 1:
+#			msg.use_effort_feedforward = True
 		
 		return msg
 		
