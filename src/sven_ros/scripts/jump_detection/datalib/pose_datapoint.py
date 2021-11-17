@@ -3,7 +3,7 @@
 from .position_datapoint import *
 import numpy as np
 
-class PoseDataPoint(DataPoint):
+class PoseDataPoint(PositionDataPoint):
 	"""docstring for PoseDataPoint."""
 		
 	@property

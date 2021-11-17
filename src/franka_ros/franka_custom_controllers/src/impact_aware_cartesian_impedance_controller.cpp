@@ -250,7 +250,8 @@ void ImpactAwareCartesianImpedanceController::update(const ros::Time& time,
   ImpactControlState msg;
   msg.header.seq = sequence_;
   msg.header.stamp = time;
-  msg.header.frame_id = "ImpactAwareCartesianImpedanceController";
+  msg.header.frame_id = "IACIC";
+  msg.control_options = control_options_;
   
   for (int i = 0; i < 7; i++) {
     msg.coriolis[i] = coriolis_array[i];
@@ -273,6 +274,8 @@ void ImpactAwareCartesianImpedanceController::update(const ros::Time& time,
   
   for (int i = 0; i < 3; i++) {
     msg.position_d[i] = position_d_[i];
+    msg.effort_d[i] = effort_d_[i];
+    msg.effort_d[i+3] = effort_d_[i+3];
   }
   
   msg.orientation_d[0] = orientation_d_.x();

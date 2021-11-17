@@ -6,9 +6,11 @@ float64[7] dq
 float64[16] O_T_EE
 float64[3] position_d
 float64[4] orientation_d
+float64[6] effort_d
 float64[7] tau_external
 float64[7] tau_measured
 float64[7] tau_task
 float64[7] tau_nullspace
 float64[7] tau_d
-uint8 impedance_control_mode
+franka_custom_controllers/ControlOptions control_options
+
