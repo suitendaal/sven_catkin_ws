@@ -20,4 +20,6 @@ config:
     stiffness_type: 1
     use_torque_saturation: true
     delta_tau_max: 1.0
+  interim_config:
+    interim_ending_mode: 0
 

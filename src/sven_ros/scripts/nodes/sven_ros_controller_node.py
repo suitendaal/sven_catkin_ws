@@ -34,6 +34,7 @@ class SvenRosControllerNode(object):
 		
 		# Phase
 		self.impact_interval_threshold = impact_interval_threshold
+		self.first_jump_time = None
 		self.last_jump_time = None
 		self.in_interim_phase = False
 		self.current_phase = 0
@@ -180,12 +181,17 @@ class SvenRosControllerNode(object):
 				
 			elif time >= self.impact_interval[0]:
 				if self.last_jump_time is not None and self.last_jump_time >= self.impact_interval[0]:
-						if self.interim_phase_ended(time):
-							rospy.loginfo("Last impact of simultaneous impact interval at time {} detected.".format(time))
-							self.current_phase += 1
-							self.in_interim_phase = False
-						else:
-							self.in_interim_phase = True
+					if self.interim_phase_ended(time):
+						rospy.loginfo("Last impact of simultaneous impact interval at time {} detected.".format(time))
+						self.current_phase += 1
+						self.in_interim_phase = False
+					else:
+						self.in_interim_phase = True
+		if self.in_interim_phase:
+			if self.first_jump_time is None:
+				self.first_jump_time = self.last_jump_time
+		else:
+			self.first_jump_time = None
 		
 	def jump_detector_callback(self, msg):
 		if msg.data:
@@ -195,7 +201,12 @@ class SvenRosControllerNode(object):
 				self.last_jump_time = time
 				
 	def interim_phase_ended(self, time):
+		mode = self.config['interim_config']['interim_ending_mode']
 		# TODO: different modes based on config
+		if mode == 0:
+			return time - self.last_jump_time > self.impact_interval_threshold
+		elif mode == 1:
+			return time - self.first_jump_time > self.impact_interval_threshold
 		return time - self.last_jump_time > self.impact_interval_threshold
 
 

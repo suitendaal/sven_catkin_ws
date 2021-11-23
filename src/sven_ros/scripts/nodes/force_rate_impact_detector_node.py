@@ -13,7 +13,7 @@ class ForceRateImpactDetectorNode(object):
 		self.jump_detector = jump_detector
 		
 		# Publishers
-		self.jump_detection_pub = rospy.Publisher('jump_detector', BoolStamped, queue_size=40)
+		self.jump_detection_pub = rospy.Publisher('/sven_ros/jump_detector', BoolStamped, queue_size=40)
 		
 		# Subscribers
 		self.data_sub = rospy.Subscriber('/franka_state_controller/franka_states', FrankaState, self.data_received)
