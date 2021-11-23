@@ -2,14 +2,14 @@
 
 from .jump_aware_filter import *
 
-class ForceDerivativeJumpAwareFilter(JumpAwareFilter):
+class ExternalForceJumpAwareFilter(JumpAwareFilter):
 	"""docstring for JumpAwareFilter."""
 
 	def __init__(self, predictor, bounder, **kwargs):
-		super(ForceDerivativeJumpAwareFilter, self).__init__(predictor, bounder, **kwargs)
+		super(ExternalForceJumpAwareFilter, self).__init__(predictor, bounder, **kwargs)
 		
 	def copy(self):
-		result = ForceDerivativeJumpAwareFilter(self.predictor.copy(), self.bounder.copy(), max_window_length=self.max_window_length)
+		result = ExternalForceJumpAwareFilter(self.predictor.copy(), self.bounder.copy(), max_window_length=self.max_window_length)
 		result.window_length = self.window_length
 		result.data = self.data.copy()
 		return result
@@ -21,20 +21,18 @@ class ForceDerivativeJumpAwareFilter(JumpAwareFilter):
 		info.append(jump_detected)
 		
 		# Update window_length
-#		if jump_detected:
-#			self.window_length = 0
-#			self.predictor.reset()
-#			self.bounder.reset()
-#			self.data.clear()
-#		else:
-		self.window_length = min(self.window_length + 1, self.max_window_length)
-		self.predictor.window_length = self.window_length
-		self.predictor.update(datapoint)
-		self.bounder.window_length = self.window_length
-		self.bounder.update(datapoint)
-		self.data.append(datapoint)
-		while len(self.data) > self.window_length:
-			self.data.pop(0)
+		if jump_detected:
+			self.window_length = 0
+			self.predictor.reset()
+			self.bounder.reset()
+			self.data.clear()
+		else:
+			self.window_length = min(self.window_length + 1, self.max_window_length)
+			self.predictor.window_length = self.window_length
+			self.predictor.update(datapoint)
+			self.bounder.window_length = self.window_length
+			self.bounder.update(datapoint)
+			self.data.append(datapoint)
 			
 		# Return result
 		return (jump_detected and datapoint.value > info[0]), info

@@ -13,14 +13,14 @@ demos = [
 ]
 
 ### Jump detector
-predictor = LeastSquaresFilter(order=2)
-tmp = 0.55#1.12#0.55#1.12
-bound = [tmp/2 / 0.001**3, 0, 0, tmp/2]#[tmp/2 / 0.001**2, 0, tmp/2] #[tmp/2 / 0.001**4, 0, 0, 0, tmp/2]#[tmp/2 / 0.001**2, 0, tmp/2]#[tmp/2 / 0.001**3, 0, 0, tmp/2] #[tmp / 0.001**2, 0, 0] #[tmp/2 / 0.001**2, 0, tmp/2] #[tmp/3 / 0.001**2, tmp/3 / 0.001, tmp/3] #[500000, 0, 0]
-bounder = NumericalBounder(bound=bound)# ConstantBounder(bound=0.5)
-jump_detector = JumpAwareExternalForceFilter(predictor, bounder, max_window_length=14)
-#predictor = ForceDerivativePredictor(order=1)
-#bounder = ForceDerivativeBounder(bound=620)
-#jump_detector = JumpAwareExternalForceFilter(predictor, bounder, max_window_length=1)
+#predictor = LeastSquaresFilter(order=2)
+#tmp = 0.55#1.12#0.55#1.12
+#bound = [tmp/2 / 0.001**3, 0, 0, tmp/2]#[tmp/2 / 0.001**2, 0, tmp/2] #[tmp/2 / 0.001**4, 0, 0, 0, tmp/2]#[tmp/2 / 0.001**2, 0, tmp/2]#[tmp/2 / 0.001**3, 0, 0, tmp/2] #[tmp / 0.001**2, 0, 0] #[tmp/2 / 0.001**2, 0, tmp/2] #[tmp/3 / 0.001**2, tmp/3 / 0.001, tmp/3] #[500000, 0, 0]
+#bounder = NumericalBounder(bound=bound)# ConstantBounder(bound=0.5)
+#jump_detector = JumpAwareExternalForceFilter(predictor, bounder, max_window_length=14)
+predictor = MultiForceDerivativePredictor(time_window=0.035)
+bounder = ForceDerivativeBounder(bound=1.0 / 0.001)
+jump_detector = MultiExternalForceJumpAwareFilter(predictor, bounder, max_window_length=2)
 	
 ### Detect Jumps output settings
 

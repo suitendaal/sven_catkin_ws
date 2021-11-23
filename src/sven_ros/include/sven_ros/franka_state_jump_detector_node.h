@@ -3,7 +3,7 @@
 
 #include <ros/ros.h>
 
-#include "jump_detector/jump_detector.h"
+#include "jump_detector_new/jump_detector.h"
 #include <sven_ros/jump_detector_node.h>
 
 #include <franka_msgs/FrankaState.h>

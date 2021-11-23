@@ -39,19 +39,24 @@ include_directories(
   ${EIGEN3_INCLUDE_DIRS}
 )
 
-# Build VIVE pose converter node
-add_executable(vive_pose_converter_node src/vive_pose_converter_node.cpp)
-target_link_libraries(vive_pose_converter_node ${catkin_LIBRARIES})
+## Build VIVE pose converter node
+#add_executable(vive_pose_converter_node src/vive_pose_converter_node.cpp)
+#target_link_libraries(vive_pose_converter_node ${catkin_LIBRARIES})
 
-# Build joint jump detector node
-add_executable(joint_jump_detector_node src/joint_jump_detector_node.cpp)
-target_link_libraries(joint_jump_detector_node ${catkin_LIBRARIES})
-add_dependencies(joint_jump_detector_node sven_ros_generate_messages_cpp)
+## Build joint jump detector node
+#add_executable(joint_jump_detector_node src/joint_jump_detector_node.cpp)
+#target_link_libraries(joint_jump_detector_node ${catkin_LIBRARIES})
+#add_dependencies(joint_jump_detector_node sven_ros_generate_messages_cpp)
 
 # Build external force jump detector node
 add_executable(external_force_jump_detector_node src/external_force_jump_detector_node.cpp)
 target_link_libraries(external_force_jump_detector_node ${catkin_LIBRARIES})
 add_dependencies(external_force_jump_detector_node sven_ros_generate_messages_cpp)
+
+# Build force rate jump detector node
+add_executable(force_rate_impact_detector_node src/force_rate_impact_detector_node.cpp)
+target_link_libraries(force_rate_impact_detector_node ${catkin_LIBRARIES})
+add_dependencies(force_rate_impact_detector_node sven_ros_generate_messages_cpp)
 
 # Build sven ros controller node
 catkin_install_python(PROGRAMS scripts/nodes/sven_ros_controller_node.py
@@ -80,6 +85,11 @@ catkin_install_python(PROGRAMS scripts/nodes/vive_pose_converter_node.py
 
 # Build vive pose converter node 2
 catkin_install_python(PROGRAMS scripts/nodes/vive_pose_converter_node2.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+# Build sven ros controller node
+catkin_install_python(PROGRAMS scripts/nodes/force_rate_impact_detector_node.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

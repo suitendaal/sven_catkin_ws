@@ -19,11 +19,8 @@ class ForceDerivativeBounder(ConstantBounder):
 		value = None
 		subset = self.data[-self.window_length:]
 		if self.bound_ is not None and len(subset) > 0:
-			value = (datapoint.time - subset[-1].time) * self.bound_
+			value = (datapoint.time - subset[0].time) / len(subset) * self.bound_
 		return DataPoint(datapoint.time, value), []
-		
-	def set_bound(self, bound):
-		self.bound_ = bound
 		
 	def update(self, datapoint):
 		self.data.append(datapoint)

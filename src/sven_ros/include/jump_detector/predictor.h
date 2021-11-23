@@ -1,8 +1,6 @@
 #ifndef PREDICTOR_H
 #define PREDICTOR_H
 
-#include <vector>
-
 #include "jump_detector/data_container.h"
 
 class Predictor : public DataContainer {

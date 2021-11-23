@@ -1,7 +1,7 @@
 #include <sven_ros/external_force_jump_detector_node.h>
-#include <jump_detector/impact_aware_force_filter.h>
-#include <jump_detector/constant_bounder.h>
-#include <jump_detector/least_squares_predictor.h>
+#include <jump_detector_new/impact_aware_force_filter.h>
+#include <jump_detector_new/constant_bounder.h>
+#include <jump_detector_new/least_squares_predictor.h>
 #include <string>
 
 int main(int argc, char **argv)
@@ -15,7 +15,7 @@ int main(int argc, char **argv)
 	
 	// Bounder settings
 	double bound;
-	nh.param<double>("bounder_config/bound", bound, 6);
+	nh.param<double>("/external_force_jump_detector/bounder_config/bound", bound, 6);
 	
 	// Ja filter settings
 	int max_window_length;

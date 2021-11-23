@@ -7,4 +7,5 @@ bool use_effort_feedforward
 uint8 stiffness_type
 bool use_torque_saturation
 float64 delta_tau_max
+uint8 phase
 

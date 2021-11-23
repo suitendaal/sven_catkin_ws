@@ -19,7 +19,7 @@ class LeastSquaresFilter(Filter):
 	def filter(self, datapoint):
 		subset = self.data[-self.window_length:]
 		subset.append(datapoint)
-		if not self.enough_data(len(subset)):
+		if not self.enough_data(subset, datapoint):
 			return DataPoint(datapoint.time, None), []
 		
 		x = subset.time
@@ -35,7 +35,7 @@ class LeastSquaresFilter(Filter):
 		
 	def predict(self, datapoint):
 		subset = self.data[-self.window_length:]
-		if not self.enough_data(len(subset)):
+		if not self.enough_data(subset, datapoint):
 			return DataPoint(datapoint.time, None), []
 		
 		x = subset.time
@@ -50,7 +50,7 @@ class LeastSquaresFilter(Filter):
 		return DataPoint(datapoint.time, value), coefs
 		
 	# Returns if there is enough data to fit a polynomial
-	def enough_data(self, data_length):
+	def enough_data(self, subset, datapoint):
 #		return self.order + 1 + 1 <= data_length
-		return self.order + 1 <= data_length
+		return self.order + 1 <= len(subset)
 

@@ -1,0 +1,23 @@
+config:
+  default_config:
+    use_position_feedback: true
+    use_velocity_feedback: true
+    use_velocity_feedforward: false
+    use_acceleration_feedforward: false
+    use_effort_feedforward: [
+      false
+      false
+    ]
+    stiffness_type: 0
+    use_torque_saturation: true
+    delta_tau_max: 1.0
+  impact_config:
+    use_position_feedback: true
+    use_velocity_feedback: true
+    use_velocity_feedforward: false
+    use_acceleration_feedforward: false
+    use_effort_feedforward: false
+    stiffness_type: 1
+    use_torque_saturation: true
+    delta_tau_max: 1.0
+

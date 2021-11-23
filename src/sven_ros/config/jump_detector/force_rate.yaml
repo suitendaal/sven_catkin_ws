@@ -1,0 +1,7 @@
+ja_filter_config:
+  max_window_length: 2
+predictor_config:
+  time_window: 0.035
+bounder_config:
+  bound: 1000.0
+

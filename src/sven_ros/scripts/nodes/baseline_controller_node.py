@@ -142,6 +142,7 @@ class BaselineControllerNode(object):
 		msg.stiffness_type = 0
 		msg.use_torque_saturation = True
 		msg.delta_tau_max = 1.0
+		msg.phase = self.current_phase + 1
 		msg.use_effort_feedforward = False
 #		# TODO: dependent on phase
 #		msg.use_effort_feedforward = False

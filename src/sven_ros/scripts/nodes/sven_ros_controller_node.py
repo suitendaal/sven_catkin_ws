@@ -11,9 +11,10 @@ from sven_ros.msg import BoolStamped
 from franka_custom_controllers.msg import ControlOptions, RobotState
 
 class SvenRosControllerNode(object):
-	def __init__(self, reference_trajectory_file, impact_interval_threshold=0.3, initialized=False):
+	def __init__(self, reference_trajectory_file, config, impact_interval_threshold=0.3, initialized=False):
 		if not initialized:
 			rospy.init_node('sven_ros_controller', anonymous=True)
+		self.config = config
 		self.reference_trajectory_file = reference_trajectory_file
 		self.phases = self.read_reference_trajectory()
 		
@@ -34,6 +35,7 @@ class SvenRosControllerNode(object):
 		# Phase
 		self.impact_interval_threshold = impact_interval_threshold
 		self.last_jump_time = None
+		self.in_interim_phase = False
 		self.current_phase = 0
 		self.trajectory_ended = False
 		
@@ -145,34 +147,25 @@ class SvenRosControllerNode(object):
 		msg = ControlOptions()
 		msg.header.stamp = rospy.Time.from_sec(time + self.starting_time)
 		
-		in_impact_interval = False
-		
-		if self.impact_interval is not None:
-			if time >= self.impact_interval[0]:
-				if self.last_jump_time is not None and self.last_jump_time >= self.impact_interval[0] and time - self.last_jump_time <= self.impact_interval_threshold:
-					in_impact_interval = True
-		
-		if in_impact_interval:
-			msg.use_position_feedback = True
-			msg.use_velocity_feedback = False
-			msg.use_velocity_feedforward = False
-			msg.use_acceleration_feedforward = False
-			msg.use_effort_feedforward = False
-			msg.stiffness_type = 1
-			msg.use_torque_saturation = True
-			msg.delta_tau_max = 1.0
+		if self.in_interim_phase:
+			config = self.config['impact_config']
+			msg.phase = 0
+			msg.use_effort_feedforward = config['use_effort_feedforward']
 		else:
-			msg.use_position_feedback = True
-			msg.use_velocity_feedback = True
-			msg.use_velocity_feedforward = False
-			msg.use_acceleration_feedforward = False
-			msg.stiffness_type = 0
-			msg.use_torque_saturation = True
-			msg.delta_tau_max = 1.0
-			# TODO: dependent on phase
-			msg.use_effort_feedforward = False
-			if self.current_phase == 1:
-				msg.use_effort_feedforward = True
+			config = self.config['default_config']
+			msg.phase = self.current_phase + 1
+			if self.current_phase > len(config['use_effort_feedforward']) - 1:
+				msg.use_effort_feedforward = False
+			else:
+				msg.use_effort_feedforward = config['use_effort_feedforward'][self.current_phase]
+		
+		msg.use_position_feedback = config['use_position_feedback']
+		msg.use_velocity_feedback = config['use_velocity_feedback']
+		msg.use_velocity_feedforward = config['use_velocity_feedforward']
+		msg.use_acceleration_feedforward = config['use_acceleration_feedforward']
+		msg.stiffness_type = config['stiffness_type']
+		msg.use_torque_saturation = config['use_torque_saturation']
+		msg.delta_tau_max = ['delta_tau_max']
 
 		return msg
 		
@@ -181,12 +174,18 @@ class SvenRosControllerNode(object):
 					
 			# Time has past impact interval
 			if time > self.impact_interval[-1]:
-				rospy.logwarn("Time {} of impact interval reached.".format(time))
+				rospy.logwarn("Time {} end of impact interval reached.".format(time))
 				self.current_phase += 1
+				self.in_interim_phase = False
+				
 			elif time >= self.impact_interval[0]:
-				if self.last_jump_time is not None and self.last_jump_time >= self.impact_interval[0] and time - self.last_jump_time > self.impact_interval_threshold:
-					rospy.loginfo("Last impact of simultaneous impact interval at time {} detected.".format(time))
-					self.current_phase += 1
+				if self.last_jump_time is not None and self.last_jump_time >= self.impact_interval[0]:
+						if self.interim_phase_ended(time):
+							rospy.loginfo("Last impact of simultaneous impact interval at time {} detected.".format(time))
+							self.current_phase += 1
+							self.in_interim_phase = False
+						else:
+							self.in_interim_phase = True
 		
 	def jump_detector_callback(self, msg):
 		if msg.data:
@@ -194,12 +193,17 @@ class SvenRosControllerNode(object):
 			time = msg.header.stamp.to_sec() - self.starting_time
 			if self.last_jump_time is None or time > self.last_jump_time:
 				self.last_jump_time = time
+				
+	def interim_phase_ended(self, time):
+		# TODO: different modes based on config
+		return time - self.last_jump_time > self.impact_interval_threshold
 
 
 if __name__ == '__main__':
 
 	rospy.init_node('sven_ros_controller', anonymous=True)
 	trajectory_file = rospy.get_param('~trajectory_file')
+	config = rospy.get_param('~config')
 	
 	rospack = rospkg.RosPack()
 	filename = rospack.get_path('sven_ros') + "/" + trajectory_file
@@ -207,7 +211,7 @@ if __name__ == '__main__':
 	print("Filename:",filename)
 	
 	try:
-		node = SvenRosControllerNode(filename)
+		node = SvenRosControllerNode(filename, config)
 		node.run()
 	except rospy.ROSInterruptException:
 		pass

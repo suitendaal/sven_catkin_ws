@@ -5,7 +5,7 @@
 #include <sven_ros/franka_state_jump_detector_node.h>
 
 // For debugging
-#include <jump_detector/impact_aware_force_filter.h>
+#include <jump_detector_new/impact_aware_force_filter.h>
 #include <memory>
 #include <iostream>
 #include <iomanip>
@@ -31,7 +31,7 @@ class ExternalForceJumpDetectorNode : public FrankaStateJumpDetectorNode {
 			
 			ROS_DEBUG_STREAM("External force data received at time " << time << " with value " << force);
 	
-			bool jump_detected = this->detector_->update(time, force);
+			bool jump_detected = this->detector_->update(time, force_vector);
 			
 			if (jump_detected) {
 				ROS_INFO_STREAM(std::fixed << std::setprecision(4) << "Jump detected at time " << time << " with force value: ||[" << force_vector[0] << ", " << force_vector[1] << ", " << force_vector[2] << "]||, = " << force);
