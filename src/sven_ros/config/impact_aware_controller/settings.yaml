@@ -5,15 +5,15 @@ config:
     use_velocity_feedforward: false
     use_acceleration_feedforward: false
     use_effort_feedforward: [
-      false
-      false
+      false,
+      true
     ]
     stiffness_type: 0
     use_torque_saturation: true
     delta_tau_max: 1.0
   impact_config:
     use_position_feedback: true
-    use_velocity_feedback: true
+    use_velocity_feedback: false
     use_velocity_feedforward: false
     use_acceleration_feedforward: false
     use_effort_feedforward: false
@@ -21,5 +21,6 @@ config:
     use_torque_saturation: true
     delta_tau_max: 1.0
   interim_config:
-    interim_ending_mode: 0
+    interim_ending_mode: 1
+    interim_threshold: 0.3
 

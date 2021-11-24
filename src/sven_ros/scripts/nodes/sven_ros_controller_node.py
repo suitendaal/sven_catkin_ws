@@ -11,7 +11,7 @@ from sven_ros.msg import BoolStamped
 from franka_custom_controllers.msg import ControlOptions, RobotState
 
 class SvenRosControllerNode(object):
-	def __init__(self, reference_trajectory_file, config, impact_interval_threshold=0.3, initialized=False):
+	def __init__(self, reference_trajectory_file, config, initialized=False):
 		if not initialized:
 			rospy.init_node('sven_ros_controller', anonymous=True)
 		self.config = config
@@ -33,7 +33,7 @@ class SvenRosControllerNode(object):
 		self.starting_time = 0
 		
 		# Phase
-		self.impact_interval_threshold = impact_interval_threshold
+		self.impact_interval_threshold = config['interim_config']['interim_threshold']
 		self.first_jump_time = None
 		self.last_jump_time = None
 		self.in_interim_phase = False
@@ -70,12 +70,27 @@ class SvenRosControllerNode(object):
 		pos_data = []
 		vel_data = []
 		or_data = []
-		for_data = []
-		tor_data = []
+		
 		for i in range(3):
 			pos_data.append(phase_data['position'][index][i])
 			vel_data.append(phase_data['velocity'][index][i])
 			or_data.append(phase_data['orientation'][index][i])
+			
+		if self.in_interim_phase:
+			phase_data = self.phases[self.current_phase + 1]
+			index = 0
+			for i in range(len(phase_data['time'])):
+				if i == len(phase_data['time']) - 1:
+					if time >= phase_data['time'][i]:
+						index = i
+				else:
+					if time >= phase_data['time'][i] and time < phase_data['time'][i+1]:
+						index = i
+						break
+
+		for_data = []
+		tor_data = []
+		for i in range(3):
 			for_data.append(phase_data['force'][index][i])
 			tor_data.append(phase_data['torque'][index][i])
 			
@@ -117,6 +132,7 @@ class SvenRosControllerNode(object):
 				self.current_phase += 1
 				time = rospy.get_time() - self.starting_time
 				self.mode_pub.publish(self.get_mode_msg(time))
+				self.rate.sleep()
 				break
 			
 			self.rate.sleep()
@@ -159,14 +175,14 @@ class SvenRosControllerNode(object):
 				msg.use_effort_feedforward = False
 			else:
 				msg.use_effort_feedforward = config['use_effort_feedforward'][self.current_phase]
-		
+				
 		msg.use_position_feedback = config['use_position_feedback']
 		msg.use_velocity_feedback = config['use_velocity_feedback']
 		msg.use_velocity_feedforward = config['use_velocity_feedforward']
 		msg.use_acceleration_feedforward = config['use_acceleration_feedforward']
 		msg.stiffness_type = config['stiffness_type']
 		msg.use_torque_saturation = config['use_torque_saturation']
-		msg.delta_tau_max = ['delta_tau_max']
+		msg.delta_tau_max = config['delta_tau_max']
 
 		return msg
 		
@@ -181,22 +197,22 @@ class SvenRosControllerNode(object):
 				
 			elif time >= self.impact_interval[0]:
 				if self.last_jump_time is not None and self.last_jump_time >= self.impact_interval[0]:
+					if self.first_jump_time is None:
+						self.first_jump_time = self.last_jump_time
 					if self.interim_phase_ended(time):
 						rospy.loginfo("Last impact of simultaneous impact interval at time {} detected.".format(time))
 						self.current_phase += 1
 						self.in_interim_phase = False
 					else:
 						self.in_interim_phase = True
-		if self.in_interim_phase:
-			if self.first_jump_time is None:
-				self.first_jump_time = self.last_jump_time
-		else:
+		
+		if not self.in_interim_phase:
 			self.first_jump_time = None
 		
 	def jump_detector_callback(self, msg):
 		if msg.data:
-			rospy.loginfo("Jump detected")
-			time = msg.header.stamp.to_sec() - self.starting_time
+			time = rospy.get_time() - self.starting_time
+			rospy.loginfo(f'Jump detected at time {time}')
 			if self.last_jump_time is None or time > self.last_jump_time:
 				self.last_jump_time = time
 				

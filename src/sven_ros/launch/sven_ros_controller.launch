@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <launch>
-  <include file="$(find sven_ros)/launch/external_force_jump_detector.launch" />
+  <include file="$(find sven_ros)/launch/force_rate_impact_detector.launch" />
   <node name="sven_ros_controller" pkg="sven_ros" type="sven_ros_controller_node.py" output="screen" required="true">
   	<rosparam param="trajectory_file">"scripts/jump_detection/output/evaluated_promps.json"</rosparam>
   	<rosparam file="$(find sven_ros)/config/impact_aware_controller/settings.yaml" command="load"/>

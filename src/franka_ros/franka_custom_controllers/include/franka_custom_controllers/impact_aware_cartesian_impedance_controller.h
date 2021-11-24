@@ -85,6 +85,7 @@ class ImpactAwareCartesianImpedanceController : public controller_interface::Mul
   ros::Subscriber sub_options_;
   void controlOptionsCallback(const franka_custom_controllers::ControlOptionsPtr& msg);
   franka_custom_controllers::ControlOptions control_options_;
+  franka_custom_controllers::RobotState command_;
 
   // Equilibrium pose subscriber
   ros::Subscriber sub_equilibrium_pose_;

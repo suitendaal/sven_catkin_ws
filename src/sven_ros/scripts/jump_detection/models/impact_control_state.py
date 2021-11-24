@@ -57,7 +57,7 @@ class ImpactControlState(object):
 		
 	@property
 	def effort_desired(self):
-		return list(self.state_.effort)
+		return list(self.state_.effort_d)
 		
 	@property
 	def tau_measured(self):

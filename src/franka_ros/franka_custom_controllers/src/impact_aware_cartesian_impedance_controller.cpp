@@ -252,6 +252,7 @@ void ImpactAwareCartesianImpedanceController::update(const ros::Time& time,
   msg.header.stamp = time;
   msg.header.frame_id = "IACIC";
   msg.control_options = control_options_;
+  msg.command = command_;
   
   for (int i = 0; i < 7; i++) {
     msg.coriolis[i] = coriolis_array[i];
@@ -337,6 +338,7 @@ void ImpactAwareCartesianImpedanceController::controlOptionsCallback(const frank
 }
 
 void ImpactAwareCartesianImpedanceController::equilibriumPoseCallback(const franka_custom_controllers::RobotStateConstPtr& msg) {
+  command_ = *msg;
   position_d_target_ << msg->pose.position.x, msg->pose.position.y, msg->pose.position.z;
   Eigen::Quaterniond last_orientation_d_target(orientation_d_target_);
   orientation_d_target_.coeffs() << msg->pose.orientation.x, msg->pose.orientation.y, msg->pose.orientation.z, msg->pose.orientation.w;

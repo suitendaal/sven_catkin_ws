@@ -13,10 +13,7 @@ demos = [
 ]
 
 executions = [
-	'data/replay1.bag',
-	'data/replay2.bag',
-	'data/replay3.bag',
-	'data/replay5.bag',
-	'data/replay6.bag'
+	'data/replay8.bag',
+	'data/replay9.bag'
 ]
 

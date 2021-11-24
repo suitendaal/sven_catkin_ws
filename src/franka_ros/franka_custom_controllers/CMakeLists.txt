@@ -27,11 +27,11 @@ find_package(Eigen3 REQUIRED)
 find_package(Franka 0.7.0 REQUIRED)
 
 add_message_files(FILES
-  ImpactControlState.msg
-  DemonstrationControllerState.msg
   ControlOptions.msg
+  DemonstrationControllerState.msg
   ForceStamped.msg
   RobotState.msg
+  ImpactControlState.msg
 )
 
 generate_messages(DEPENDENCIES

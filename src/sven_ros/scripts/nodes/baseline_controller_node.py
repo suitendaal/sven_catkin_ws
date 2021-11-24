@@ -11,9 +11,10 @@ from sven_ros.msg import BoolStamped
 from franka_custom_controllers.msg import ControlOptions, RobotState
 
 class BaselineControllerNode(object):
-	def __init__(self, reference_trajectory_file, initialized=False):
+	def __init__(self, reference_trajectory_file, config, initialized=False):
 		if not initialized:
 			rospy.init_node('baseline_controller', anonymous=True)
+		self.config = config
 		self.reference_trajectory_file = reference_trajectory_file
 		self.phases = self.read_reference_trajectory()
 		
@@ -134,20 +135,23 @@ class BaselineControllerNode(object):
 		
 	def get_mode_msg(self, time):
 		msg = ControlOptions()
-		msg.header.stamp = rospy.Time.from_sec(time + self.starting_time)			
-		msg.use_position_feedback = True
-		msg.use_velocity_feedback = True
-		msg.use_velocity_feedforward = False
-		msg.use_acceleration_feedforward = False
-		msg.stiffness_type = 0
-		msg.use_torque_saturation = True
-		msg.delta_tau_max = 1.0
+		msg.header.stamp = rospy.Time.from_sec(time + self.starting_time)
+		
+		config = self.config['default_config']
+		
 		msg.phase = self.current_phase + 1
-		msg.use_effort_feedforward = False
-#		# TODO: dependent on phase
-#		msg.use_effort_feedforward = False
-#		if self.current_phase == 1:
-#			msg.use_effort_feedforward = True
+		if self.current_phase > len(config['use_effort_feedforward']) - 1:
+			msg.use_effort_feedforward = False
+		else:
+			msg.use_effort_feedforward = config['use_effort_feedforward'][self.current_phase]
+				
+		msg.use_position_feedback = config['use_position_feedback']
+		msg.use_velocity_feedback = config['use_velocity_feedback']
+		msg.use_velocity_feedforward = config['use_velocity_feedforward']
+		msg.use_acceleration_feedforward = config['use_acceleration_feedforward']
+		msg.stiffness_type = config['stiffness_type']
+		msg.use_torque_saturation = config['use_torque_saturation']
+		msg.delta_tau_max = config['delta_tau_max']
 		
 		return msg
 		
@@ -164,6 +168,11 @@ if __name__ == '__main__':
 
 	rospy.init_node('baseline_controller', anonymous=True)
 	trajectory_file = rospy.get_param('~trajectory_file')
+	config = rospy.get_param('~config')
+	
+	# For safety reasons no force
+	for i in range(len(config['default_config']['use_effort_feedforward'])):
+		config['default_config']['use_effort_feedforward'][i] = False
 	
 	rospack = rospkg.RosPack()
 	filename = rospack.get_path('sven_ros') + "/" + trajectory_file
@@ -171,7 +180,7 @@ if __name__ == '__main__':
 	print("Filename:",filename)
 	
 	try:
-		node = BaselineControllerNode(filename)
+		node = BaselineControllerNode(filename, config)
 		node.run()
 	except rospy.ROSInterruptException:
 		pass
