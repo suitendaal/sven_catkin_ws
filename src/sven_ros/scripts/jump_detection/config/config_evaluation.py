@@ -12,8 +12,11 @@ demos = [
 	'data/demo10.bag'
 ]
 
+baseline = [
+	'data/replay1.bag'
+]
+
 executions = [
-	'data/replay8.bag',
-	'data/replay9.bag'
+	'data/replay2.bag'
 ]
 

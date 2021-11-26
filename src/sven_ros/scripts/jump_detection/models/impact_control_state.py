@@ -36,6 +36,10 @@ class ImpactControlState(object):
 		return list(self.state_.position_d)
 		
 	@property
+	def position_commanded(self):
+		return [self.command.pose.position.x, self.command.pose.position.y, self.command.pose.position.z]
+		
+	@property
 	def rot_matrix(self):
 		return self.pose_matrix[0:3,0:3]
 		
@@ -56,8 +60,22 @@ class ImpactControlState(object):
 		return self.rotation_desired.as_euler('xyz').tolist()
 		
 	@property
+	def rotation_commanded(self):
+		return Rotation.from_quat([self.command.pose.orientation.x, self.command.pose.orientation.y, self.command.pose.orientation.z, self.command.pose.orientation.w])
+		
+	@property
+	def euler_angles_commanded(self):
+		if [self.command.pose.orientation.x, self.command.pose.orientation.y, self.command.pose.orientation.z, self.command.pose.orientation.w] == [0,0,0,0]:
+			return [0,0,0]
+		return self.rotation_commanded.as_euler('xyz').tolist()
+		
+	@property
 	def effort_desired(self):
 		return list(self.state_.effort_d)
+		
+	@property
+	def effort_commanded(self):
+		return [self.command.effort.linear.x, self.command.effort.linear.y, self.command.effort.linear.z, self.command.effort.angular.x, self.command.effort.angular.y, self.command.effort.angular.z]
 		
 	@property
 	def tau_measured(self):
@@ -86,8 +104,11 @@ class ImpactControlState(object):
 	@property
 	def jacobian(self):
 		tmp = np.array(list(self.state_.jacobian))
-		shape = (6, 7)
-		return tmp.reshape(shape)
+#		shape = (6, 7)
+#		return tmp.reshape(shape)
+		shape = (7,6)
+		return tmp.reshape(shape).T
+#		return self.robot.jacob0(q=self.q, T=self.robot.fkine(self.q))
 		
 	@property
 	def velocity(self):
@@ -140,6 +161,10 @@ class ImpactControlState(object):
 	@property
 	def control_options(self):
 		return self.state_.control_options
+		
+	@property
+	def command(self):
+		return self.state_.command		
 		
 	def calc_force(self, tau):
 		return np.linalg.pinv(self.jacobian.T).dot(np.array(tau)).tolist()[0:3]

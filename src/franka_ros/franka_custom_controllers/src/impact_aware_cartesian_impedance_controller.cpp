@@ -25,6 +25,12 @@ bool ImpactAwareCartesianImpedanceController::init(hardware_interface::RobotHW* 
   // Impact state publisher
   pub_state_ = node_handle.advertise<franka_custom_controllers::ImpactControlState>("impact_control_state", 20);
   
+  // Franka state
+  sub_franka_state_ = node_handle.subscribe("/franka_state_controller/franka_states", 20, &ImpactAwareCartesianImpedanceController::frankaStateCallback, this, ros::TransportHints().reliable().tcpNoDelay());
+  
+  double publish_rate = 1600.0;
+  trigger_publish_ = franka_hw::TriggerRate(publish_rate);
+  
   control_options_ = franka_custom_controllers::ControlOptions();
   control_options_.use_position_feedback = true;
   control_options_.use_velocity_feedback = true;
@@ -127,6 +133,10 @@ void ImpactAwareCartesianImpedanceController::starting(const ros::Time& /*time*/
 
 void ImpactAwareCartesianImpedanceController::update(const ros::Time& time,
                                                  const ros::Duration& /*period*/) {
+  if (!trigger_publish_()) {
+    return;
+  }
+                                                 
   // update parameters changed online either through dynamic reconfigure or through the interactive
   // target by filtering
   switch (control_options_.stiffness_type) {
@@ -253,6 +263,7 @@ void ImpactAwareCartesianImpedanceController::update(const ros::Time& time,
   msg.header.frame_id = "IACIC";
   msg.control_options = control_options_;
   msg.command = command_;
+  msg.state = state_;
   
   for (int i = 0; i < 7; i++) {
     msg.coriolis[i] = coriolis_array[i];
@@ -372,6 +383,10 @@ Eigen::Matrix<double, 7, 1> ImpactAwareCartesianImpedanceController::calculateJo
   if (q(6) > 2.8)      { tau_joint_limit(6) = -2; }
   else if (q(6) < -2.8)     { tau_joint_limit(6) = +2; }
   return tau_joint_limit;
+}
+
+void ImpactAwareCartesianImpedanceController::frankaStateCallback(const franka_msgs::FrankaStatePtr& msg) {
+  state_ = *msg;
 }
 
 }  // namespace franka_custom_controllers

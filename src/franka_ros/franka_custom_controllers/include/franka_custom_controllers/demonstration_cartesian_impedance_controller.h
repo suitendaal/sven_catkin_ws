@@ -17,10 +17,11 @@
 #include <Eigen/Dense>
 
 #include <franka_custom_controllers/ForceStamped.h>
-
+#include <franka_hw/trigger_rate.h>
 #include <franka_custom_controllers/compliance_param_demonstrationConfig.h>
 #include <franka_hw/franka_model_interface.h>
 #include <franka_hw/franka_state_interface.h>
+#include <franka_msgs/FrankaState.h>
 
 namespace franka_custom_controllers {
 
@@ -46,6 +47,9 @@ class DemonstrationCartesianImpedanceController : public controller_interface::M
   std::unique_ptr<franka_hw::FrankaModelHandle> model_handle_;
   std::vector<hardware_interface::JointHandle> joint_handles_;
 
+  // Trigger publish to publish at the correct rate
+  franka_hw::TriggerRate trigger_publish_;
+
   double filter_params_{0.005};
   double nullspace_stiffness_{20.0};
   double nullspace_stiffness_target_{20.0};
@@ -65,6 +69,7 @@ class DemonstrationCartesianImpedanceController : public controller_interface::M
   // Impact state publisher
   ros::Publisher pub_state_;
   unsigned int sequence_{0};
+  franka_msgs::FrankaState state_;
 
   // Dynamic stiffness reconfigure
   std::unique_ptr<dynamic_reconfigure::Server<franka_custom_controllers::compliance_param_demonstrationConfig>> dynamic_server_compliance_param_;
@@ -78,6 +83,10 @@ class DemonstrationCartesianImpedanceController : public controller_interface::M
   // Equilibruim force subscriber
   ros::Subscriber sub_equilibrium_force_;
   void equilibriumForceCallback(const franka_custom_controllers::ForceStampedConstPtr& msg);
+  
+  // Franka state subscriber
+  ros::Subscriber sub_franka_state_;
+  void frankaStateCallback(const franka_msgs::FrankaStatePtr& msg);
   
   // Calculate joint limiting torque
   Eigen::Matrix<double, 7, 1> calculateJointLimit(const Eigen::Matrix<double, 7, 1>& q);

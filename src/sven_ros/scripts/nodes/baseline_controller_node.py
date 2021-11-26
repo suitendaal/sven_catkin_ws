@@ -159,7 +159,8 @@ class BaselineControllerNode(object):
 		if self.impact_interval is not None:
 			
 			# In the middle of 'impact interval'
-			if time > (self.impact_interval[0] + self.impact_interval[-1]) / 2:
+#			if time > (self.impact_interval[0] + self.impact_interval[-1]) / 2:
+			if time > (self.impact_interval[-1]):
 				rospy.loginfo("Switching to next phase at time {}.".format(time))
 				self.current_phase += 1
 
@@ -170,9 +171,9 @@ if __name__ == '__main__':
 	trajectory_file = rospy.get_param('~trajectory_file')
 	config = rospy.get_param('~config')
 	
-	# For safety reasons no force
-	for i in range(len(config['default_config']['use_effort_feedforward'])):
-		config['default_config']['use_effort_feedforward'][i] = False
+#	# For safety reasons no force
+#	for i in range(len(config['default_config']['use_effort_feedforward'])):
+#		config['default_config']['use_effort_feedforward'][i] = False
 	
 	rospack = rospkg.RosPack()
 	filename = rospack.get_path('sven_ros') + "/" + trajectory_file

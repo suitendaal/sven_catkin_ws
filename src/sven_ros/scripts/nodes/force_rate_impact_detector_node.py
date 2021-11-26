@@ -20,6 +20,7 @@ class ForceRateImpactDetectorNode(object):
 		
 		# Settings
 		self.starting_time = None
+		self.rate = rospy.Rate(1000)
 		
 	def data_received(self, msg):
 		if self.starting_time is None:

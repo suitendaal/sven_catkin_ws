@@ -25,6 +25,11 @@ bool DemonstrationCartesianImpedanceController::init(hardware_interface::RobotHW
   // Controller state publisher
   pub_state_ = node_handle.advertise<franka_custom_controllers::DemonstrationControllerState>("demonstration_control_state", 20);
   
+  // Franka state
+  sub_franka_state_ = node_handle.subscribe("/franka_state_controller/franka_states", 20, &DemonstrationCartesianImpedanceController::frankaStateCallback, this, ros::TransportHints().reliable().tcpNoDelay());
+  
+  double publish_rate = 1600.0;
+  trigger_publish_ = franka_hw::TriggerRate(publish_rate);
 
   std::string arm_id;
   if (!node_handle.getParam("arm_id", arm_id)) {
@@ -121,6 +126,10 @@ void DemonstrationCartesianImpedanceController::starting(const ros::Time& /*time
 
 void DemonstrationCartesianImpedanceController::update(const ros::Time& time,
                                                  const ros::Duration& /*period*/) {
+  if (!trigger_publish_()) {
+    return;
+  }
+                                                 
   // update parameters changed online either through dynamic reconfigure or through the interactive
   // target by filtering
   cartesian_stiffness_ = filter_params_ * cartesian_stiffness_target_ + (1.0 - filter_params_) * cartesian_stiffness_;
@@ -203,7 +212,8 @@ void DemonstrationCartesianImpedanceController::update(const ros::Time& time,
   DemonstrationControllerState msg;
   msg.header.seq = sequence_;
   msg.header.stamp = time;
-  msg.header.frame_id = "DemonstrationCartesianImpedanceController";
+  msg.header.frame_id = "DCIC";
+  msg.state = state_;
   
   for (int i = 0; i < 7; i++) {
     msg.coriolis[i] = coriolis[i];
@@ -321,6 +331,10 @@ Eigen::Matrix<double, 7, 1> DemonstrationCartesianImpedanceController::calculate
   if (q(6) > 2.8)      { tau_joint_limit(6) = -2; }
   else if (q(6) < -2.8)     { tau_joint_limit(6) = +2; }
   return tau_joint_limit;
+}
+
+void DemonstrationCartesianImpedanceController::frankaStateCallback(const franka_msgs::FrankaStatePtr& msg) {
+  state_ = *msg;
 }
 
 }  // namespace franka_custom_controllers

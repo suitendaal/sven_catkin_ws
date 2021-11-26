@@ -14,3 +14,5 @@ float64[6] F_task
 float64[7] tau_task
 float64[7] tau_nullspace
 float64[7] tau_d
+franka_msgs/FrankaState state
+

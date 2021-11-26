@@ -29,7 +29,7 @@ class SvenRosControllerNode(object):
 		self.jump_detector_sub = rospy.Subscriber("/sven_ros/jump_detector", BoolStamped, self.jump_detector_callback)
 		
 		# Time
-		self.rate = rospy.Rate(100)
+		self.rate = rospy.Rate(1000)
 		self.starting_time = 0
 		
 		# Phase

@@ -14,4 +14,5 @@ float64[7] tau_nullspace
 float64[7] tau_d
 franka_custom_controllers/ControlOptions control_options
 franka_custom_controllers/RobotState command
+franka_msgs/FrankaState state
 

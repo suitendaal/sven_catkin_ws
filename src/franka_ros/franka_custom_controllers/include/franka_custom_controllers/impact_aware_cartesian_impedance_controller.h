@@ -16,11 +16,13 @@
 #include <ros/time.h>
 #include <Eigen/Dense>
 
+#include <franka_hw/trigger_rate.h>
 #include <franka_custom_controllers/compliance_paramConfig.h>
 #include <franka_custom_controllers/ControlOptions.h>
 #include <franka_custom_controllers/RobotState.h>
 #include <franka_hw/franka_model_interface.h>
 #include <franka_hw/franka_state_interface.h>
+#include <franka_msgs/FrankaState.h>
 
 namespace franka_custom_controllers {
 
@@ -42,6 +44,9 @@ class ImpactAwareCartesianImpedanceController : public controller_interface::Mul
   std::unique_ptr<franka_hw::FrankaStateHandle> state_handle_;
   std::unique_ptr<franka_hw::FrankaModelHandle> model_handle_;
   std::vector<hardware_interface::JointHandle> joint_handles_;
+  
+  // Trigger publish to publish at the correct rate
+  franka_hw::TriggerRate trigger_publish_;
 
   // Stiffness parameters
   double filter_params_{0.005};
@@ -86,10 +91,15 @@ class ImpactAwareCartesianImpedanceController : public controller_interface::Mul
   void controlOptionsCallback(const franka_custom_controllers::ControlOptionsPtr& msg);
   franka_custom_controllers::ControlOptions control_options_;
   franka_custom_controllers::RobotState command_;
+  franka_msgs::FrankaState state_;
 
   // Equilibrium pose subscriber
   ros::Subscriber sub_equilibrium_pose_;
   void equilibriumPoseCallback(const franka_custom_controllers::RobotStateConstPtr& msg);
+  
+  // Franka state subscriber
+  ros::Subscriber sub_franka_state_;
+  void frankaStateCallback(const franka_msgs::FrankaStatePtr& msg);
   
   // Calculate joint limiting torque
   Eigen::Matrix<double, 7, 1> calculateJointLimit(const Eigen::Matrix<double, 7, 1>& q);
