@@ -28,7 +28,8 @@ bool ImpactAwareCartesianImpedanceController::init(hardware_interface::RobotHW* 
   // Franka state
   sub_franka_state_ = node_handle.subscribe("/franka_state_controller/franka_states", 20, &ImpactAwareCartesianImpedanceController::frankaStateCallback, this, ros::TransportHints().reliable().tcpNoDelay());
   
-  double publish_rate = 1600.0;
+  double publish_rate;
+  node_handle.param<double>("/franka_state_controller/publish_rate", publish_rate, 30.0);
   trigger_publish_ = franka_hw::TriggerRate(publish_rate);
   
   control_options_ = franka_custom_controllers::ControlOptions();

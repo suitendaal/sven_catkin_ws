@@ -7,7 +7,7 @@
     <arg name="load_gripper" value="$(arg load_gripper)" />
   </include>
   
-  <param name="/franka_state_controller/publish_rate" value="200" />
+  <param name="/franka_state_controller/publish_rate" value="600" />
   <param name="/joint_state_publisher/rate" value="500" />
   
   <rosparam command="load" file="$(find franka_custom_controllers)/config/franka_custom_controllers.yaml" />

@@ -19,17 +19,17 @@ class SvenRosControllerNode(object):
 		self.phases = self.read_reference_trajectory()
 		
 		# Publishers
-		self.pose_pub = rospy.Publisher('/equilibrium_state', RobotState, queue_size=40)
-		self.mode_pub = rospy.Publisher('/impedance_control_options', ControlOptions, queue_size=40)
+		self.pose_pub = rospy.Publisher('/equilibrium_state', RobotState, queue_size=1)
+		self.mode_pub = rospy.Publisher('/impedance_control_options', ControlOptions, queue_size=1)
 		## For debugging
-		self.orientation_pub = rospy.Publisher('/orientation', Point, queue_size=40)
+		self.orientation_pub = rospy.Publisher('/orientation', Point, queue_size=1)
 		##
 		
 		# Subscribers
 		self.jump_detector_sub = rospy.Subscriber("/sven_ros/jump_detector", BoolStamped, self.jump_detector_callback)
 		
 		# Time
-		self.rate = rospy.Rate(1000)
+		self.rate = rospy.Rate(config['publish_rate'])
 		self.starting_time = 0
 		
 		# Phase
@@ -204,6 +204,8 @@ class SvenRosControllerNode(object):
 						self.current_phase += 1
 						self.in_interim_phase = False
 					else:
+						if not self.in_interim_phase:
+							rospy.loginfo("Start of interim phase at time {}.".format(time))
 						self.in_interim_phase = True
 		
 		if not self.in_interim_phase:

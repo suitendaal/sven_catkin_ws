@@ -6,6 +6,9 @@
     <arg name="robot_ip" value="$(arg robot_ip)" />
     <arg name="load_gripper" value="$(arg load_gripper)" />
   </include>
+  
+  <param name="/franka_state_controller/publish_rate" value="600" />
+  <param name="/joint_state_publisher/rate" value="500" />
 
   <rosparam command="load" file="$(find franka_custom_controllers)/config/franka_custom_controllers.yaml" />
   <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" args="impact_aware_cartesian_impedance_controller"/>

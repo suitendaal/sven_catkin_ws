@@ -12,16 +12,14 @@ class JumpDetectorNode {
 	protected:
 		JumpDetector* detector_;
 		ros::Publisher jump_detector_pub_;
-		unsigned int sequence_;
 	
-		void send_jump_detected_msg(bool jump_detected) {
+		void send_jump_detected_msg(ros::Time time, bool jump_detected) {
 			sven_ros::BoolStamped msg_out;
 			
 			// Define header
 			std_msgs::Header header;
-			header.seq = this->sequence_;
-			header.stamp = ros::Time::now();
-			header.frame_id = "Jump Detector";
+			header.stamp = time;
+			header.frame_id = "JD";
 			msg_out.header = header;
 			
 			// Define data
@@ -29,9 +27,6 @@ class JumpDetectorNode {
 			
 			// Send message
 			jump_detector_pub_.publish(msg_out);
-			
-			// Update sequence
-			this->sequence_++;
 		}
 	
 		
@@ -42,14 +37,14 @@ class JumpDetectorNode {
 		: detector_(&detector),
 		nh()
 		{
-			jump_detector_pub_ = nh.advertise<sven_ros::BoolStamped>("/sven_ros/jump_detector", 1000);
+			jump_detector_pub_ = nh.advertise<sven_ros::BoolStamped>("/sven_ros/jump_detector", 10);
 		}
 		
 		JumpDetectorNode(ros::NodeHandle nh, JumpDetector &detector)
 		: detector_(&detector),
 		nh(nh)
 		{
-			jump_detector_pub_ = nh.advertise<sven_ros::BoolStamped>("/sven_ros/jump_detector", 1000);
+			jump_detector_pub_ = nh.advertise<sven_ros::BoolStamped>("/sven_ros/jump_detector", 10);
 		}
 		
 		~JumpDetectorNode(){

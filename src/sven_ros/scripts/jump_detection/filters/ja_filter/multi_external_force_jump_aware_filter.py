@@ -34,5 +34,5 @@ class MultiExternalForceJumpAwareFilter(MultiJumpAwareFilter):
 			self.data.append(datapoint)
 			
 		# Return result
-		return (jump_detected and datapoint.value > info[0]), info
+		return (jump_detected and (datapoint - PositionDataPoint.from_datapoint(info[0])).mag > 0), info
 

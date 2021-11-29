@@ -11,15 +11,17 @@ int main(int argc, char **argv)
 	
 	// Predictor settings
 	double time_window;
-	nh.param<double>("/force_rate_jump_detector/predictor_config/time_window", time_window, 0.035);
+	nh.param<double>("/force_rate_impact_detector/predictor_config/time_window", time_window, 0.035);
 	
 	// Bounder settings
 	double bound;
-	nh.param<double>("/force_rate_jump_detector/bounder_config/bound", bound, 1.0 / 0.001);
+	nh.param<double>("/force_rate_impact_detector/bounder_config/bound", bound, 1.0 / 0.001);
 	
 	// Ja filter settings
 	int max_window_length;
-	nh.param<int>("/force_rate_jump_detector/ja_filter_config/max_window_length", max_window_length, 2);
+	nh.param<int>("/force_rate_impact_detector/ja_filter_config/max_window_length", max_window_length, 2);
+	
+	ROS_INFO_STREAM("Time window: " << time_window << ", Bound: " << bound << ", Max window length: " << max_window_length);
 	
 	// Initialize jump detector
 	ForceRatePredictor predictor(time_window);

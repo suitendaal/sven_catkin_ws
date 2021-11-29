@@ -46,6 +46,7 @@ class PositionDataPoint(DataPoint):
 	def mag(self):
 		return PositionDataPoint(self.time, None if self.value is None else np.linalg.norm(self.value))
 		
+	@staticmethod
 	def from_datapoint(datapoint):
 		return PositionDataPoint(datapoint.time, datapoint.value)
 		

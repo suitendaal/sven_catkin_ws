@@ -13,10 +13,10 @@ class ForceRateImpactDetectorNode(object):
 		self.jump_detector = jump_detector
 		
 		# Publishers
-		self.jump_detection_pub = rospy.Publisher('/sven_ros/jump_detector', BoolStamped, queue_size=40)
+		self.jump_detection_pub = rospy.Publisher('/sven_ros/jump_detector', BoolStamped, queue_size=10)
 		
 		# Subscribers
-		self.data_sub = rospy.Subscriber('/franka_state_controller/franka_states', FrankaState, self.data_received)
+		self.data_sub = rospy.Subscriber('/franka_state_controller/franka_states', FrankaState, self.data_received, queue_size=1)
 		
 		# Settings
 		self.starting_time = None
@@ -33,10 +33,11 @@ class ForceRateImpactDetectorNode(object):
 		msg_out = BoolStamped()
 		msg_out.header.stamp = msg.header.stamp
 		msg_out.data = jump_detected
+		
 		self.jump_detection_pub.publish(msg_out)
 		
 		if jump_detected:
-			print(f'Jump detected at time {msg.header.stamp.to_sec()}')
+			rospy.loginfo(f'Jump detected at time {msg.header.stamp.to_sec()}')
 			
 	
 	def run(self):

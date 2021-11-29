@@ -12,8 +12,7 @@ from .config_plot_figures import *
 #	'data/demo10.bag'
 #]
 demos = [
-	'data/replay8.bag',
-	'data/replay9.bag'
+	'data/replay_test12.bag'
 ]
 
 ### Jump detector
@@ -22,8 +21,8 @@ demos = [
 #bound = [tmp/2 / 0.001**3, 0, 0, tmp/2]#[tmp/2 / 0.001**2, 0, tmp/2] #[tmp/2 / 0.001**4, 0, 0, 0, tmp/2]#[tmp/2 / 0.001**2, 0, tmp/2]#[tmp/2 / 0.001**3, 0, 0, tmp/2] #[tmp / 0.001**2, 0, 0] #[tmp/2 / 0.001**2, 0, tmp/2] #[tmp/3 / 0.001**2, tmp/3 / 0.001, tmp/3] #[500000, 0, 0]
 #bounder = NumericalBounder(bound=bound)# ConstantBounder(bound=0.5)
 #jump_detector = JumpAwareExternalForceFilter(predictor, bounder, max_window_length=14)
-predictor = MultiForceDerivativePredictor(time_window=0.035)
-bounder = ForceDerivativeBounder(bound=1.0 / 0.001)
+predictor = MultiForceDerivativePredictor(time_window=0.1)
+bounder = ForceDerivativeBounder(bound=1.2 / 0.002)#0.8 / 0.001)
 jump_detector = MultiExternalForceJumpAwareFilter(predictor, bounder, max_window_length=2)
 	
 ### Detect Jumps output settings

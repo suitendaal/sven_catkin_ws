@@ -48,11 +48,19 @@ public:
 		this->bounder_->set_window_length(this->window_length_);
 		
 		// Update data
-		unsigned int tmp = this->max_window_length_;
-		this->max_window_length_ = this->window_length_;
-		this->predictor_->update(datapoint);
-		this->bounder_->update(datapoint);
-		this->max_window_length_ = tmp;
+		if (jump_detected) {
+		  this->predictor_->reset();
+		  this->bounder_->reset();
+		  this->reset();
+		}
+		else {
+/*		  unsigned int tmp = this->max_window_length_;*/
+/*		  this->max_window_length_ = this->window_length_;*/
+/*		  DataContainer::update();*/
+		  this->predictor_->update(datapoint);
+		  this->bounder_->update(datapoint);
+/*		  this->max_window_length_ = tmp;*/
+		}
 		
 		return jump_detected;
 	}

@@ -18,13 +18,13 @@ class FrankaStateJumpDetectorNode : public JumpDetectorNode {
 		FrankaStateJumpDetectorNode(JumpDetector &detector)
 		: JumpDetectorNode(detector)
 		{
-			data_sub_ = nh.subscribe("/franka_state_controller/franka_states", 1000, &FrankaStateJumpDetectorNode::franka_state_received, this);
+			data_sub_ = nh.subscribe("/franka_state_controller/franka_states", 1, &FrankaStateJumpDetectorNode::franka_state_received, this);
 		}
 		
 		FrankaStateJumpDetectorNode(ros::NodeHandle nh, JumpDetector &detector)
 		: JumpDetectorNode(nh, detector)
 		{
-			data_sub_ = nh.subscribe("/franka_state_controller/franka_states", 1000, &FrankaStateJumpDetectorNode::franka_state_received, this);
+			data_sub_ = nh.subscribe("/franka_state_controller/franka_states", 1, &FrankaStateJumpDetectorNode::franka_state_received, this);
 		}
 		
 		virtual void run() {

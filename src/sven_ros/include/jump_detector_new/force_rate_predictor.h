@@ -32,7 +32,7 @@ class ForceRatePredictor : public LeastSquaresPredictor {
       this->last_impact_time_ = -1;
     }
     return LeastSquaresPredictor::update(datapoint);
-	}
+  }
 	
 	virtual void reset() {
 	  std::cout << "Reset: " << this->get_data().size() << std::endl;
@@ -40,6 +40,14 @@ class ForceRatePredictor : public LeastSquaresPredictor {
 	    this->last_impact_time_ = this->get_data()[this->get_data().size()-1].time;
 	  }
 		LeastSquaresPredictor::reset();
+	}
+	
+	virtual bool predict(const DataPoint &datapoint, std::vector<double> &value) const {
+/*		std::cout << "this->last_impact_time_: " << this->last_impact_time_ << ", datapoint.time: " << datapoint.time << ", this->time_window_: " << this->time_window_ << std::endl;*/
+		if (this->last_impact_time_ < 0 || datapoint.time - this->last_impact_time_ > this->time_window_) {
+			return LeastSquaresPredictor::predict(datapoint, value);
+		}
+		return false;
 	}
 };
 

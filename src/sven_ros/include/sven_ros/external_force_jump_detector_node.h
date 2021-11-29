@@ -27,17 +27,17 @@ class ExternalForceJumpDetectorNode : public FrankaStateJumpDetectorNode {
 			double time = msg->header.stamp.toSec();
 			const double* data = msg->O_F_ext_hat_K.data();
 			std::vector<double> force_vector(data, data + 3);
-			double force = external_force_functions::magnitude(force_vector);
+/*			double force = external_force_functions::magnitude(force_vector);*/
 			
-			ROS_DEBUG_STREAM("External force data received at time " << time << " with value " << force);
+/*			ROS_DEBUG_STREAM("External force data received at time " << time << " with value " << force);*/
 	
 			bool jump_detected = this->detector_->update(time, force_vector);
 			
 			if (jump_detected) {
-				ROS_INFO_STREAM(std::fixed << std::setprecision(4) << "Jump detected at time " << time << " with force value: ||[" << force_vector[0] << ", " << force_vector[1] << ", " << force_vector[2] << "]||, = " << force);
+				ROS_INFO_STREAM(std::fixed << std::setprecision(4) << "Jump detected at time " << time << " with force value: ||[" << force_vector[0] << ", " << force_vector[1] << ", " << force_vector[2] << "]||");//, = " << force);
 			}
 			
-			this->send_jump_detected_msg(jump_detected);
+			this->send_jump_detected_msg(msg->header.stamp, jump_detected);
 		}
 		
 	public:

@@ -1,0 +1,6 @@
+<?xml version="1.0" ?>
+<launch>
+  <node name="force_rate_impact_detector" pkg="sven_ros" type="force_rate_impact_detector_node" output="screen" required="true">
+    <rosparam file="$(find sven_ros)/config/jump_detector/force_rate.yaml" command="load"/>
+  </node>
+</launch>
