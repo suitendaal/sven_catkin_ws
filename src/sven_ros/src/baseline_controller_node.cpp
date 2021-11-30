@@ -1,8 +1,8 @@
-#include <sven_ros/sven_ros_controller_node.h>
+#include <sven_ros/baseline_controller_node.h>
 
 int main(int argc, char **argv)
 {
-	ros::init(argc, argv, "sven_ros_controller_node");
+	ros::init(argc, argv, "baseline_controller_node");
 	ros::NodeHandle nh("~");
 	
 	std::string reference_trajectory_file;
@@ -11,7 +11,7 @@ int main(int argc, char **argv)
 	double publish_rate;
 	nh.param<double>("config/publish_rate", publish_rate, 30.0);
 	
-	SvenRosControllerNode controller(nh, reference_trajectory_file, publish_rate);
-	ROS_INFO_STREAM("Controller run: " << controller.run());
-	return 0;
+  BaselineControllerNode controller(nh, reference_trajectory_file, publish_rate);
+  ROS_INFO_STREAM("Controller run: " << controller.run());
+  return 0;
 }

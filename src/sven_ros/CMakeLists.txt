@@ -22,12 +22,13 @@ add_message_files(DIRECTORY msg
 generate_messages(DEPENDENCIES std_msgs)
 
 # Declare catkin package
-catkin_package(CATKIN_DEPENDS 
-  message_runtime
-)
+#catkin_package(CATKIN_DEPENDS 
+#  message_runtime
+#)
 
 catkin_package(
   CATKIN_DEPENDS
+  	message_runtime
     franka_custom_controllers
 )
 
@@ -57,6 +58,16 @@ add_dependencies(external_force_jump_detector_node sven_ros_generate_messages_cp
 add_executable(force_rate_impact_detector_node src/force_rate_impact_detector_node.cpp)
 target_link_libraries(force_rate_impact_detector_node ${catkin_LIBRARIES})
 add_dependencies(force_rate_impact_detector_node sven_ros_generate_messages_cpp)
+
+# Build c++ baseline controller node
+add_executable(baseline_controller_node src/baseline_controller_node.cpp)
+target_link_libraries(baseline_controller_node ${catkin_LIBRARIES})
+add_dependencies(baseline_controller_node sven_ros_generate_messages_cpp)
+
+# Build c++ sven_ros controller node
+add_executable(sven_ros_controller_node src/sven_ros_controller_node.cpp)
+target_link_libraries(sven_ros_controller_node ${catkin_LIBRARIES})
+add_dependencies(sven_ros_controller_node sven_ros_generate_messages_cpp)
 
 # Build sven ros controller node
 catkin_install_python(PROGRAMS scripts/nodes/sven_ros_controller_node.py

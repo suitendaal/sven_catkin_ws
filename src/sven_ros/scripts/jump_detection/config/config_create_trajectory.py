@@ -121,7 +121,7 @@ plot_figs = True
 
 # Output filename
 write_evaluation = True
-evaluated_promps_output_file = 'output/evaluated_promps.json'
+evaluated_promps_output_file = 'output/evaluated_promps.csv'
 variable_labels = ['X','Y','Z',r'$\phi$',r'$\theta$',r'$\psi$']
 
 

@@ -120,10 +120,14 @@ class SvenRosControllerNode(object):
 			self.update_phase(time)
 			
 			if not self.trajectory_ended:
+				rospy.loginfo("Publishing mode")
 				self.mode_pub.publish(self.get_mode_msg(time))
+				rospy.loginfo("Mode published")
 			
 			if time >= self.time_interval[0] and not self.trajectory_ended:
+				rospy.loginfo("Publishing pose")
 				self.pose_pub.publish(self.get_pose_msg(time))
+				rospy.loginfo("Pose published")
 				
 			if time > self.time_interval[-1] and not self.trajectory_ended:
 				self.trajectory_ended = True

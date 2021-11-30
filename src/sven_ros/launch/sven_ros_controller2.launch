@@ -1,0 +1,8 @@
+<?xml version="1.0" ?>
+<launch>
+  <include file="$(find sven_ros)/launch/force_rate_impact_detector2.launch" />
+  <node name="sven_ros_controller" pkg="sven_ros" type="sven_ros_controller_node" output="screen" required="true">
+  	<rosparam param="trajectory_file">"/home/sven/ialfd/sven_catkin_ws/src/sven_ros/scripts/jump_detection/output/evaluated_promps.csv"</rosparam>
+  	<rosparam file="$(find sven_ros)/config/impact_aware_controller/settings.yaml" command="load"/>
+  </node>
+</launch>

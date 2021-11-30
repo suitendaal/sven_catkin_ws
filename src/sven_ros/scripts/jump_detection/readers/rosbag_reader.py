@@ -10,6 +10,7 @@ class RosbagReader(object):
 		super(RosbagReader, self).__init__()
 		self.bagfile = bagfile
 		self.topic = topic
+		self.use_record_time = kwargs.get('use_record_time', False)
 		self.msgs = self.read()
 		self.msgs_index_ = 0
 
@@ -19,8 +20,10 @@ class RosbagReader(object):
 		msgs = DataSet()
 		bag = rosbag.Bag(self.bagfile)
 		for top, msg, t in bag.read_messages(topics=[topic]):
-			time = msg.header.stamp.secs + int(msg.header.stamp.nsecs) / 1000000000
-#			time = t.secs + int(t.nsecs) / 1000000000
+			if self.use_record_time:
+				time = t.secs + int(t.nsecs) / 1000000000
+			else:
+				time = msg.header.stamp.secs + int(msg.header.stamp.nsecs) / 1000000000
 			msgs.append(DataPoint(time, msg))
 		bag.close()
 		return msgs
