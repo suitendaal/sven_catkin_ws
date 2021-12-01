@@ -12,6 +12,5 @@ int main(int argc, char **argv)
 	nh.param<double>("config/publish_rate", publish_rate, 30.0);
 	
   BaselineControllerNode controller(nh, reference_trajectory_file, publish_rate);
-  ROS_INFO_STREAM("Controller run: " << controller.run());
-  return 0;
+  return controller.run();
 }

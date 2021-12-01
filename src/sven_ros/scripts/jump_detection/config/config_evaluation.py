@@ -17,6 +17,6 @@ baseline = [
 ]
 
 executions = [
-	'data/replay2.bag'
+	'data/replay_test.bag'
 ]
 

@@ -3,6 +3,7 @@
 
 #include <string>
 #include <fstream>
+#include <Eigen/Geometry>
 #include <ros/ros.h>
 
 #include <franka_custom_controllers/ControlOptions.h>
@@ -48,6 +49,7 @@ protected:
 			RobotCommand command;
 			double time;
 			unsigned int phase;
+			std::vector<double> orientation;
 			
 			unsigned int index = 0;
 			
@@ -74,15 +76,14 @@ protected:
 					case 8:
 					case 9:
 					case 10:
-					case 11:
-						command.orientation.push_back(std::stod(field));
+						orientation.push_back(std::stod(field));
 						break;
+					case 11:
 					case 12:
 					case 13:
 					case 14:
 					case 15:
 					case 16:
-					case 17:
 						command.effort.push_back(std::stod(field));
 						break;
 					default:
@@ -91,6 +92,16 @@ protected:
 				
 				index++;
 			}
+			
+			// Convert orientation Euler angles to quaternion
+			Eigen::Quaterniond q;
+			q = Eigen::AngleAxisd(orientation[2], Eigen::Vector3d::UnitZ())
+				* Eigen::AngleAxisd(orientation[1], Eigen::Vector3d::UnitY())
+				* Eigen::AngleAxisd(orientation[0], Eigen::Vector3d::UnitX());
+			command.orientation.push_back(q.x());
+			command.orientation.push_back(q.y());
+			command.orientation.push_back(q.z());
+			command.orientation.push_back(q.w());
 			
 			while (phase_trajectory_times_.size() < phase+1) {
 				phase_trajectory_times_.push_back(std::vector<double>());
@@ -162,7 +173,11 @@ protected:
 	virtual void send_options_msg(double time) {
 		franka_custom_controllers::ControlOptions msg = control_options_;
 		msg.header.stamp = starting_time_ + ros::Duration(time);
-		msg.use_effort_feedforward = phase_use_effort_[current_phase_];
+		if (current_phase_ < phase_use_effort_.size()) {
+			msg.use_effort_feedforward = phase_use_effort_[current_phase_];
+		} else {
+			msg.use_effort_feedforward = false;
+		}
 		msg.phase = current_phase_ + 1;
 		options_pub_.publish(msg);
 	}
@@ -195,7 +210,11 @@ protected:
 	}
 	
 	virtual bool has_ended(double time) {
-		return current_phase_ >= phase_trajectory_times_.size();
+		bool result = current_phase_ >= phase_trajectory_times_.size();
+		if (result) {
+			send_options_msg(time);
+		}
+		return result;
 	}
 	
 public:
@@ -248,6 +267,7 @@ public:
 			}
 			
 			loop_rate_.sleep();
+			ros::spinOnce();
 		}
 	}
 };

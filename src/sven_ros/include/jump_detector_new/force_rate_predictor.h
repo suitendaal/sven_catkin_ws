@@ -35,7 +35,6 @@ class ForceRatePredictor : public LeastSquaresPredictor {
   }
 	
 	virtual void reset() {
-	  std::cout << "Reset: " << this->get_data().size() << std::endl;
 	  if (this->get_data().size() > 0) {
 	    this->last_impact_time_ = this->get_data()[this->get_data().size()-1].time;
 	  }

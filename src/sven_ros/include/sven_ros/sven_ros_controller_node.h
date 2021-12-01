@@ -22,7 +22,7 @@ protected:
 	double first_interim_impact_time_;
 	
 	virtual void initialize(std::string reference_trajectory_file) {
-		BaselineControllerNode::initialize(reference_trajectory_file);
+/*		BaselineControllerNode::initialize(reference_trajectory_file);*/
 		
 		imp_sub_ = nh.subscribe("/sven_ros/jump_detector", 20, &SvenRosControllerNode::impact_detector_callback, this, ros::TransportHints().reliable().tcpNoDelay());
 		
@@ -110,6 +110,7 @@ protected:
 				// Set first impact time
 				if (last_impact_time_ > double_trajectory_starting_time && first_interim_impact_time_ < 0) {
 					first_interim_impact_time_ = last_impact_time_;
+					ROS_INFO_STREAM("Interim phase after phase " << current_phase_ << " started at time " << time);
 				}
 				
 				// In interim phase
@@ -145,18 +146,14 @@ protected:
 	}
 	
 	virtual void send_options_msg(double time) {
-		franka_custom_controllers::ControlOptions msg;
 		if (in_interim_phase_) {
-			msg = control_options_impact_;
+			franka_custom_controllers::ControlOptions msg = control_options_impact_;
 			msg.phase = 0;
+			msg.header.stamp = starting_time_ + ros::Duration(time);
+			options_pub_.publish(msg);
 		} else {
-			msg = control_options_;
-			msg.use_effort_feedforward = phase_use_effort_[current_phase_];
-			msg.phase = current_phase_ + 1;
+			BaselineControllerNode::send_options_msg(time);
 		}
-		
-		msg.header.stamp = starting_time_ + ros::Duration(time);
-		options_pub_.publish(msg);
 	}
 
 public:
@@ -166,14 +163,18 @@ public:
 	last_impact_time_(-1),
 	first_interim_impact_time_(-1),
 	in_interim_phase_(false)
-	{}
+	{
+		initialize(reference_trajectory_file);
+	}
 	
 	SvenRosControllerNode(ros::NodeHandle nh, std::string reference_trajectory_file, double publish_rate)
 	: BaselineControllerNode(nh, reference_trajectory_file, publish_rate),
 	last_impact_time_(-1),
 	first_interim_impact_time_(-1),
 	in_interim_phase_(false)
-	{}
+	{
+		initialize(reference_trajectory_file);
+	}
 
 };
 
