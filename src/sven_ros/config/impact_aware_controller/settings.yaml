@@ -13,7 +13,7 @@ config:
     delta_tau_max: 1.0
   impact_config:
     use_position_feedback: true
-    use_velocity_feedback: true
+    use_velocity_feedback: false
     use_velocity_feedforward: false
     use_acceleration_feedforward: false
     use_effort_feedforward: false

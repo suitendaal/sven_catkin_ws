@@ -8,22 +8,22 @@ from .config_plot_figures import *
 
 # Files with demonstrations
 demos = [
-	'data/demo8.bag',
-	'data/demo9.bag',
-	'data/demo10.bag'
+	'data/demo10.bag',
+	'data/demo11.bag',
+	'data/demo12.bag'
 ]
 
 impact_intervals = [
-	[(6514,6674,)],
-	[(6388,6544,)],
-	[(6360,6498,)]
+	[(1702,1851,)],
+	[(1740,1866,)],
+	[(1609,1789,)]
 ]
 
 
 impact_detection_delays = [
-	[4,4],
-	[9,6],
-	[9,6]
+	[5,4],
+	[5,7],
+	[3,4]
 ]
 
 impact_duration = 0.18
@@ -42,7 +42,7 @@ velocity_filter = None #LeastSquaresFilter(order=2, window_length=20)
 rotational_velocity_filter = None #LeastSquaresFilter(order=2, window_length=20)
 
 ## Extender
-frequency, timespan = 1000, 1.0
+frequency, timespan = 500, 1.0
 position_extender = ConstantVelocityExtender(frequency, impact_duration, timespan) #ConstantVelocityExtender(timesteps=0.2*500, delta_time=1/500)
 orientation_extender = Extender(frequency, impact_duration, timespan)
 force_extender = Extender(frequency, impact_duration, timespan)

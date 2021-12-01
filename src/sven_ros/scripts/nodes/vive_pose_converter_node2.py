@@ -157,7 +157,7 @@ class VivePoseConverterNode(object):
 			[1, 0, 0],
 			[0, 1, 0]
 		])
-		yaw = math.pi/4 + self.yaw
+		yaw = self.yaw#math.pi/4 + self.yaw
 		rotation_matrix2 = np.array([
 			[math.cos(yaw), -math.sin(yaw), 0],
 			[math.sin(yaw), math.cos(yaw), 0],
