@@ -12,5 +12,5 @@ fontsize1 = 20
 fontsize2 = 16
 # Full trajectory
 #xlim = None
-labels = ['X','Y','Z',r'$\phi$',r'$\theta$',r'$\psi$']
+labels = ['X','Y','Z','\\phi$','\\theta','\\psi']
 

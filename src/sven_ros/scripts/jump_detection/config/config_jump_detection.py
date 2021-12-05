@@ -12,9 +12,9 @@ from .config_plot_figures import *
 #	'data/demo10.bag'
 #]
 demos = [
-	'data/demo10.bag',
-	'data/demo11.bag',
-	'data/demo12.bag'
+	'data/demo8.bag',
+	'data/demo9.bag',
+	'data/demo10.bag'
 ]
 
 ### Jump detector
