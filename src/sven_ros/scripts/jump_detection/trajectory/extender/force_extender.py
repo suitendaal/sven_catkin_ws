@@ -47,7 +47,7 @@ class ForceExtender(Extender):
 			for k in range(len(fitted_linear_force_values[j])):
 				fitted_linear_force_values[j][k] -= p[1] * math.cos(p[3])
 			
-			result.append(lambda t, p=p.copy() : func(t - time_shift, p[0], 0, 0, 0, 0) - p[1] * math.cos(p[3]))
+			result.append(lambda t, p=p.copy() : func(t + 0, p[0], 0, 0, 0, 0) - p[1] * math.cos(p[3]))
 		
 		for k in range(len(force_data)):
 			fitted_force = []
