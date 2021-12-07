@@ -6,16 +6,14 @@ from .config_plot_figures import *
 ### Load data
 
 # Files with demonstrations
-#demos = [
-#	'data/demo8.bag',
-#	'data/demo9.bag',
-#	'data/demo10.bag'
-#]
 demos = [
 	'data/demo8.bag',
 	'data/demo9.bag',
 	'data/demo10.bag'
 ]
+#demos = [
+#	'data/demo10.bag'
+#]
 
 ### Jump detector
 #predictor = LeastSquaresFilter(order=2)
