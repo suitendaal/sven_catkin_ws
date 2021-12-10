@@ -60,6 +60,9 @@ class ImpactAwareCartesianImpedanceController : public controller_interface::Mul
   Eigen::Matrix<double, 6, 6> cartesian_damping_target_;
   Eigen::Matrix<double, 6, 6> cartesian_damping_impact_;
   Eigen::Matrix<double, 7, 1> q_d_nullspace_;
+  double filter_params_effort_{0.005};
+  double effort_stiffness_{0};
+  double effort_stiffness_target_{0};
   
   // State parameters
   Eigen::Vector3d position_d_;

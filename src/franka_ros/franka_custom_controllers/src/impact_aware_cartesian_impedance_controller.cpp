@@ -153,14 +153,14 @@ void ImpactAwareCartesianImpedanceController::update(const ros::Time& time,
   }
 
   nullspace_stiffness_ = filter_params_ * nullspace_stiffness_target_ + (1.0 - filter_params_) * nullspace_stiffness_;
+  effort_stiffness_ = filter_params_ * effort_stiffness_target_ + (1.0 - filter_params_) * effort_stiffness_;
   position_d_ = filter_params_ * position_d_target_ + (1.0 - filter_params_) * position_d_;
   orientation_d_ = orientation_d_.slerp(filter_params_, orientation_d_target_);
   velocity_d_ = filter_params_ * velocity_d_target_ + (1.0 - filter_params_) * velocity_d_;
   rotational_velocity_d_ = filter_params_ * rotational_velocity_d_target_ + (1.0 - filter_params_) * rotational_velocity_d_;
   acceleration_d_ = filter_params_ * acceleration_d_target_ + (1.0 - filter_params_) * acceleration_d_;
   rotational_acceleration_d_ = filter_params_ * rotational_acceleration_d_target_ + (1.0 - filter_params_) * rotational_acceleration_d_;
-  effort_d_ = filter_params_ * effort_d_target_ + (1.0 - filter_params_) * effort_d_;
-  
+  effort_d_ = control_options_.use_effort_feedforward * filter_params_effort_ * effort_d_target_ + (1.0 - filter_params_effort_) * effort_d_;
 
   // get state variables
   franka::RobotState robot_state = state_handle_->getRobotState();
@@ -241,7 +241,9 @@ void ImpactAwareCartesianImpedanceController::update(const ros::Time& time,
   }
   
   if (control_options_.use_effort_feedforward) {
-  	tau_task << tau_task + jacobian.transpose() * effort_d_;
+  	// External force
+  	Eigen::VectorXd f_ext(jacobian_transpose_pinv * tau_external);
+    tau_task << tau_task + jacobian.transpose() * (effort_d_ + effort_stiffness_ * (effort_d_ - f_ext));
   }
 
   // nullspace PD control with damping ratio = 1
@@ -330,6 +332,9 @@ void ImpactAwareCartesianImpedanceController::complianceParamCallback(
   cartesian_damping_target_.bottomRightCorner(3, 3)
       << 2.0 * sqrt(config.rotational_stiffness) * Eigen::Matrix3d::Identity();
   nullspace_stiffness_target_ = config.nullspace_stiffness;
+  
+  // Force stiffness
+  effort_stiffness_target_ = config.effort_stiffness;
   
   // Setup impact stiffness
   cartesian_stiffness_impact_(0,0) = config.translational_impact_stiffness_X;

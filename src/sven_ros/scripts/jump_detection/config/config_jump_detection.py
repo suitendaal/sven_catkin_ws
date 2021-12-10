@@ -7,9 +7,17 @@ from .config_plot_figures import *
 
 # Files with demonstrations
 demos = [
-	'data/demo8.bag',
-	'data/demo9.bag',
-	'data/demo10.bag'
+	'data/demo12.bag',
+	'data/demo13.bag',
+	'data/demo14.bag',
+	'data/demo15.bag',
+	'data/demo16.bag',
+	'data/demo18.bag',
+	'data/demo19.bag',
+	'data/demo20.bag',
+	'data/demo21.bag',
+	'data/demo22.bag',
+	'data/demo23.bag',
 ]
 #demos = [
 #	'data/demo10.bag'
@@ -21,7 +29,7 @@ demos = [
 #bound = [tmp/2 / 0.001**3, 0, 0, tmp/2]#[tmp/2 / 0.001**2, 0, tmp/2] #[tmp/2 / 0.001**4, 0, 0, 0, tmp/2]#[tmp/2 / 0.001**2, 0, tmp/2]#[tmp/2 / 0.001**3, 0, 0, tmp/2] #[tmp / 0.001**2, 0, 0] #[tmp/2 / 0.001**2, 0, tmp/2] #[tmp/3 / 0.001**2, tmp/3 / 0.001, tmp/3] #[500000, 0, 0]
 #bounder = NumericalBounder(bound=bound)# ConstantBounder(bound=0.5)
 #jump_detector = JumpAwareExternalForceFilter(predictor, bounder, max_window_length=14)
-predictor = MultiForceDerivativePredictor(time_window=0.1)
+predictor = MultiForceDerivativePredictor(time_window=0.15)
 bounder = ForceDerivativeBounder(bound=1.2 / 0.002)#0.8 / 0.001)
 jump_detector = MultiExternalForceJumpAwareFilter(predictor, bounder, max_window_length=2)
 	

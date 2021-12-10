@@ -47,7 +47,10 @@ class ForceExtender(Extender):
 			for k in range(len(fitted_linear_force_values[j])):
 				fitted_linear_force_values[j][k] -= p[1] * math.cos(p[3])
 			
-			result.append(lambda t, p=p.copy() : func(t + 0, p[0], 0, 0, 0, 0) - p[1] * math.cos(p[3]))
+			tmp = p.copy().tolist()
+			tmp.append(ante_impact_force)
+			tmp.append(time_shift)
+			result.append(tmp)#lambda t, p=p.copy() : func(t, p[0], 0, 0, 0, 0) - p[1] * math.cos(p[3]))
 		
 		for k in range(len(force_data)):
 			fitted_force = []
@@ -74,7 +77,8 @@ class ForceExtender(Extender):
 			
 			for j in range(len(trajectory[0].value[0])):
 				force_func = linear_force_functions[j]
-				value.append(force_func(np.array([t]))[0])
+				a, A, gamma, phi, omega, f_min, time_shift = force_func
+				value.append(fitting_func([t + time_shift + trajectory_handle.phase_time_shifts[phase]], a, 0, 0, 0, 0, f_min)[0] - A * math.cos(phi))
 				
 			result.append(DataPoint(t, [value]))
 		
@@ -95,7 +99,7 @@ class ForceExtender(Extender):
 		
 		return trajectory
 		
-def fitting_func(t, a, A, gamma, omega, phi, v_min):
+def fitting_func(t, a, A, gamma, omega, phi, f_min):
 	result = []
 	if not isinstance(t, (np.ndarray, np.generic)):
 		if isinstance(t, list):
@@ -104,6 +108,6 @@ def fitting_func(t, a, A, gamma, omega, phi, v_min):
 			t = np.array([t])
 
 	for timestamp in t:
-		result.append(v_min + a*timestamp + A*(math.exp(gamma * timestamp) * math.cos(omega*timestamp + phi) - math.cos(phi)))
+		result.append(f_min + a*timestamp + A*(math.exp(gamma * timestamp) * math.cos(omega*timestamp + phi) - math.cos(phi)))
 	return np.array(result)
 	
