@@ -7,27 +7,16 @@ from .config_plot_figures import *
 
 # Files with demonstrations
 demos = [
-	'data/demo12.bag',
-	'data/demo13.bag',
-	'data/demo14.bag',
-	'data/demo15.bag',
-	'data/demo16.bag',
-	'data/demo18.bag',
-	'data/demo19.bag',
-	'data/demo20.bag',
-	'data/demo21.bag',
-	'data/demo22.bag',
-	'data/demo23.bag'
 ]
 
 baseline = [
 	'data/replay1.bag',
 	'data/replay2.bag',
-	'data/replay3.bag'
+	'data/replay3.bag',
+	'data/replay4.bag'
 ]
 
 executions = [
-	'data/replay4.bag',
 	'data/replay5.bag',
 	'data/replay6.bag',
 	'data/replay7.bag',
@@ -38,6 +27,19 @@ executions = [
 	'data/replay12.bag',
 	'data/replay13.bag',
 	'data/replay14.bag',
-	'data/replay15.bag'
+	'data/replay15.bag',
+	'data/replay16.bag',
+	'data/replay17.bag',
+	'data/replay18.bag',
+	'data/replay19.bag',
+	'data/replay20.bag',
+	'data/replay21.bag',
+	'data/replay22.bag',
+	'data/replay23.bag',
+	'data/replay24.bag',
+	'data/replay25.bag',
+	'data/replay26.bag',
+	'data/replay27.bag',
+	'data/replay28.bag'
 ]
 

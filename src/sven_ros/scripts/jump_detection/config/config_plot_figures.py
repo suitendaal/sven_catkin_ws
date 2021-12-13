@@ -10,7 +10,8 @@ markersize2 = 6
 markersize3 = 2.5
 fontsize1 = 20
 fontsize2 = 16
+alpha = 0.5
 # Full trajectory
 #xlim = None
-labels = ['X','Y','Z','\\phi$','\\theta','\\psi']
+labels = ['X','Y','Z','$\\phi$','$\\theta$','$\\psi$']
 
