@@ -76,7 +76,7 @@ protected:
 		if (in_interim_phase_) {
 			// Take effort from next phase
 			int index = phase_trajectory_times_[current_phase_+1].size() - 1;
-			for (int i = current_index_ + 1; i < phase_trajectory_times_[current_phase_+1].size(); i++) {
+			for (int i = 1; i < phase_trajectory_times_[current_phase_+1].size(); i++) {
 				if (time < phase_trajectory_times_[current_phase_+1][i]) {
 					index = i - 1;
 					break;

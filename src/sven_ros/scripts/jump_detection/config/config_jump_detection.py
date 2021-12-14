@@ -55,8 +55,8 @@ xlim = None
 #fontsize1 = 20
 #fontsize2 = 16
 ## Full trajectory
-#xlim = [-0.2, 0.2]
-xlim = [
+xlim = [-0.2, 0.2]
+#xlim = [
 #	xlim[0],
 #	None,
 #	None

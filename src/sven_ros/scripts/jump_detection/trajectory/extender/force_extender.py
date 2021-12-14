@@ -72,13 +72,19 @@ class ForceExtender(Extender):
 		starting_time = trajectory[0].time
 		linear_force_functions, force_data, fitted_force_data, fitted_linear_force_data = self.calc_post_impact_force(phase, trajectory_handle)
 		
+		last_value = fitted_linear_force_data[-1].value
+		
 		for t in times:
 			value = []
 			
 			for j in range(len(trajectory[0].value[0])):
 				force_func = linear_force_functions[j]
 				a, A, gamma, phi, omega, f_min, time_shift = force_func
-				value.append(fitting_func([t + time_shift + trajectory_handle.phase_time_shifts[phase]], a, 0, 0, 0, 0, f_min)[0] - A * math.cos(phi))
+				tmp = fitting_func([t + time_shift + trajectory_handle.phase_time_shifts[phase]], a, 0, 0, 0, 0, f_min)[0] - A * math.cos(phi)
+				if last_value[j] > 0:
+					value.append(max(tmp, 0))
+				else:
+					value.append(min(tmp, 0))
 				
 			result.append(DataPoint(t, [value]))
 		

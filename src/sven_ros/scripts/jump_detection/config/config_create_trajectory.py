@@ -8,18 +8,22 @@ from .config_plot_figures import *
 
 # Files with demonstrations
 demos = [
-	'data/demo12.bag',
-	'data/demo13.bag',
-	'data/demo14.bag',
-	'data/demo15.bag',
-	'data/demo16.bag',
-	'data/demo18.bag',
-	'data/demo19.bag',
-	'data/demo20.bag',
-	'data/demo21.bag',
-	'data/demo22.bag',
-	'data/demo23.bag'
+	'data/demo12.bag'
 ]
+
+#demos = [
+#	'data/demo12.bag',
+#	'data/demo13.bag',
+#	'data/demo14.bag',
+#	'data/demo15.bag',
+#	'data/demo16.bag',
+#	'data/demo18.bag',
+#	'data/demo19.bag',
+#	'data/demo20.bag',
+#	'data/demo21.bag',
+#	'data/demo22.bag',
+#	'data/demo23.bag'
+#]
 
 impact_intervals = [
 	[(1668,1822,)],
@@ -69,7 +73,7 @@ frequency, timespan = 500, 2.0
 position_extender = ConstantVelocityExtender(frequency, impact_duration, timespan) #ConstantVelocityExtender(timesteps=0.2*500, delta_time=1/500)
 orientation_extender = Extender(frequency, impact_duration, timespan)
 force_extender = ForceExtender(frequency, impact_duration, timespan)
-torque_extender = ForceExtender(frequency, impact_duration, timespan)
+torque_extender = ConstantForceExtender(frequency, impact_duration, timespan)
 
 ### Create reference output settings
 
