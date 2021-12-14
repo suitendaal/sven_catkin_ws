@@ -46,6 +46,7 @@ pickle_figs = False
 save_figs_location = 'figures/detect_jumps'
 
 ## Figure settings
+xlim = None
 #figsize = (16, 12)
 #dpi = 80
 #linewidth = 1
@@ -54,8 +55,8 @@ save_figs_location = 'figures/detect_jumps'
 #fontsize1 = 20
 #fontsize2 = 16
 ## Full trajectory
-xlim = [-0.2, 0.2]
-#xlim = [
+#xlim = [-0.2, 0.2]
+xlim = [
 #	xlim[0],
 #	None,
 #	None

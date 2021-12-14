@@ -43,3 +43,7 @@ executions = [
 	'data/replay28.bag'
 ]
 
+### Output file
+output_plot_all = 'figures_git/all_evaluations.pdf'
+output_plot_all_zoom = 'figures_git/all_evaluations_zoom.pdf'
+
