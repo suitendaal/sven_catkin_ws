@@ -6,7 +6,7 @@ config:
     use_acceleration_feedforward: false
     use_effort_feedforward: [
       false,
-      false
+      true
     ]
     stiffness_type: 0
     use_torque_saturation: true
