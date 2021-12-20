@@ -17,36 +17,50 @@ baseline = [
 ]
 
 executions = [
-	'data/replay_test.bag',
-	'data/replay_test2.bag'
+	'data/replay7.bag',
+	'data/replay8.bag',
+	'data/replay9.bag',
+	'data/replay10.bag',
+	'data/replay11.bag',
+	'data/replay12.bag',
+	'data/replay13.bag',
+	'data/replay14.bag',
+	'data/replay15.bag',
+	'data/replay16.bag',
+	'data/replay17.bag',
+	'data/replay18.bag',
+	'data/replay19.bag',
+	'data/replay20.bag',
+	'data/replay21.bag',
+	'data/replay22.bag',
+	'data/replay23.bag',
+	'data/replay25.bag',
+	'data/replay27.bag',
+	'data/replay28.bag'
 ]
 
-#executions = [
-#	'data/replay5.bag',
-#	'data/replay6.bag',
-#	'data/replay7.bag',
-#	'data/replay8.bag',
-#	'data/replay9.bag',
-#	'data/replay10.bag',
-#	'data/replay11.bag',
-#	'data/replay12.bag',
-#	'data/replay13.bag',
-#	'data/replay14.bag',
-#	'data/replay15.bag',
-#	'data/replay16.bag',
-#	'data/replay17.bag',
-#	'data/replay18.bag',
-#	'data/replay19.bag',
-#	'data/replay20.bag',
-#	'data/replay21.bag',
-#	'data/replay22.bag',
-#	'data/replay23.bag',
-#	'data/replay24.bag',
-#	'data/replay25.bag',
-#	'data/replay26.bag',
-#	'data/replay27.bag',
-#	'data/replay28.bag'
-#]
+titles = [
+	'Experiment A',
+	'Experiment C',
+	'Experiment B',
+	'Experiment D',
+	'Experiment I',
+	'Experiment K',
+	'Experiment J',
+	'Experiment L',
+	'Experiment Q',
+	'Experiment S',
+	'Experiment R',
+	'Experiment T',
+	'Experiment E',
+	'Experiment G',
+	'Experiment F',
+	'Experiment H',
+	'Experiment M',
+	'Experiment N',
+	'Experiment U',
+	'Experiment W'
+]
 
 ### Output file
 output_plot_all = 'figures_git/all_evaluations.pdf'

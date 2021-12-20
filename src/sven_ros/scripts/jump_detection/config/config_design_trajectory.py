@@ -8,7 +8,7 @@ from .config_plot_figures import *
 frequency = 100
 designer = TrajectoryDesigner(frequency)
 
-from .trajectories.trajectory3 import via_points
+from .trajectories.trajectory4 import via_points
 
 #### Output settings
 
