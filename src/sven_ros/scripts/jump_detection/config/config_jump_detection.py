@@ -6,32 +6,32 @@ from .config_plot_figures import *
 ### Load data
 
 # Files with demonstrations
+demos = [
+	'data/demo6.bag',
+	'data/demo7.bag',
+	'data/demo8.bag',
+	'data/demo9.bag',
+	'data/demo0.bag',
+	'data/demo11.bag',
+	'data/demo12.bag',
+	'data/demo13.bag',
+	'data/demo14.bag',
+	'data/demo15.bag',
+	'data/demo16.bag',
+	'data/demo17.bag',
+	'data/demo18.bag',
+	'data/demo19.bag',
+	'data/demo20.bag'
+]
+
 #demos = [
 #	'data/demo2.bag',
-#	'data/demo3.bag',
-#	'data/demo4.bag',
 #	'data/demo5.bag',
-#	'data/demo6.bag',
-#	'data/demo7.bag',
 #	'data/demo8.bag',
 #	'data/demo9.bag',
 #	'data/demo10.bag',
-#	'data/demo11.bag',
-#	'data/demo12.bag',
-#	'data/demo13.bag',
-#	'data/demo14.bag',
-#	'data/demo15.bag',
-#	'data/demo16.bag'
+#	'data/demo15.bag'
 #]
-
-demos = [
-	'data/demo2.bag',
-	'data/demo5.bag',
-	'data/demo8.bag',
-	'data/demo9.bag',
-	'data/demo10.bag',
-	'data/demo15.bag'
-]
 
 ### Jump detector
 #predictor = LeastSquaresFilter(order=2)
