@@ -7,21 +7,25 @@ from .config_plot_figures import *
 
 # Files with demonstrations
 demos = [
-	'data/demo6.bag',
-	'data/demo7.bag',
-	'data/demo8.bag',
-	'data/demo9.bag',
-	'data/demo0.bag',
-	'data/demo11.bag',
-	'data/demo12.bag',
-	'data/demo13.bag',
-	'data/demo14.bag',
-	'data/demo15.bag',
-	'data/demo16.bag',
-	'data/demo17.bag',
-	'data/demo18.bag',
-	'data/demo19.bag',
-	'data/demo20.bag'
+#	'data/demo6.bag',
+#	'data/demo7.bag',
+#	'data/demo8.bag',
+#	'data/demo9.bag',
+#	'data/demo10.bag',
+#	'data/demo11.bag',
+#	'data/demo12.bag',
+#	'data/demo13.bag',
+#	'data/demo14.bag',
+#	'data/demo15.bag',
+#	'data/demo16.bag',
+#	'data/demo17.bag',
+#	'data/demo18.bag',
+#	'data/demo19.bag',
+#	'data/demo20.bag',
+	'data/demo21.bag',
+	'data/demo22.bag',
+	'data/demo23.bag',
+	'data/demo24.bag'
 ]
 
 #demos = [
@@ -40,7 +44,7 @@ demos = [
 #bounder = NumericalBounder(bound=bound)# ConstantBounder(bound=0.5)
 #jump_detector = JumpAwareExternalForceFilter(predictor, bounder, max_window_length=14)
 predictor = MultiForceDerivativePredictor(time_window=0.1)
-bounder = ForceDerivativeBounder(bound=2.8 / 0.002)#0.8 / 0.001)
+bounder = ForceDerivativeBounder(bound=5000)#2.8 / 0.002)#0.8 / 0.001)
 jump_detector = MultiExternalForceJumpAwareFilter(predictor, bounder, max_window_length=2)
 	
 ### Detect Jumps output settings
