@@ -7,25 +7,43 @@ from .config_plot_figures import *
 
 # Files with demonstrations
 demos = [
-#	'data/demo6.bag',
-#	'data/demo7.bag',
-#	'data/demo8.bag',
-#	'data/demo9.bag',
-#	'data/demo10.bag',
-#	'data/demo11.bag',
-#	'data/demo12.bag',
-#	'data/demo13.bag',
-#	'data/demo14.bag',
-#	'data/demo15.bag',
-#	'data/demo16.bag',
-#	'data/demo17.bag',
-#	'data/demo18.bag',
-#	'data/demo19.bag',
-#	'data/demo20.bag',
-	'data/demo21.bag',
-	'data/demo22.bag',
-	'data/demo23.bag',
-	'data/demo24.bag'
+#	'data/demo25.bag',
+	'data/demo26.bag',
+	'data/demo27.bag',
+	'data/demo28.bag',
+	'data/demo29.bag',
+#	'data/demo30.bag',
+#	'data/demo31.bag',
+#	'data/demo32.bag',
+#	'data/demo33.bag',
+	'data/demo34.bag',
+#	'data/demo35.bag',
+	'data/demo36.bag',
+	'data/demo37.bag',
+#	'data/demo38.bag',
+#	'data/demo39.bag',
+#	'data/demo40.bag',
+#	'data/demo41.bag'
+]
+
+demos = [
+#	'data/demo25.bag',
+	'data/demo26.bag',
+	'data/demo27.bag',
+	'data/demo28.bag',
+	'data/demo29.bag',
+	'data/demo30.bag',
+#	'data/demo31.bag',
+	'data/demo32.bag',
+#	'data/demo33.bag',
+	'data/demo34.bag',
+	'data/demo35.bag',
+	'data/demo36.bag',
+	'data/demo37.bag',
+#	'data/demo38.bag',
+	'data/demo39.bag',
+#	'data/demo40.bag',
+	'data/demo41.bag'
 ]
 
 #demos = [
@@ -37,15 +55,21 @@ demos = [
 #	'data/demo15.bag'
 #]
 
+demos = [
+	'data/replay1.bag',
+	'data/replay2.bag',
+	'data/replay3.bag'
+]
+
 ### Jump detector
 #predictor = LeastSquaresFilter(order=2)
 #tmp = 0.55#1.12#0.55#1.12
 #bound = [tmp/2 / 0.001**3, 0, 0, tmp/2]#[tmp/2 / 0.001**2, 0, tmp/2] #[tmp/2 / 0.001**4, 0, 0, 0, tmp/2]#[tmp/2 / 0.001**2, 0, tmp/2]#[tmp/2 / 0.001**3, 0, 0, tmp/2] #[tmp / 0.001**2, 0, 0] #[tmp/2 / 0.001**2, 0, tmp/2] #[tmp/3 / 0.001**2, tmp/3 / 0.001, tmp/3] #[500000, 0, 0]
 #bounder = NumericalBounder(bound=bound)# ConstantBounder(bound=0.5)
 #jump_detector = JumpAwareExternalForceFilter(predictor, bounder, max_window_length=14)
-predictor = MultiForceDerivativePredictor(time_window=0.1)
-bounder = ForceDerivativeBounder(bound=5000)#2.8 / 0.002)#0.8 / 0.001)
-jump_detector = MultiExternalForceJumpAwareFilter(predictor, bounder, max_window_length=2)
+predictor = MultiForceDerivativePredictor(time_window=0.04)
+bounder = ForceDerivativeBounder(bound=3.4 / 0.002)#2.8 / 0.002)#0.8 / 0.001)
+jump_detector = MultiExternalForceJumpAwareFilter(predictor, bounder, max_window_length=10)
 	
 ### Detect Jumps output settings
 

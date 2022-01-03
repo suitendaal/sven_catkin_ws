@@ -8,15 +8,48 @@ from .config_plot_figures import *
 
 # Files with demonstrations
 demos = [
-	'data/demo12.bag'
+	'data/demo26.bag',
+	'data/demo27.bag',
+	'data/demo28.bag',
+	'data/demo29.bag',
+	'data/demo30.bag',
+	'data/demo32.bag',
+	'data/demo34.bag',
+	'data/demo35.bag',
+	'data/demo36.bag',
+	'data/demo37.bag',
+	'data/demo39.bag',
+	'data/demo41.bag'
 ]
 
 impact_intervals = [
-	[(1668,1822,)]
+	[(1582,)],
+	[(1489,)],
+	[(1545,)],
+	[(1642,)],
+	[(1824,1879,)],
+	[(1691,)],
+	[(1641,)],
+	[(1683,)],
+	[(1743,1769,)],
+	[(1805,1854,)],
+	[(1816,)],
+	[(1699,)]
 ]
 
 impact_detection_delays = [
-	[5,2]
+	[6],
+	[9],
+	[4],
+	[6],
+	[4,7],
+	[5],
+	[3],
+	[5],
+	[3,4],
+	[5,5],
+	[7],
+	[8]
 ]
 
 #demos = [
@@ -65,8 +98,8 @@ rotational_velocity_filter = None #LeastSquaresFilter(order=2, window_length=20)
 frequency, timespan = 500, 2.0
 position_extender = ConstantVelocityExtender(frequency, impact_duration, timespan) #ConstantVelocityExtender(timesteps=0.2*500, delta_time=1/500)
 orientation_extender = Extender(frequency, impact_duration, timespan)
-force_extender = ConstantForceExtender2(frequency, impact_duration, timespan)
-torque_extender = ConstantForceExtender2(frequency, impact_duration, timespan)
+force_extender = ConstantForceExtender3(frequency, impact_duration, timespan)
+torque_extender = ConstantForceExtender3(frequency, impact_duration, timespan)
 
 ### Create reference output settings
 

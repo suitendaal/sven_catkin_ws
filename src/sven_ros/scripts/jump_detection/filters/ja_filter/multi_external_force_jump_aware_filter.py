@@ -16,11 +16,13 @@ class MultiExternalForceJumpAwareFilter(MultiJumpAwareFilter):
 	def update(self, datapoint):
 		# Detect jumps
 		jump_detected, info = self.detect_jump(datapoint)
+		result = (jump_detected and (datapoint.mag.value - PositionDataPoint.from_datapoint(info[0]).mag.value) > 0)
 		info.append(self.window_length)
 		info.append(jump_detected)
 		
 		# Update window_length
-		if jump_detected:
+#		if jump_detected:
+		if result:
 			self.window_length = 0
 			self.predictor.reset()
 			self.bounder.reset()
@@ -34,5 +36,5 @@ class MultiExternalForceJumpAwareFilter(MultiJumpAwareFilter):
 			self.data.append(datapoint)
 			
 		# Return result
-		return (jump_detected and (datapoint - PositionDataPoint.from_datapoint(info[0])).mag > 0), info
+		return result, info
 
