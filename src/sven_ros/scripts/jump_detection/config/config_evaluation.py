@@ -17,30 +17,37 @@ baseline = [
 ]
 
 executions = [
-	'data/replay_test.bag'
+	'data/replay28.bag',
+	'data/replay29.bag',
+	'data/replay30.bag',
+	'data/replay31.bag',
+	'data/replay32.bag',
+	'data/replay33.bag',
+	'data/replay34.bag',
+	'data/replay35.bag',
+	'data/replay36.bag',
+	'data/replay37.bag',
+	'data/replay38.bag',
+	'data/replay39.bag',
+	'data/replay40.bag',
+	'data/replay41.bag'
 ]
 
 titles = [
-	'Experiment A',
-#	'Experiment C',
-#	'Experiment B',
-#	'Experiment D',
-#	'Experiment I',
-#	'Experiment K',
-#	'Experiment J',
-#	'Experiment L',
-#	'Experiment Q',
-#	'Experiment S',
-#	'Experiment R',
-#	'Experiment T',
-#	'Experiment E',
-#	'Experiment G',
-#	'Experiment F',
-#	'Experiment H',
-#	'Experiment M',
-#	'Experiment N',
-#	'Experiment U',
-#	'Experiment W'
+	'data/replay28.bag',
+	'data/replay29.bag',
+	'data/replay30.bag',
+	'data/replay31.bag',
+	'data/replay32.bag',
+	'data/replay33.bag',
+	'data/replay34.bag',
+	'data/replay35.bag',
+	'data/replay36.bag',
+	'data/replay37.bag',
+	'data/replay38.bag',
+	'data/replay39.bag',
+	'data/replay40.bag',
+	'data/replay41.bag'
 ]
 
 ### Output file
