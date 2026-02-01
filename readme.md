@@ -21,6 +21,7 @@ The core implementation can be found in the package `sven_ros`.
 
 ## Repository structure
 `sven_ros/`: ROS package containing the controllers, pipeline and impact detector.
+
 `scripts/`: Helper scripts for connecting to the robot and launching ROS nodes.
 
 ## Important note on reproducibility
